@@ -7,25 +7,21 @@ import GraphInfoPanel from "../../components/graphInfo/GraphInfoPanel.jsx";
 import "./ActionInterfacePage.css";
 
 const ActionInterfacePage = () => {
-    // Data states
     const [graphs, setGraphs] = useState(null);
     const [actions, setActions] = useState(null);
     const [runtimeEnabled, setRuntimeEnabled] = useState(false);
     
-    // Track active IDs for visual selection in panels
     const [activeGraphId, setActiveGraphId] = useState(null);
     const [activeActionId, setActiveActionId] = useState(null);
     const [activeNodeId, setActiveNodeId] = useState(null);
 
-    // Selection state - for info panel only
     const [selectedElement, setSelectedElement] = useState({
-        type: null, // 'graph', 'node', 'action'
+        type: null,
         data: null
     });
     
     const [isNewAction, setIsNewAction] = useState(false);
     
-    // Only keep refs that are truly necessary
     const nodeEditorRef = useRef();
     const graphListRef = useRef();
     const actionListRef = useRef();
@@ -297,7 +293,6 @@ const ActionInterfacePage = () => {
         };
     }, []);
 
-    // Update the rendered graph when the state changes
     useEffect(() => {
         if (graphs && graphs.length > 0 && !activeGraphId) {
             const firstGraph = graphs[0];

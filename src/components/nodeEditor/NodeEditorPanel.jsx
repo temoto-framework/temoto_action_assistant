@@ -110,10 +110,10 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
   const flowToJson = useCallback(() => {
     console.log("flowToJson: ", activeGraph.graph_name)
 
+    // Start with all existing fields from activeGraph
     let activeGraphUpdated = {
-        graph_name: activeGraph.graph_name,
-        graph_description: activeGraph.graph_description,
-        actions: []
+        ...activeGraph,  // Preserve all existing fields
+        actions: []      // Reset actions array as it will be rebuilt
     };
 
     if (activeGraph.graph_state){
