@@ -1,6 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./DisplayPanel.css";
 import { io } from "socket.io-client";
+
+// Helper function to generate a client ID
+function generateClientId() {
+  const newClientId = 'display_' + Math.random().toString(36).substring(2, 15);
+  localStorage.setItem('displayPanelClientId', newClientId);
+  return newClientId;
+}
 
 const DisplayPanel = () => {
   const [socket, setSocket] = useState(null);
@@ -13,12 +20,31 @@ const DisplayPanel = () => {
   const [imageErrors, setImageErrors] = useState({});
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(null);
   const [isTargetContainerCollapsed, setIsTargetContainerCollapsed] = useState(true);
+  // Using the useState initializer function to avoid unnecessary re-renders
+  const [clientId] = useState(() => localStorage.getItem('displayPanelClientId') || generateClientId());
   
   // Reference for the display content div
   const displayContentRef = useRef(null);
   
   // Server configuration
   const SERVER_URL = 'http://localhost:4000';
+  
+  // Function to refresh the display panel state - wrapped in useCallback to prevent dependency issues
+  const refreshDisplayPanel = useCallback(async () => {
+    if (!connected || !socket) return;
+    
+    try {
+      console.log(`Refreshing display panel for client ${clientId}`);
+      await fetch(`${SERVER_URL}/display_panel_page_refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+      console.log("Display panel refresh request sent");
+    } catch (error) {
+      console.error("Error refreshing display panel:", error);
+    }
+  }, [connected, socket, clientId]);
   
   // Initialize socket connection
   useEffect(() => {
@@ -39,6 +65,35 @@ const DisplayPanel = () => {
     // Clean up socket connection on component unmount
     return () => newSocket.disconnect();
   }, []);
+  
+  // Handle page refresh
+  useEffect(() => {
+    // Define a handler that calls refreshDisplayPanel
+    const onPageShow = () => {
+      console.log("Page show event detected");
+      if (connected && socket) {
+        refreshDisplayPanel();
+      } else {
+        console.log("Not connected yet, cannot refresh");
+        // Try again in a second if we're not connected
+        setTimeout(() => {
+          if (connected && socket) {
+            refreshDisplayPanel();
+          }
+        }, 1000);
+      }
+    };
+
+    // Listen for the 'pageshow' event (fires on load/reload)
+    window.addEventListener("pageshow", onPageShow);
+    // Listen for 'popstate' to capture back/forward navigation
+    window.addEventListener("popstate", onPageShow);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      window.removeEventListener("popstate", onPageShow);
+    };
+  }, [connected, socket, refreshDisplayPanel]);
   
   // Setup event listeners when socket is connected
   useEffect(() => {
@@ -68,6 +123,9 @@ const DisplayPanel = () => {
       refreshImageSrc(data.target, data.name);
     });
     
+    // Run refresh once connected
+    refreshDisplayPanel();
+    
     // Set up polling for available feeds
     const intervalId = setInterval(() => {
       socket.emit('display_get_feeds');
@@ -81,7 +139,62 @@ const DisplayPanel = () => {
       socket.off('image_updated');
       clearInterval(intervalId);
     };
-  }, [socket, connected]);
+  }, [socket, connected, refreshDisplayPanel]);
+  
+  // Handle saved subscriptions from server
+  useEffect(() => {
+    if (!socket || !connected) return;
+
+    socket.on('display_saved_subscriptions', (subscriptions) => {
+      console.log('Received saved subscriptions:', subscriptions);
+      
+      if (!subscriptions || subscriptions.length === 0) {
+        console.log('No saved subscriptions found');
+        return;
+      }
+      
+      // Process each saved subscription
+      setSelectedImages(prevSelectedImages => {
+        const newSelectedImages = [...prevSelectedImages];
+        
+        subscriptions.forEach(subscription => {
+          const { target, name } = subscription;
+          
+          // Check if already in array
+          const existingIndex = newSelectedImages.findIndex(img => 
+            img.targetId === target && img.imageName === name
+          );
+          
+          if (existingIndex === -1) {
+            console.log(`Restoring saved image: ${target}/${name}`);
+            newSelectedImages.push({ targetId: target, imageName: name });
+            
+            // Reset the refresh timestamp to trigger a new image load
+            refreshImageSrc(target, name);
+          }
+        });
+        
+        return newSelectedImages;
+      });
+      
+      // If we have images and no fullscreen image is set, set the first one as fullscreen
+      setFullScreenImageIndex(prevIndex => {
+        if (prevIndex === null && (selectedImages.length > 0 || subscriptions.length > 0)) {
+          return 0;
+        }
+        return prevIndex;
+      });
+      
+      // Set active target if we have subscriptions and no active target
+      if (subscriptions.length > 0 && !activeTarget) {
+        setActiveTarget(subscriptions[0].target);
+      }
+    });
+
+    return () => {
+      socket.off('display_saved_subscriptions');
+    };
+  }, [socket, connected, selectedImages, fullScreenImageIndex, activeTarget]);
   
   // Function to refresh an image's timestamp
   const refreshImageSrc = (targetId, imageName) => {
@@ -121,7 +234,11 @@ const DisplayPanel = () => {
       
       // Unsubscribe from the feed
       if (socket && connected) {
-        socket.emit('display_unsubscribe_from_image', { target: targetId, name: imageName });
+        socket.emit('display_unsubscribe_from_image', { 
+          target: targetId, 
+          name: imageName,
+          client_id: clientId 
+        });
         console.log(`Unsubscribed from ${targetId}/${imageName}`);
       }
     } else if (imageName) {
@@ -142,7 +259,11 @@ const DisplayPanel = () => {
       // Subscribe to the feed
       if (socket && connected) {
         console.log(`Subscribing to ${targetId}/${imageName}`);
-        socket.emit('display_subscribe_to_image', { target: targetId, name: imageName });
+        socket.emit('display_subscribe_to_image', { 
+          target: targetId, 
+          name: imageName,
+          client_id: clientId 
+        });
         
         // Reset the refresh timestamp to trigger a new image load
         refreshImageSrc(targetId, imageName);
@@ -212,7 +333,11 @@ const DisplayPanel = () => {
     
     // Re-subscribe to the feed
     if (socket && connected) {
-      socket.emit('display_subscribe_to_image', { target: selection.targetId, name: selection.imageName });
+      socket.emit('display_subscribe_to_image', { 
+        target: selection.targetId, 
+        name: selection.imageName,
+        client_id: clientId 
+      });
     }
     
     // Reset error state and refresh timestamp

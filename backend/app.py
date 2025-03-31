@@ -223,7 +223,39 @@ def umrf_store_feedback_data(actor,graph):
 image_lock = threading.Lock()
 display_images = {}  # Format: {"target1": {"name1": image_data, "name2": image_data, ...}, "target2": {...}}
 active_subscriptions = set()
+display_subscriptions = {}  # Format: {"client_id": [{"target": "target1", "name": "name1"}, ...]}
 
+
+@app.route('/display_panel_page_refresh', methods=['POST'])
+def display_panel_page_refresh():
+    """Send saved display subscriptions to the client on page refresh"""
+    client_id = request.json.get('client_id')
+    
+    if not client_id:
+        return jsonify({"error": "Missing client_id"}), 400
+    
+    print(f"Display panel refresh request from client {client_id}")
+    
+    # If we have subscriptions for this client, emit them
+    if client_id in display_subscriptions:
+        print(f"Found {len(display_subscriptions[client_id])} saved subscriptions for client {client_id}")
+        socketio.emit('display_saved_subscriptions', display_subscriptions[client_id])
+        
+        # Re-subscribe to all topics for this client if runtime is enabled
+        if runtime_enabled and ri_node:
+            for subscription in display_subscriptions[client_id]:
+                target = subscription['target']
+                name = subscription['name']
+                topic = f"/webapp/display_feed/{target}/{name}"
+                
+                if topic not in active_subscriptions:
+                    active_subscriptions.add(topic)
+                    ri_node.display_subscribe_to_topic(topic, target, name)
+                    print(f"Re-subscribed to {topic} for client {client_id}")
+    else:
+        print(f"No saved subscriptions found for client {client_id}")
+    
+    return jsonify({"message": "Display panel refreshed"}), 200
 
 def display_feed_callback(target, name, image_data):
     """Callback to handle image data from ROS"""
@@ -310,12 +342,33 @@ def handle_subscribe_to_image(data):
     
     target = data.get('target')
     name = data.get('name')
+    client_id = data.get('client_id')
     
     if not target or not name:
         print("ERROR: Missing target or name in subscription request")
         return
     
     print(f"DEBUG: Received subscription request for {target}/{name}")
+    
+    # Store subscription for this client if client_id provided
+    if client_id:
+        if client_id not in display_subscriptions:
+            display_subscriptions[client_id] = []
+        
+        # Check if subscription already exists for this client
+        subscription_exists = False
+        for subscription in display_subscriptions[client_id]:
+            if subscription['target'] == target and subscription['name'] == name:
+                subscription_exists = True
+                break
+        
+        # Add subscription if it doesn't exist
+        if not subscription_exists:
+            display_subscriptions[client_id].append({
+                'target': target,
+                'name': name
+            })
+            print(f"Added subscription {target}/{name} for client {client_id}")
     
     topic = f"/webapp/display_feed/{target}/{name}"
     if topic not in active_subscriptions:
@@ -326,6 +379,7 @@ def handle_subscribe_to_image(data):
     else:
         print(f"DEBUG: Already subscribed to {topic}")
 
+
 @socketio.on('display_unsubscribe_from_image')
 def handle_unsubscribe_from_image(data):
     """Unsubscribe from a specific image feed"""
@@ -334,15 +388,39 @@ def handle_unsubscribe_from_image(data):
     
     target = data.get('target')
     name = data.get('name')
+    client_id = data.get('client_id')
     
     if not target or not name:
         return
     
-    topic = f"/webapp/display_feed/{target}/{name}"
-    if topic in active_subscriptions:
-        active_subscriptions.remove(topic)
-        ri_node.display_unsubscribe_from_topic(topic)
-
+    # Remove from saved subscriptions if client_id is provided
+    if client_id and client_id in display_subscriptions:
+        display_subscriptions[client_id] = [
+            sub for sub in display_subscriptions[client_id] 
+            if not (sub['target'] == target and sub['name'] == name)
+        ]
+        print(f"Removed subscription {target}/{name} for client {client_id}")
+    
+    # Only unsubscribe if no other clients need this feed
+    should_unsubscribe = True
+    for client, subscriptions in display_subscriptions.items():
+        if client != client_id:  # Check other clients
+            for sub in subscriptions:
+                if sub['target'] == target and sub['name'] == name:
+                    should_unsubscribe = False
+                    break
+            if not should_unsubscribe:
+                break
+    
+    if should_unsubscribe:
+        topic = f"/webapp/display_feed/{target}/{name}"
+        if topic in active_subscriptions:
+            active_subscriptions.remove(topic)
+            ri_node.display_unsubscribe_from_topic(topic)
+            print(f"Unsubscribed from {topic}")
+    else:
+        print(f"Not unsubscribing from {target}/{name} as other clients are still subscribed")
+        
 @app.route('/api/images/<target>/<name>', methods=['GET'])
 def get_image(target, name):
     """Serve images for the display panel"""
