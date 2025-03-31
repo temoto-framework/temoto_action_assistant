@@ -175,8 +175,13 @@ const ActionInterfacePage = () => {
             graph_description: "Newly created graph",
             graph_entry: [],
             graph_exit: [],
-            actions: []
+            actions: [],
+            gui_attributes: {
+                status: 'draft'
+            }
         };
+
+        console.log("starting newGraph: ", newGraph);
 
         try {
             const response = await fetch('http://localhost:4000/api/graphs', {
@@ -186,6 +191,8 @@ const ActionInterfacePage = () => {
                 },
                 body: JSON.stringify(newGraph)
             });
+
+            console.log("response: ", response);
 
             if (!response.ok) {
                 throw new Error('Failed to create graph in backend');
@@ -210,10 +217,11 @@ const ActionInterfacePage = () => {
     const handleNewAction = () => {
         const newAction = {
             name: `NewAction_${Date.now()}`,
+            type: "sync",
             description: "Newly created action",
             input_parameters: {},
             gui_attributes: {
-                status: 'draft'  // Move status to gui_attributes
+                status: 'draft' 
             }
         };
 
@@ -223,34 +231,6 @@ const ActionInterfacePage = () => {
             type: 'action',
             data: newAction
         });
-    };
-
-    const handleActionGenerated = () => {
-        if (selectedElement.type === 'action' && 
-            selectedElement.data.gui_attributes?.status === 'draft') {
-            // Ensure the generated action has the correct status in gui_attributes
-            const updatedAction = {
-                ...selectedElement.data,
-                gui_attributes: {
-                    ...selectedElement.data.gui_attributes,
-                    status: 'package' // Mark as generated
-                }
-            };
-            
-            // Update the actions list by replacing the draft action with the generated one
-            const updatedActions = actions.map(action => 
-                action.name === updatedAction.name ? updatedAction : action
-            );
-            
-            setActions(updatedActions);
-            setActiveActionId(updatedAction.name);
-            
-            // Update the selected element
-            setSelectedElement({
-                type: 'action',
-                data: updatedAction
-            });
-        }
     };
 
     const handleActionUpdated = (updatedAction) => {
@@ -269,6 +249,42 @@ const ActionInterfacePage = () => {
             type: 'action',
             data: updatedAction
         });
+    };
+
+    const handleGenerateAction = async (actionData, editedName) => {
+        try {
+            const actionToGenerate = {
+                ...actionData,
+                name: editedName,
+                gui_attributes: {
+                    ...actionData.gui_attributes,
+                    status: 'package'
+                }
+            };
+
+            const response = await fetch('http://localhost:4000/api/generate-action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(actionToGenerate)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate action');
+            }
+
+            const result = await response.json();
+            
+            // Update other state after actions are updated
+            setActiveActionId(actionToGenerate.name);
+            setSelectedElement({
+                type: 'action',
+                data: actionToGenerate
+            });
+        } catch (error) {
+            console.error('Error generating action:', error);
+        }
     };
 
     useEffect(() => {
@@ -354,9 +370,8 @@ const ActionInterfacePage = () => {
             <div className="graph-info-panel">
                 <GraphInfoPanel
                     selectedElement={selectedElement}
-                    isNewAction={isNewAction}
-                    onActionGenerated={handleActionGenerated}
                     onActionUpdated={handleActionUpdated}
+                    onGenerateAction={handleGenerateAction}
                 />
             </div>
         </div>

@@ -1,0 +1,14 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
+{% for struct in structs -%}
+struct {{ struct.name }}
+{
+  {% for field_type, field_name in struct.fields %}
+  {{ field_type }} {{ field_name }};
+  {% endfor %}
+};
+
+{% endfor %}

@@ -1,0 +1,9 @@
+{
+    "name": "NewAction_1742981612626",
+    "type": "sync",
+    "description": "Newly created action",
+    "input_parameters": {},
+    "gui_attributes": {
+        "status": "package"
+    }
+}

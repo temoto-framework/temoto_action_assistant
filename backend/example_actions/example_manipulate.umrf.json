@@ -1,0 +1,23 @@
+{
+  "name": "ExampleManipulate",
+  "type": "sync",
+  "input_parameters": {
+    "pose": {
+      "frame_id": {"pvf_type": "string"},
+      "position": {
+        "x": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"},
+        "z": {"pvf_type": "number"}
+      },
+      "orientation": {
+        "x": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"},
+        "z": {"pvf_type": "number"},
+        "w": {"pvf_type": "number"}
+      }
+    }
+  },
+  "output_parameters": {
+    "status": {"pvf_type": "string"}
+  }
+}

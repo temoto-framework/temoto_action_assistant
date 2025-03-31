@@ -60,7 +60,7 @@ const PREDEFINED_PARAMETERS = [
   }
 ];
 
-const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated }) => {
+const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) => {
   const [actionData, setActionData] = useState({
     name: '',
     description: '',
@@ -82,6 +82,19 @@ const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated })
     if (selectedElement.type === 'action' && selectedElement.data) {
       setActionData(selectedElement.data);
       setEditedName(selectedElement.data.name);
+      setGenerationSuccess(false);
+      setIsEditingName(false);
+    } else {
+      // Reset to default state when no action is selected
+      setActionData({
+        name: '',
+        description: '',
+        input_parameters: {},
+        gui_attributes: {
+          status: ''
+        }
+      });
+      setEditedName('');
       setGenerationSuccess(false);
       setIsEditingName(false);
     }
@@ -206,51 +219,6 @@ const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated })
 
     if (onActionUpdated) {
       onActionUpdated(updatedAction);
-    }
-  };
-
-  const handleGenerateAction = async () => {
-    try {
-      // Make sure we're using the most up-to-date action data with edited name
-      const actionToGenerate = {
-        ...actionData,
-        name: editedName,
-        gui_attributes: {
-          ...actionData.gui_attributes,
-          status: 'package'
-        }
-      };
-
-      const response = await fetch('http://localhost:4000/api/generate-action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(actionToGenerate)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate action');
-      }
-
-      const result = await response.json();
-      console.log('Action generated successfully:', result);
-      setGenerationSuccess(true);
-      
-      // Ensure the result follows the new structure
-      const generatedAction = {
-        ...result,
-        gui_attributes: {
-          ...result.gui_attributes,
-          status: 'package'
-        }
-      };
-      
-      if (onActionGenerated) {
-        onActionGenerated(generatedAction);
-      }
-    } catch (error) {
-      console.error('Error generating action:', error);
     }
   };
 
@@ -477,6 +445,9 @@ const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated })
     return selectedElement.data;
   };
 
+  // Add a safety check before accessing input_parameters
+  const parameters = actionData?.input_parameters || {};
+
   return (
     <div className="graph-info-container">
       <div className="info-header">
@@ -521,9 +492,9 @@ const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated })
         {selectedElement.type === 'action' && selectedElement.data.gui_attributes?.status === 'draft' && (
           <>
             {/* Parameter List for Draft Actions */}
-            {Object.keys(actionData.input_parameters).length > 0 && (
+            {Object.keys(parameters).length > 0 && (
               <div className="current-parameters">
-                {Object.entries(actionData.input_parameters).map(([name, value]) => (
+                {Object.entries(parameters).map(([name, value]) => (
                   <div key={name} className="parameter-chip">
                     <span className="parameter-name">{name}</span>
                     <span className="parameter-value">
@@ -595,7 +566,7 @@ const GraphInfoPanel = ({ selectedElement, onActionGenerated, onActionUpdated })
        !generationSuccess && (
         <button 
           className="generate-button"
-          onClick={handleGenerateAction}
+          onClick={() => onGenerateAction(selectedElement.data, editedName)}
         >
           Generate Action
         </button>
