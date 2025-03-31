@@ -1,0 +1,217 @@
+{
+    "graph_name": "example_sequence_state",
+    "graph_description": "Three navigation actions invoked in a sequence",
+    "graph_state": "RUNNING",
+    "graph_entry": {
+        "actions": [
+            {
+                "name": "ExampleNavigate",
+                "instance_id": 0
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": -59.89876265466818,
+                "y": -155.90551181102362
+            }
+        }
+    },
+    "graph_exit": {
+        "actions": [
+            {
+                "name": "ExampleNavigate",
+                "instance_id": 2
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": 102.92463442069742,
+                "y": 239.4263217097863
+            }
+        }
+    },
+    "actions": [
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 0,
+            "type": "sync",
+            "parents": [],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": -214.28571428571428,
+                    "y": -50
+                }
+            },
+            "input_parameters": {
+                "location": {
+                    "pvf_type": "string",
+                    "pvf_value": "workshop"
+                },
+                "pose": {
+                    "frame_id": {
+                        "pvf_type": "string",
+                        "pvf_value": "map"
+                    },
+                    "position": {
+                        "x": {
+                            "pvf_type": "number",
+                            "pvf_value": 1.11
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": 2.2
+                        },
+                        "z": {
+                            "pvf_type": "number",
+                            "pvf_value": 3.3
+                        }
+                    },
+                    "orientation": {
+                        "r": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "p": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": 0.123
+                        }
+                    }
+                }
+            },
+            "state": "FINISHED"
+        },
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 1,
+            "type": "sync",
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 0
+                }
+            ],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 2
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": -183.07086614173227,
+                    "y": 73.62204724409449
+                }
+            },
+            "input_parameters": {
+                "location": {
+                    "pvf_type": "string",
+                    "pvf_value": "warehouse"
+                },
+                "pose": {
+                    "frame_id": {
+                        "pvf_type": "string",
+                        "pvf_value": "map"
+                    },
+                    "position": {
+                        "x": {
+                            "pvf_type": "number",
+                            "pvf_value": 10.1
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": 20.2
+                        },
+                        "z": {
+                            "pvf_type": "number",
+                            "pvf_value": 30.3
+                        }
+                    },
+                    "orientation": {
+                        "r": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "p": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": -3.14
+                        }
+                    }
+                }
+            },
+            "state": "RUNNING"
+        },
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 2,
+            "type": "sync",
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": -167.88526434195725,
+                    "y": 175.30933633295837
+                }
+            },
+            "input_parameters": {
+                "location": {
+                    "pvf_type": "string",
+                    "pvf_value": "lobby"
+                },
+                "pose": {
+                    "frame_id": {
+                        "pvf_type": "string",
+                        "pvf_value": "map"
+                    },
+                    "position": {
+                        "x": {
+                            "pvf_type": "number",
+                            "pvf_value": 100.1
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": 200.2
+                        },
+                        "z": {
+                            "pvf_type": "number",
+                            "pvf_value": 300.3
+                        }
+                    },
+                    "orientation": {
+                        "r": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "p": {
+                            "pvf_type": "number",
+                            "pvf_value": 0
+                        },
+                        "y": {
+                            "pvf_type": "number",
+                            "pvf_value": 1.57
+                        }
+                    }
+                }
+            },
+            "state": "INITIALIZED"
+        }
+    ]
+}

@@ -1,0 +1,79 @@
+{
+    "graph_name": "example_conditional_with_actors",
+    "graph_description": "Conditional statement",
+    "graph_entry": [
+        {
+            "name": "Evaluator",
+            "instance_id": 0
+        }
+    ],
+    "graph_exit": [],
+    "actions": [
+        {
+            "name": "Evaluator",
+            "instance_id": 0,
+            "type": "sync",
+            "parents": [],
+            "children": [
+                {
+                    "name": "Result_A",
+                    "instance_id": 0
+                },
+                {
+                    "name": "Result_B",
+                    "instance_id": 0
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 141.9180181217505,
+                    "y": -82.04600409200819
+                }
+            },
+            "input_parameters": {
+                "condition": {
+                    "pvf_type": "string"
+                }
+            },
+            "actor": "Actor_A"
+        },
+        {
+            "name": "Result_A",
+            "instance_id": 0,
+            "type": "sync",
+            "parents": [
+                {
+                    "name": "Evaluator",
+                    "instance_id": 0
+                }
+            ],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": -150,
+                    "y": 50
+                }
+            },
+            "actor": "Actor_B"
+        },
+        {
+            "name": "Result_B",
+            "instance_id": 0,
+            "type": "sync",
+            "parents": [
+                {
+                    "name": "Evaluator",
+                    "instance_id": 0
+                }
+            ],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": 150,
+                    "y": 50
+                }
+            },
+            "actor": "Actor_C"
+        }
+    ]
+}

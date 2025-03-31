@@ -30,9 +30,16 @@ def get_graph(key):
 def set_graph(key):
     if key in graphs:
         new_data = request.get_json()
+        print(f'new_data: {new_data}')
+
         graphs[key] = new_data
+        
+        # Save the updated graph
+        output_path = 'package_generator/saved_graphs'
+        os.makedirs(output_path, exist_ok=True)
+        save_graph(new_data, output_path)
+        
         print (f'Updated graph: {key}')
-        # print (f'data   {json.dumps(new_data, indent=4)}')
         print (f'Updated graphs: {graphs[key]}')
         return jsonify({"message": "Graph updated successfully"}), 200
     else:
@@ -162,6 +169,21 @@ def load_actions(actions_dir):
                 action = json.load(file)
                 actions[action["name"]] = action
     return actions
+
+def save_graph(graph_data, output_path):
+    '''
+    Save the graph data to the output path
+    '''
+
+    graph_name = graph_data["graph_name"]
+
+    print (f'Saving graph to: {os.path.join(output_path, f"{graph_name}.umrf.graph.json")}')
+
+    os.makedirs(output_path, exist_ok=True)
+    with open(os.path.join(output_path, f"{graph_name}.umrf.graph.json"), "w") as f:
+        json.dump(graph_data, f, indent=4)
+    
+    return output_path
 
 def graph_feedback_callback(actor, graphs_in):
     global graphs

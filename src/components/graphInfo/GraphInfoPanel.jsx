@@ -60,6 +60,32 @@ const PREDEFINED_PARAMETERS = [
   }
 ];
 
+// Add a new component section for displaying entry/exit node information
+const EntryExitNodeInfo = ({ type, connections }) => {
+  return (
+    <div className="entry-exit-info">
+      <h3>{type === 'entry' ? 'Entry Node' : 'Exit Node'}</h3>
+      <p>
+        {type === 'entry' 
+          ? 'This node represents the starting point of the graph execution. Connect it to the nodes that should be executed first.'
+          : 'This node represents the end point of the graph execution. Connect nodes that should be the final steps to this node.'}
+      </p>
+      <div className="connections-list">
+        <h4>Connected Nodes:</h4>
+        {connections && connections.length > 0 ? (
+          <ul>
+            {connections.map((conn, idx) => (
+              <li key={idx}>{conn.name} (ID: {conn.instance_id})</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No connections yet. Connect this node to action nodes in the editor.</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) => {
   const [actionData, setActionData] = useState({
     name: '',
@@ -407,6 +433,27 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
         </div>
       </div>
     );
+  };
+
+  const renderContent = () => {
+    if (!selectedElement || !selectedElement.type) {
+      return <div>Select a graph, action, or node to view details</div>;
+    }
+
+    switch (selectedElement.type) {
+      case 'graph':
+        // ... existing graph rendering
+      case 'action':
+        // ... existing action rendering
+      case 'node':
+        // ... existing node rendering
+      case 'entry':
+        return <EntryExitNodeInfo type="entry" connections={selectedElement.data.connections} />;
+      case 'exit':
+        return <EntryExitNodeInfo type="exit" connections={selectedElement.data.connections} />;
+      default:
+        return <div>Unknown element type</div>;
+    }
   };
 
   if (!selectedElement.data) {

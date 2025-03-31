@@ -1,0 +1,24 @@
+{
+    "name": "NewAction_1743417817462",
+    "type": "sync",
+    "description": "Newly created action",
+    "input_parameters": {
+        "position": {
+            "x": {
+                "pvf_type": "number",
+                "pvf_value": 1
+            },
+            "y": {
+                "pvf_type": "number",
+                "pvf_value": 2
+            },
+            "z": {
+                "pvf_type": "number",
+                "pvf_value": 3
+            }
+        }
+    },
+    "gui_attributes": {
+        "status": "package"
+    }
+}

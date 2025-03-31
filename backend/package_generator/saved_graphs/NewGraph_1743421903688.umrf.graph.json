@@ -1,0 +1,25 @@
+{
+    "graph_name": "NewGraph_1743421903688",
+    "graph_description": "Newly created graph",
+    "graph_entry": [],
+    "graph_exit": [],
+    "actions": [
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 1743421912185,
+            "type": "sync",
+            "parents": [],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": 53.23954969338513,
+                    "y": -162.97322981956592
+                }
+            },
+            "input_parameters": {}
+        }
+    ],
+    "gui_attributes": {
+        "status": "draft"
+    }
+}

@@ -143,6 +143,16 @@ const ActionInterfacePage = () => {
             return;
         }
         
+        // Special handling for entry/exit nodes
+        if (nodeData.type === 'entry' || nodeData.type === 'exit') {
+            setActiveNodeId(nodeData.type === 'entry' ? 'entry-node' : 'exit-node');
+            setSelectedElement({
+                type: nodeData.type === 'entry' ? 'entry' : 'exit',
+                data: nodeData
+            });
+            return;
+        }
+        
         setActiveNodeId(nodeData.instance_id);
         // Only update what's shown in the info panel, not the active graph
         setSelectedElement({
@@ -173,8 +183,18 @@ const ActionInterfacePage = () => {
         const newGraph = {
             graph_name: `NewGraph_${Date.now()}`,
             graph_description: "Newly created graph",
-            graph_entry: [],
-            graph_exit: [],
+            graph_entry: {
+                actions: [],
+                gui_attributes: {
+                    position: { x: 0, y: -150 }
+                }
+            },
+            graph_exit: {
+                actions: [],
+                gui_attributes: {
+                    position: { x: 0, y: 150 }
+                }
+            },
             actions: [],
             gui_attributes: {
                 status: 'draft'

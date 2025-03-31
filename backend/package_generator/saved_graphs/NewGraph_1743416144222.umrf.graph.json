@@ -1,0 +1,42 @@
+{
+    "actions": [
+        {
+            "name": "NewAction_1743416048738",
+            "instance_id": 3954575955,
+            "type": "sync",
+            "parents": [],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": 379,
+                    "y": 301
+                }
+            },
+            "state": "UNINITIALIZED"
+        },
+        {
+            "name": "NewAction_1743416048738",
+            "instance_id": 3954606021,
+            "type": "sync",
+            "parents": [],
+            "children": [
+                {
+                    "name": "NewAction_1743416048738",
+                    "instance_id": 2643
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 540.5967741935484,
+                    "y": 116.86370967741935
+                }
+            },
+            "state": "UNINITIALIZED"
+        }
+    ],
+    "graph_description": "Newly created graph",
+    "graph_entry": [],
+    "graph_exit": [],
+    "graph_name": "NewGraph_1743416144222",
+    "graph_state": "INITIALIZED"
+}

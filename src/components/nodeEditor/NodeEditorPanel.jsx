@@ -12,6 +12,7 @@ import {
 import produce from 'immer';
 
 import SpinNode, { type SpinNodeData } from './SpinNode.tsx';
+import EntryExitNode from './EntryExitNode.jsx';
 
 // import '@xyflow/react/dist/style.css';
 
@@ -19,11 +20,13 @@ import '@xyflow/react/dist/base.css';
 // import "./NodeEditorPanel.css";
 import "./SpinNode.css";
 import "./SelectedNode.css";
+import "./EntryExitNode.css";
 
 import { useDnD } from "../../components/actionList/DnDContext.jsx";
 
 const nodeTypes = {
   turbo: SpinNode,
+  entryExit: EntryExitNode,
 };
 
 const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }, ref) => {
@@ -62,8 +65,8 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
       return;
     }
   
-    // Add a check for actions array
-    const new_nodes = graphJson.actions?.map((action) => {
+    // Create action nodes
+    const action_nodes = graphJson.actions?.map((action) => {
       // Existing node creation logic
       let nodeData = {
         title: action.name,
@@ -87,8 +90,42 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         type: 'turbo'
       };
     }) || [];
+
+    // Create entry node if graph_entry exists
+    const entry_nodes = [];
+    if (graphJson.graph_entry && graphJson.graph_entry.actions && graphJson.graph_entry.actions.length > 0) {
+      const entryNode = {
+        id: 'entry-node',
+        data: { 
+          type: 'entry',
+          connections: graphJson.graph_entry.actions
+        },
+        position: graphJson.graph_entry.gui_attributes?.position || { x: 0, y: -150 },
+        type: 'entryExit'
+      };
+      entry_nodes.push(entryNode);
+    }
+
+    // Create exit node if graph_exit exists
+    const exit_nodes = [];
+    if (graphJson.graph_exit && graphJson.graph_exit.actions && graphJson.graph_exit.actions.length > 0) {
+      const exitNode = {
+        id: 'exit-node',
+        data: { 
+          type: 'exit',
+          connections: graphJson.graph_exit.actions
+        },
+        position: graphJson.graph_exit.gui_attributes?.position || { x: 0, y: 150 },
+        type: 'entryExit'
+      };
+      exit_nodes.push(exitNode);
+    }
+
+    // Combine all nodes
+    const new_nodes = [...entry_nodes, ...action_nodes, ...exit_nodes];
   
-    const new_edges = graphJson.actions?.flatMap(action =>
+    // Create edges between action nodes
+    const action_edges = graphJson.actions?.flatMap(action =>
       action.children?.map(child => ({
         id: `${action.name}_${action.instance_id} to ${child.name}_${child.instance_id}`,
         source: `${action.name}_${action.instance_id}`,
@@ -101,19 +138,62 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         target_id:   child.instance_id,
       })) || []
     );
+
+    // Create edges from entry node to entry actions
+    const entry_edges = [];
+    if (graphJson.graph_entry && graphJson.graph_entry.actions && graphJson.graph_entry.actions.length > 0) {
+      graphJson.graph_entry.actions.forEach(entry => {
+        entry_edges.push({
+          id: `entry-to-${entry.name}_${entry.instance_id}`,
+          source: 'entry-node',
+          target: `${entry.name}_${entry.instance_id}`,
+          source_name: 'entry',
+          source_id: 'node',
+          target_name: entry.name,
+          target_id: entry.instance_id,
+        });
+      });
+    }
+
+    // Create edges from exit actions to exit node
+    const exit_edges = [];
+    if (graphJson.graph_exit && graphJson.graph_exit.actions && graphJson.graph_exit.actions.length > 0) {
+      graphJson.graph_exit.actions.forEach(exit => {
+        exit_edges.push({
+          id: `${exit.name}_${exit.instance_id}-to-exit`,
+          source: `${exit.name}_${exit.instance_id}`,
+          target: 'exit-node',
+          source_name: exit.name,
+          source_id: exit.instance_id,
+          target_name: 'exit',
+          target_id: 'node',
+        });
+      });
+    }
+
+    // Combine all edges
+    const new_edges = [...action_edges, ...entry_edges, ...exit_edges];
   
-    setActiveGraph(graphJson)
-    setNodes(new_nodes)
-    setEdges(new_edges)
+    setActiveGraph(graphJson);
+    setNodes(new_nodes);
+    setEdges(new_edges);
   }, [setActiveGraph, setNodes, setEdges]);
 
   const flowToJson = useCallback(() => {
-    console.log("flowToJson: ", activeGraph.graph_name)
+    console.log("flowToJson: ", activeGraph.graph_name);
 
     // Start with all existing fields from activeGraph
     let activeGraphUpdated = {
-        ...activeGraph,  // Preserve all existing fields
-        actions: []      // Reset actions array as it will be rebuilt
+        ...activeGraph,        // Preserve all existing fields
+        actions: [],           // Reset actions array as it will be rebuilt
+        graph_entry: {         // New structure for graph_entry
+          actions: [],
+          gui_attributes: {}
+        },
+        graph_exit: {          // New structure for graph_exit
+          actions: [],
+          gui_attributes: {}
+        }
     };
 
     if (activeGraph.graph_state){
@@ -123,8 +203,55 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
     if (rfInstance) {
         const flow = rfInstance.toObject();
 
+        // Find entry and exit nodes
+        const entryNode = flow.nodes.find(node => node.id === 'entry-node');
+        const exitNode = flow.nodes.find(node => node.id === 'exit-node');
+
+        // Update entry node position and connections
+        if (entryNode) {
+          activeGraphUpdated.graph_entry.gui_attributes = {
+            position: entryNode.position
+          };
+
+          // Find connections to entry node
+          flow.edges.forEach(edge => {
+            if (edge.source === 'entry-node') {
+              const targetParts = edge.target.split('_');
+              if (targetParts.length === 2) {
+                activeGraphUpdated.graph_entry.actions.push({
+                  name: targetParts[0],
+                  instance_id: parseInt(targetParts[1])
+                });
+              }
+            }
+          });
+        }
+
+        // Update exit node position and connections
+        if (exitNode) {
+          activeGraphUpdated.graph_exit.gui_attributes = {
+            position: exitNode.position
+          };
+
+          // Find connections from exit node
+          flow.edges.forEach(edge => {
+            if (edge.target === 'exit-node') {
+              const sourceParts = edge.source.split('_');
+              if (sourceParts.length === 2) {
+                activeGraphUpdated.graph_exit.actions.push({
+                  name: sourceParts[0],
+                  instance_id: parseInt(sourceParts[1])
+                });
+              }
+            }
+          });
+        }
+
         // For each "node" in flow.nodes, create a json object "umrf_node"
         flow.nodes.forEach(node => {
+            // Skip entry/exit nodes
+            if (node.type === 'entryExit') return;
+            
             let umrf_node = {
                 name: node.data.title,
                 instance_id: node.data.instance_id,
@@ -143,6 +270,9 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
 
             // Find edges where the node is a source or target
             flow.edges.forEach(edge => {
+                // Skip edges connected to entry/exit nodes
+                if (edge.source === 'entry-node' || edge.target === 'exit-node') return;
+                
                 if (node.data.title === edge.source_name && node.data.instance_id === edge.source_id) {
                     // If node is a source, add to children
                     umrf_node.children.push({
@@ -194,7 +324,65 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
       const targetNode = nodes.find(node => node.id === params.target);
 
       if (sourceNode && targetNode) {
-        // Update the active graph state
+        // Handle entry/exit node connections
+        if (sourceNode.type === 'entryExit' || targetNode.type === 'entryExit') {
+          // Update the active graph state with entry/exit connections
+          const updatedGraph = produce(activeGraph, draft => {
+            // If connecting from entry node to a regular node
+            if (sourceNode.type === 'entryExit' && sourceNode.data.type === 'entry') {
+              const targetParts = params.target.split('_');
+              if (targetParts.length === 2) {
+                // Ensure graph_entry structure exists
+                if (!draft.graph_entry) {
+                  draft.graph_entry = { actions: [], gui_attributes: {} };
+                }
+
+                // Check if connection already exists
+                const connectionExists = draft.graph_entry.actions.some(
+                  entry => entry.name === targetParts[0] && 
+                          entry.instance_id.toString() === targetParts[1]
+                );
+                
+                if (!connectionExists) {
+                  draft.graph_entry.actions.push({
+                    name: targetParts[0],
+                    instance_id: parseInt(targetParts[1])
+                  });
+                }
+              }
+            }
+            
+            // If connecting from a regular node to exit node
+            if (targetNode.type === 'entryExit' && targetNode.data.type === 'exit') {
+              const sourceParts = params.source.split('_');
+              if (sourceParts.length === 2) {
+                // Ensure graph_exit structure exists
+                if (!draft.graph_exit) {
+                  draft.graph_exit = { actions: [], gui_attributes: {} };
+                }
+
+                // Check if connection already exists
+                const connectionExists = draft.graph_exit.actions.some(
+                  exit => exit.name === sourceParts[0] && 
+                         exit.instance_id.toString() === sourceParts[1]
+                );
+                
+                if (!connectionExists) {
+                  draft.graph_exit.actions.push({
+                    name: sourceParts[0],
+                    instance_id: parseInt(sourceParts[1])
+                  });
+                }
+              }
+            }
+          });
+          
+          setActiveGraph(updatedGraph);
+          onUpdateGraph(updatedGraph);
+          return;
+        }
+
+        // Update the active graph state for regular node connections
         const updatedGraph = produce(activeGraph, draft => {
           // Find the source and target actions in the graph
           const sourceAction = draft.actions.find(
@@ -390,7 +578,37 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
       // Create updated graph without the deleted edges
       const updatedGraph = produce(activeGraph, draft => {
         deletedEdges.forEach(deletedEdge => {
-          // Find source and target actions
+          // Handle entry node connection deletion
+          if (deletedEdge.source === 'entry-node') {
+            const targetParts = deletedEdge.target.split('_');
+            if (targetParts.length === 2) {
+              // Remove from graph_entry
+              if (draft.graph_entry && draft.graph_entry.actions) {
+                draft.graph_entry.actions = draft.graph_entry.actions.filter(
+                  entry => !(entry.name === targetParts[0] && 
+                            entry.instance_id.toString() === targetParts[1])
+                );
+              }
+            }
+            return; // Skip the regular edge handling below
+          }
+          
+          // Handle exit node connection deletion
+          if (deletedEdge.target === 'exit-node') {
+            const sourceParts = deletedEdge.source.split('_');
+            if (sourceParts.length === 2) {
+              // Remove from graph_exit
+              if (draft.graph_exit && draft.graph_exit.actions) {
+                draft.graph_exit.actions = draft.graph_exit.actions.filter(
+                  exit => !(exit.name === sourceParts[0] && 
+                           exit.instance_id.toString() === sourceParts[1])
+                );
+              }
+            }
+            return; // Skip the regular edge handling below
+          }
+          
+          // Find source and target actions for regular connections
           const sourceAction = draft.actions.find(
             action => `${action.name}_${action.instance_id}` === deletedEdge.source
           );
@@ -431,16 +649,35 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
       
       if (!activeGraph) return;
       
-      // Create updated graph with the new node position
       const updatedGraph = produce(activeGraph, draft => {
-        // Find the action that corresponds to this node
+        if (node.id === 'entry-node') {
+          if (!draft.graph_entry.gui_attributes) {
+            draft.graph_entry.gui_attributes = {};
+          }
+          draft.graph_entry.gui_attributes.position = {
+            x: node.position.x,
+            y: node.position.y
+          };
+          return;
+        }
+
+        if (node.id === 'exit-node') {
+          if (!draft.graph_exit.gui_attributes) {
+            draft.graph_exit.gui_attributes = {};
+          }
+          draft.graph_exit.gui_attributes.position = {
+            x: node.position.x,
+            y: node.position.y
+          };
+          return;
+        }
+        
         const actionIndex = draft.actions.findIndex(
           action => action.name === node.data.title && 
                    action.instance_id.toString() === node.data.instance_id.toString()
         );
         
         if (actionIndex !== -1) {
-          // Update the position in gui_attributes
           if (!draft.actions[actionIndex].gui_attributes) {
             draft.actions[actionIndex].gui_attributes = {};
           }
@@ -452,7 +689,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         }
       });
       
-      // Update local state and backend
       setActiveGraph(updatedGraph);
       onUpdateGraph(updatedGraph);
     },
@@ -489,4 +725,3 @@ export default forwardRef(({graphDataIn, onUpdateGraph, onNodeSelect}, ref) => (
   </ReactFlowProvider>
 ));
 
-// export default NodeEditorPanel;
