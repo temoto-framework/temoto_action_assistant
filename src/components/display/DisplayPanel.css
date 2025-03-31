@@ -1,84 +1,300 @@
-.display-sub-panel {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-  }
+/* DisplayPanel.css */
 
-.image-container {
+.display-sub-panel {
+  display: flex;
   background-color: #000000;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  height: 100%;
+  overflow: auto;
+}
+
+.display-content {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Image container */
+.display-image-container {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  border-radius: 5px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Hide image container when targets expanded */
+.mobile-targets-expanded .display-image-container {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.display-image {
+  background-color: #000000;
+  border-radius: 5px;
+  position: relative;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Full size display styling */
+.display-image.fullscreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 30px);
+  height: calc(100% - 30px);
+  z-index: 10;
+  aspect-ratio: unset;
+  margin: 15px;
+}
+
+.display-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.image-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.toggle-size-btn {
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn {
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.no-images-placeholder {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
-  flex: 1;
-  overflow:auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  color: #aaa;
+  font-style: italic;
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
 }
 
-.feed-image {
-max-width: 100%;
-max-height: 100%;
-object-fit: contain;
-border-radius: 5px;
+/* Target container */
+.display-target-container {
+  width: 100%;
+  height: 100%;
+  background-color: #1a1a1a;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 150;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.image-container.multiple-feeds {
-flex-direction: row;
+/* Show target container when targets expanded */
+.mobile-targets-expanded .display-target-container {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.image-container.multiple-feeds .feed-image {
-width: 50%;
+/* Special styling for expand/collapse buttons */
+.mobile-expand-btn, .mobile-collapse-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 151;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.no-display-message {
-    color: #ffffff;
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-    border-radius: 10px;
-  }
-
-@media (max-width: 768px) {
-.image-container.multiple-feeds {
-    flex-direction: column;
+/* Error indicator styling */
+.error-indicator {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  background-color: #cc4444;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 151;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.image-container.multiple-feeds .feed-image {
-    width: 100%;
-}
-}
-
-.button-display-container {
-position: fixed;
-top: 0px;
-right: 0px;
-padding: 20px;
-display: flex;
-gap: 10px;
-z-index: 10;
+.display-panel-target {
+  background-color: #444;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.button-display-container button {
-padding: 10px 20px;
-border: none;
-border-radius: 5px;
-background-color: #666;
-color: white;
-cursor: pointer;
-transition: background-color 0.3s ease;
-opacity: 60%;
+.display-panel-target h3 {
+  margin: 0 0 5px 0;
+  color: white;
+  font-size: 16px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
 }
 
-.button-display-container button:hover {
-  opacity: 100%;
-  transition: background-color 0.3s ease;
-  }
+.display-image-name {
+  background-color: #eee;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+}
 
-.button-display-container button.active {
-background-color: rgb(155, 0, 0);
+.selected-target-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.selected-image-badge {
+  background-color: #666;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.remove-badge {
+  background: none;
+  border: none;
+  color: #ff6666;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 0;
+}
+
+.active-target {
+  background-color: #272727;
+}
+
+.no-targets-placeholder {
+  background-color: #272727;
+  border-radius: 5px;
+  padding: 20px;
+  text-align: center;
+  color: #ccc;
+  font-style: italic;
+}
+
+.display-panel-container {
+  position: relative;
+}
+
+.image-error {
+  position: relative;
+}
+
+.image-error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  z-index: 2;
+  gap: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.image-error-overlay button {
+  background-color: #3a3a3a;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.image-error-overlay button:hover {
+  background-color: #555;
+}
+
+.image-error-badge {
+  background-color: #cc4444 !important;
 }

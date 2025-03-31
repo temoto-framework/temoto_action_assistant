@@ -7,6 +7,7 @@ import time
 from temoto_msgs.srv import UmrfGraphGet
 from temoto_msgs.msg import UmrfGraphStart, UmrfGraphStop, UmrfGraphFeedback
 from std_msgs.msg import String
+from sensor_msgs.msg import CompressedImage
 
 node = None
 
@@ -21,10 +22,11 @@ def get_graphs():
 
 class RosInterface(Node):
     """A ROS2 Node that interacts with both the action and chat interfaces."""
-    def __init__(self, graph_feedback_cb_parent, chat_feedback_cb_parent):
+    def __init__(self, graph_feedback_cb_parent, chat_feedback_cb_parent, display_feed_cb_parent):
         super().__init__('action_designer_runtime')
         self.graph_feedback_cb_parent = graph_feedback_cb_parent
         self.chat_feedback_cb_parent = chat_feedback_cb_parent
+        self.display_feed_cb_parent = display_feed_cb_parent
         
         # Track actors with pending requests that need responses
         self.actors_awaiting_response = set()
@@ -40,6 +42,8 @@ class RosInterface(Node):
         self.chat_interface_input_pub = self.create_publisher(String, 'chat_interface_input', 10)
         self.chat_interface_feedback_sub = self.create_subscription(
             String, 'chat_interface_feedback', self.handle_chat_interface_feedback, 10)
+        
+        self.display_feed_subscriptions = {}
 
         while not self.client_graph_get.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('waiting for the umrf_graph_get server')
@@ -139,10 +143,44 @@ class RosInterface(Node):
         # Forward the received chat message to the Flask/Socket.IO callback
         self.chat_feedback_cb_parent(data)
 
-def run_ros_interface(graph_feedback_callback, chat_feedback_callback):
+    ### Display Panel Methods
+
+    def get_available_topics(self):
+        """Get a list of all available topics in the ROS system"""
+        topics_and_types = self.get_topic_names_and_types()
+        return [topic for topic, _ in topics_and_types]
+
+    def image_message_callback(self, msg, target, name):
+        """Callback for image messages"""
+        if self.display_feed_cb_parent:
+            self.display_feed_cb_parent(target, name, msg.data)
+
+    def display_subscribe_to_topic(self, topic, target, name):
+        """Subscribe to a specific display feed topic"""
+        if topic in self.display_feed_subscriptions:
+            return
+        
+        self.get_logger().info(f"Subscribing to topic: {topic}")
+        
+        subscription = self.create_subscription(
+            CompressedImage,
+            topic,
+            lambda msg: self.image_message_callback(msg, target, name),
+            10
+        )
+        
+        self.display_feed_subscriptions[topic] = subscription
+
+    def display_unsubscribe_from_topic(self, topic):
+        """Unsubscribe from a specific display feed topic"""
+        if topic in self.display_feed_subscriptions:
+            self.destroy_subscription(self.display_feed_subscriptions[topic])
+            del self.display_feed_subscriptions[topic]
+
+def run_ros_interface(graph_feedback_callback, chat_feedback_callback, display_feed_callback):
     global node
     rclpy.init()
-    node = RosInterface(graph_feedback_callback, chat_feedback_callback)
+    node = RosInterface(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
     try:
         rclpy.spin(node)
         node.destroy_node()
@@ -150,6 +188,6 @@ def run_ros_interface(graph_feedback_callback, chat_feedback_callback):
     except rclpy.executors.ExternalShutdownException:
         node.get_logger().info("External shutdown signal received, stopping ROS2 node.")
 
-def run_ros_interface_thread(graph_feedback_callback, chat_feedback_callback):
-    thread = threading.Thread(target=run_ros_interface, args=(graph_feedback_callback, chat_feedback_callback))
+def run_ros_interface_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback):
+    thread = threading.Thread(target=run_ros_interface, args=(graph_feedback_callback, chat_feedback_callback, display_feed_callback))
     thread.start()

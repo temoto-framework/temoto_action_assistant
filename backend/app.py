@@ -1,12 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO
 from flask_cors import CORS
+from flask import Response
 
 import argparse
 import os
 import json
 import time
 import datetime
+import threading
+
+import re
+import traceback
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -213,6 +218,225 @@ def umrf_store_feedback_data(actor,graph):
     umrf_feedback_data[actor] = graph
     socketio.emit('umrf_feedback_data', umrf_feedback_data)
 
+###### DISPLAY PANEL
+
+image_lock = threading.Lock()
+display_images = {}  # Format: {"target1": {"name1": image_data, "name2": image_data, ...}, "target2": {...}}
+active_subscriptions = set()
+
+
+def display_feed_callback(target, name, image_data):
+    """Callback to handle image data from ROS"""
+    global display_images
+    
+    print(f"Received image data for {target}/{name}, size: {len(image_data) if image_data else 0} bytes")
+    
+    # Ensure we have valid data
+    if not image_data or len(image_data) < 10:
+        print(f"WARNING: Invalid or empty image data received for {target}/{name}")
+        return
+    
+    with image_lock:
+        # Initialize target dict if needed
+        if target not in display_images:
+            display_images[target] = {}
+        
+        # Store the image data
+        display_images[target][name] = image_data
+        print(f"Stored image for {target}/{name} in display_images, size: {len(image_data)} bytes")
+        # Debug print the entire structure
+        print(f"Current display_images keys: {list(display_images.keys())}")
+        if target in display_images:
+            print(f"Current {target} image keys: {list(display_images[target].keys())}")
+    
+    # Notify clients that the image was updated
+    socketio.emit('image_updated', {"target": target, "name": name})
+    print(f"Emitted image_updated for {target}/{name}")
+
+@socketio.on('display_get_feeds')
+def handle_get_feeds():
+    """Handle request for available image feeds"""
+    if not runtime_enabled or not ri_node:
+        socketio.emit('display_available_targets', [])
+        socketio.emit('display_available_images', {})
+        return
+    
+    try:
+        # Get all available topics
+        available_topics = ri_node.get_available_topics()
+        
+        # Pattern to match display feed topics
+        pattern = r"/webapp/display_feed/([^/]+)/([^/]+)"
+        
+        # Extract targets and names
+        targets = set()
+        feeds = {}
+        
+        # Find the display feed topics
+        for topic in available_topics:
+            match = re.match(pattern, topic)
+            if match:
+                target = match.group(1)
+                name = match.group(2)
+                
+                # Add to targets set
+                targets.add(target)
+                
+                # Initialize feeds dictionary
+                if target not in feeds:
+                    feeds[target] = []
+                
+                # Add name to feeds
+                if name not in feeds[target]:
+                    feeds[target].append(name)
+        
+        # Prepare target list in the format expected by frontend
+        targets_list = [{"id": t, "name": t} for t in targets]
+        
+        # Emit targets and available feeds
+        socketio.emit('display_available_targets', targets_list)
+        socketio.emit('display_available_feeds', feeds)
+        
+    except Exception as e:
+        print(f"Error in handle_get_feeds: {str(e)}")
+        traceback.print_exc()
+
+@socketio.on('display_subscribe_to_image')
+def handle_subscribe_to_image(data):
+    """Subscribe to a specific image feed"""
+    if not runtime_enabled or not ri_node:
+        print("ERROR: Runtime not enabled for subscription")
+        return
+    
+    target = data.get('target')
+    name = data.get('name')
+    
+    if not target or not name:
+        print("ERROR: Missing target or name in subscription request")
+        return
+    
+    print(f"DEBUG: Received subscription request for {target}/{name}")
+    
+    topic = f"/webapp/display_feed/{target}/{name}"
+    if topic not in active_subscriptions:
+        active_subscriptions.add(topic)
+        print(f"DEBUG: Subscribing to {topic}")
+        ri_node.display_subscribe_to_topic(topic, target, name)
+        print(f"DEBUG: Subscription sent to ROS node")
+    else:
+        print(f"DEBUG: Already subscribed to {topic}")
+
+@socketio.on('display_unsubscribe_from_image')
+def handle_unsubscribe_from_image(data):
+    """Unsubscribe from a specific image feed"""
+    if not runtime_enabled or not ri_node:
+        return
+    
+    target = data.get('target')
+    name = data.get('name')
+    
+    if not target or not name:
+        return
+    
+    topic = f"/webapp/display_feed/{target}/{name}"
+    if topic in active_subscriptions:
+        active_subscriptions.remove(topic)
+        ri_node.display_unsubscribe_from_topic(topic)
+
+@app.route('/api/images/<target>/<name>', methods=['GET'])
+def get_image(target, name):
+    """Serve images for the display panel"""
+    global display_images
+    
+    print(f"DEBUG: GET request for {target}/{name}")
+    print(f"DEBUG: Full display_images structure: {list(display_images.keys())}")
+    
+    try:
+        with image_lock:
+            if target in display_images:
+                print(f"DEBUG: Images for {target}: {list(display_images[target].keys())}")
+                
+                if name in display_images[target]:
+                    image_data = display_images[target][name]
+                    
+                    # Convert array to bytes if needed
+                    if hasattr(image_data, 'tobytes'):
+                        image_data = image_data.tobytes()
+                    elif not isinstance(image_data, bytes):
+                        # Try to convert to bytes if it's not already bytes
+                        try:
+                            image_data = bytes(image_data)
+                        except Exception as e:
+                            print(f"ERROR: Failed to convert image data to bytes: {e}")
+                            # Return error response
+                            return Response(
+                                "Error: Image data format not supported", 
+                                status=500,
+                                headers={
+                                    'Content-Type': 'text/plain',
+                                    'Access-Control-Allow-Origin': '*'
+                                }
+                            )
+                    
+                    content_length = len(image_data) if image_data else 0
+                    print(f"DEBUG: Found image, size={content_length} bytes, type={type(image_data)}")
+                    
+                    # Verify image data starts with JPEG header
+                    if content_length > 2 and image_data[:2] == b'\xff\xd8':
+                        print("DEBUG: Data appears to be valid JPEG (starts with JPEG header)")
+                    else:
+                        print("DEBUG: Data may not be valid JPEG")
+                        if content_length > 10:
+                            print(f"DEBUG: First 10 bytes: {image_data[:10]}")
+                    
+                    # Make sure image_data is bytes
+                    if not isinstance(image_data, bytes):
+                        print(f"ERROR: Image data is not bytes: {type(image_data)}")
+                        return Response(
+                            "Error: Image data is not in bytes format", 
+                            status=500,
+                            headers={
+                                'Content-Type': 'text/plain',
+                                'Access-Control-Allow-Origin': '*'
+                            }
+                        )
+                    
+                    resp = Response(
+                        image_data, 
+                        mimetype='image/jpeg',
+                        headers={
+                            'Content-Type': 'image/jpeg',
+                            'Access-Control-Allow-Origin': '*',
+                            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+                            'Content-Length': str(content_length)
+                        }
+                    )
+                    print("DEBUG: Response created, returning")
+                    return resp
+                else:
+                    print(f"DEBUG: Name {name} not found in target {target}")
+        
+        print(f"DEBUG: Image {target}/{name} not found")
+        return Response(
+            "Image not found", 
+            status=404,
+            headers={
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'
+            }
+        )
+    except Exception as e:
+        import traceback
+        print(f"ERROR in get_image: {str(e)}")
+        print(traceback.format_exc())
+        return Response(
+            f"Server error: {str(e)}", 
+            status=500,
+            headers={
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'
+            }
+        )
 ### Server start time to save storage
 
 SERVER_START_TIME = datetime.datetime.utcnow().isoformat() + "Z"
@@ -239,7 +463,7 @@ if __name__ == '__main__':
         import ros_interface as ri
 
         # Pass both the graph and chat feedback callbacks
-        ri.run_ros_interface_thread(graph_feedback_callback, chat_feedback_callback)
+        ri.run_ros_interface_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
         ri.wait_until_initialized()
         ri_node = ri.node
 

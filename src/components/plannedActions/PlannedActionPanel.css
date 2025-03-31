@@ -91,7 +91,6 @@
   background-color: #73c1e5 !important;
 }
 
-/* Styling for the actor filter dropdown */
 .actor-filter {
   display: flex;
   align-items: center;
@@ -107,11 +106,11 @@
   margin-right: 20px;
   margin-left: 20px;
   color: white;
-  white-space: nowrap; /* Prevent label text from wrapping */
+  white-space: nowrap; 
 }
 
 .actor-filter select {
-  flex: 1;                  /* Take up remaining space */
+  flex: 1;
   padding: 5px;
   font-size: 1rem;
   border-radius: 3px;
@@ -119,5 +118,4 @@
   box-sizing: border-box;
   margin-right: 20px;
   background-color: #eee;
-
 }
