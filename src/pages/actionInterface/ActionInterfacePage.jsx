@@ -330,6 +330,7 @@ const ActionInterfacePage = () => {
     }, []);
 
     useEffect(() => {
+        console.log("This is the useEffect for graphs: ", graphs, activeGraphId);
         if (graphs && graphs.length > 0 && !activeGraphId) {
             const firstGraph = graphs[0];
             setActiveGraphId(firstGraph.graph_name);

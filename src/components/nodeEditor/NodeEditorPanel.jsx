@@ -65,9 +65,8 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
       return;
     }
   
-    // Create action nodes
+    // Create action nodes with dynamic positioning
     const action_nodes = graphJson.actions?.map((action) => {
-      // Existing node creation logic
       let nodeData = {
         title: action.name,
         subline: action.state && action.state !== 'UNINITIALIZED' ? action.state : '',
@@ -78,7 +77,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         actor: action.actor,
       };
   
-      // Conditionally add state field
       if (action.state) {
         nodeData.state = action.state;
       }
@@ -87,11 +85,53 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         id: `${action.name}_${action.instance_id}`,
         data: nodeData,
         position: action.gui_attributes?.position || { x: 0, y: 0 },
-        type: 'turbo'
+        type: 'turbo',
       };
     }) || [];
 
-    // Create entry node if graph_entry exists
+    // Determine entry node position with centering
+    const calculateEntryPosition = () => {
+      if (graphJson.graph_entry?.gui_attributes?.position) {
+        return graphJson.graph_entry.gui_attributes.position;
+      }
+
+      // If no actions, use default
+      if (!action_nodes.length) {
+        return { x: -100, y: -150 };  // Centered around x=0
+      }
+
+      // Find the topmost action node's y position and center horizontally
+      const topY = Math.min(...action_nodes.map(node => node.position.y));
+      const centerX = action_nodes.reduce((sum, node) => sum + node.position.x, 0) / action_nodes.length;
+      
+      return { 
+        x: centerX ,  // Subtract half the estimated node width 
+        y: topY - 150 
+      };
+    };
+
+    // Determine exit node position with centering
+    const calculateExitPosition = () => {
+      if (graphJson.graph_exit?.gui_attributes?.position) {
+        return graphJson.graph_exit.gui_attributes.position;
+      }
+
+      // If no actions, use default
+      if (!action_nodes.length) {
+        return { x: -100, y: 150 };  // Centered around x=0
+      }
+
+      // Find the bottommost action node's y position and center horizontally
+      const bottomY = Math.max(...action_nodes.map(node => node.position.y));
+      const centerX = action_nodes.reduce((sum, node) => sum + node.position.x, 0) / action_nodes.length;
+      
+      return { 
+        x: centerX - 100,  // Subtract half the estimated node width
+        y: bottomY + 150 
+      };
+    };
+
+    // Create entry node
     const entry_nodes = [];
     if (graphJson.graph_entry && graphJson.graph_entry.actions && graphJson.graph_entry.actions.length > 0) {
       const entryNode = {
@@ -100,13 +140,13 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
           type: 'entry',
           connections: graphJson.graph_entry.actions
         },
-        position: graphJson.graph_entry.gui_attributes?.position || { x: 0, y: -150 },
+        position: calculateEntryPosition(),
         type: 'entryExit'
       };
       entry_nodes.push(entryNode);
     }
 
-    // Create exit node if graph_exit exists
+    // Create exit node
     const exit_nodes = [];
     if (graphJson.graph_exit && graphJson.graph_exit.actions && graphJson.graph_exit.actions.length > 0) {
       const exitNode = {
@@ -115,7 +155,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
           type: 'exit',
           connections: graphJson.graph_exit.actions
         },
-        position: graphJson.graph_exit.gui_attributes?.position || { x: 0, y: 150 },
+        position: calculateExitPosition(),
         type: 'entryExit'
       };
       exit_nodes.push(exitNode);
