@@ -222,38 +222,87 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
   const flowToJson = useCallback(() => {
     console.log("flowToJson: ", activeGraph.graph_name);
 
-    // Start with all existing fields from activeGraph
-    let activeGraphUpdated = {
-        ...activeGraph,        // Preserve all existing fields
-        actions: [],           // Reset actions array as it will be rebuilt
-        graph_entry: {         // New structure for graph_entry
-          actions: [],
-          gui_attributes: {}
-        },
-        graph_exit: {          // New structure for graph_exit
-          actions: [],
-          gui_attributes: {}
-        }
-    };
-
-    if (activeGraph.graph_state){
-      activeGraphUpdated.graph_state = activeGraph.graph_state;
+    // Create a deep copy of the active graph to preserve all fields
+    let activeGraphUpdated = JSON.parse(JSON.stringify(activeGraph));
+    
+    // Reset only the arrays that will be rebuilt
+    activeGraphUpdated.actions = [];
+    
+    // Preserve the original graph_entry/graph_exit structure
+    // If they were arrays in the original, keep them as arrays
+    if (Array.isArray(activeGraph.graph_entry)) {
+      activeGraphUpdated.graph_entry = [];
+    } else {
+      // Otherwise use the object structure
+      activeGraphUpdated.graph_entry = {
+        actions: [],
+        gui_attributes: activeGraph.graph_entry?.gui_attributes || {}
+      };
+    }
+    
+    if (Array.isArray(activeGraph.graph_exit)) {
+      activeGraphUpdated.graph_exit = [];
+    } else {
+      // Otherwise use the object structure
+      activeGraphUpdated.graph_exit = {
+        actions: [],
+        gui_attributes: activeGraph.graph_exit?.gui_attributes || {}
+      };
     }
 
     if (rfInstance) {
-        const flow = rfInstance.toObject();
-
-        // Find entry and exit nodes
-        const entryNode = flow.nodes.find(node => node.id === 'entry-node');
-        const exitNode = flow.nodes.find(node => node.id === 'exit-node');
-
-        // Update entry node position and connections
-        if (entryNode) {
+      const flow = rfInstance.toObject();
+      
+      // Find entry and exit nodes
+      const entryNode = flow.nodes.find(node => node.id === 'entry-node');
+      const exitNode = flow.nodes.find(node => node.id === 'exit-node');
+      
+      // Create a map to store the original metadata for parent-child relationships
+      const originalMetadata = {
+        parents: {},
+        children: {}
+      };
+      
+      // Extract original metadata from the active graph
+      activeGraph.actions?.forEach(action => {
+        // Store parent metadata
+        if (action.parents) {
+          action.parents.forEach(parent => {
+            const key = `${parent.name}_${parent.instance_id}_to_${action.name}_${action.instance_id}`;
+            originalMetadata.parents[key] = { ...parent };
+          });
+        }
+        
+        // Store children metadata
+        if (action.children) {
+          action.children.forEach(child => {
+            const key = `${action.name}_${action.instance_id}_to_${child.name}_${child.instance_id}`;
+            originalMetadata.children[key] = { ...child };
+          });
+        }
+      });
+      
+      // Update entry node connections
+      if (entryNode) {
+        if (Array.isArray(activeGraphUpdated.graph_entry)) {
+          // If graph_entry is an array, add entries directly
+          flow.edges.forEach(edge => {
+            if (edge.source === 'entry-node') {
+              const targetParts = edge.target.split('_');
+              if (targetParts.length === 2) {
+                activeGraphUpdated.graph_entry.push({
+                  name: targetParts[0],
+                  instance_id: parseInt(targetParts[1])
+                });
+              }
+            }
+          });
+        } else {
+          // If graph_entry is an object, update its properties
           activeGraphUpdated.graph_entry.gui_attributes = {
             position: entryNode.position
           };
-
-          // Find connections to entry node
+          
           flow.edges.forEach(edge => {
             if (edge.source === 'entry-node') {
               const targetParts = edge.target.split('_');
@@ -266,14 +315,29 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
             }
           });
         }
-
-        // Update exit node position and connections
-        if (exitNode) {
+      }
+      
+      // Update exit node connections
+      if (exitNode) {
+        if (Array.isArray(activeGraphUpdated.graph_exit)) {
+          // If graph_exit is an array, add entries directly
+          flow.edges.forEach(edge => {
+            if (edge.target === 'exit-node') {
+              const sourceParts = edge.source.split('_');
+              if (sourceParts.length === 2) {
+                activeGraphUpdated.graph_exit.push({
+                  name: sourceParts[0],
+                  instance_id: parseInt(sourceParts[1])
+                });
+              }
+            }
+          });
+        } else {
+          // If graph_exit is an object, update its properties
           activeGraphUpdated.graph_exit.gui_attributes = {
             position: exitNode.position
           };
-
-          // Find connections from exit node
+          
           flow.edges.forEach(edge => {
             if (edge.target === 'exit-node') {
               const sourceParts = edge.source.split('_');
@@ -286,53 +350,83 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
             }
           });
         }
-
-        // For each "node" in flow.nodes, create a json object "umrf_node"
-        flow.nodes.forEach(node => {
-            // Skip entry/exit nodes
-            if (node.type === 'entryExit') return;
+      }
+      
+      // Process regular nodes
+      flow.nodes.forEach(node => {
+        // Skip entry/exit nodes
+        if (node.type === 'entryExit') return;
+        
+        // Find the original node to preserve any additional fields
+        const originalNode = activeGraph.actions?.find(
+          action => action.name === node.data.title && 
+                   action.instance_id.toString() === node.data.instance_id.toString()
+        );
+        
+        // Create the node with all original fields if it exists
+        let umrf_node = originalNode ? { ...originalNode } : {
+          name: node.data.title,
+          instance_id: node.data.instance_id,
+          type: node.data.type,
+          parents: [],
+          children: [],
+          input_parameters: node.data.input_parameters,
+          output_parameters: node.data.output_parameters,
+          actor: node.data.actor
+        };
+        
+        // Always update position
+        if (!umrf_node.gui_attributes) {
+          umrf_node.gui_attributes = {};
+        }
+        umrf_node.gui_attributes.position = node.position;
+        
+        // Update state if it exists
+        if (node.data.state) {
+          umrf_node.state = node.data.state;
+        }
+        
+        // Reset parents and children arrays as they will be rebuilt
+        umrf_node.parents = [];
+        umrf_node.children = [];
+        
+        // Find edges where the node is a source or target
+        flow.edges.forEach(edge => {
+          // Skip edges connected to entry/exit nodes
+          if (edge.source === 'entry-node' || edge.target === 'exit-node') return;
+          
+          if (node.data.title === edge.source_name && node.data.instance_id === edge.source_id) {
+            // If node is a source, add to children
+            const childKey = `${edge.source_name}_${edge.source_id}_to_${edge.target_name}_${edge.target_id}`;
+            const originalChild = originalMetadata.children[childKey];
             
-            let umrf_node = {
-                name: node.data.title,
-                instance_id: node.data.instance_id,
-                type: node.data.type,
-                parents: [],
-                children: [],
-                gui_attributes: {position: node.position},
-                input_parameters: node.data.input_parameters,
-                output_parameters: node.data.output_parameters,
-                actor: node.data.actor
+            // Create child with original metadata if it exists
+            const child = originalChild ? { ...originalChild } : {
+              name: edge.target_name,
+              instance_id: edge.target_id
             };
-
-            if (node.data.state){
-              umrf_node.state = node.data.state
-            }
-
-            // Find edges where the node is a source or target
-            flow.edges.forEach(edge => {
-                // Skip edges connected to entry/exit nodes
-                if (edge.source === 'entry-node' || edge.target === 'exit-node') return;
-                
-                if (node.data.title === edge.source_name && node.data.instance_id === edge.source_id) {
-                    // If node is a source, add to children
-                    umrf_node.children.push({
-                        name: edge.target_name,
-                        instance_id: edge.target_id
-                    });
-                } else if (node.data.title === edge.target_name && node.data.instance_id === edge.target_id) {
-                    // If node is a target, add to parents
-                    umrf_node.parents.push({
-                        name: edge.source_name,
-                        instance_id: edge.source_id
-                    });
-                }
-            });
-
-            // Add "umrf_node" to "activeGraphUpdated.actions" array
-            activeGraphUpdated.actions.push(umrf_node);
+            
+            umrf_node.children.push(child);
+          } else if (node.data.title === edge.target_name && node.data.instance_id === edge.target_id) {
+            // If node is a target, add to parents
+            const parentKey = `${edge.source_name}_${edge.source_id}_to_${edge.target_name}_${edge.target_id}`;
+            const originalParent = originalMetadata.parents[parentKey];
+            
+            // Create parent with original metadata if it exists
+            const parent = originalParent ? { ...originalParent } : {
+              name: edge.source_name,
+              instance_id: edge.source_id
+            };
+            
+            umrf_node.parents.push(parent);
+          }
         });
+        
+        // Add node to actions array
+        activeGraphUpdated.actions.push(umrf_node);
+      });
     }
-
+    
     return activeGraphUpdated;
   }, [activeGraph, rfInstance]);
 
