@@ -2,18 +2,22 @@
 	"graph_name": "example_sequence_state",
 	"graph_description": "Three navigation actions invoked in a sequence",
 	"graph_state": "RUNNING",
-	"graph_entry": [
-	  {
-		"name": "ExampleNavigate",
-		"instance_id": 0
-	  }
-	],
-	"graph_exit": [
-	  {
-		"name": "ExampleNavigate",
-		"instance_id": 2
-	  }
-	],
+	"graph_entry": {
+		"actions": [
+			{
+				"name": "ExampleNavigate",
+				"instance_id": 0
+			}
+		]
+	},
+	"graph_exit": {
+		"actions": [
+			{
+				"name": "ExampleNavigate",
+				"instance_id": 2
+			}
+		]
+	},
 	"actions": [
 	  {
 		"name": "ExampleNavigate",

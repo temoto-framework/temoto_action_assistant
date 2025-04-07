@@ -86,6 +86,76 @@ const EntryExitNodeInfo = ({ type, connections }) => {
   );
 };
 
+const EdgeConditionInfo = ({ edgeData }) => {
+  return (
+    <div className="edge-condition-info">
+      <h3>Edge Conditions</h3>
+      
+      {edgeData.type === 'entry-connection' ? (
+        <div>
+          <p>This is a connection from the Entry Node to an action.</p>
+          <p>Target Node: {edgeData.target.split('_')[0]} (ID: {edgeData.target.split('_')[1]})</p>
+        </div>
+      ) : edgeData.type === 'exit-connection' ? (
+        <div>
+          <p>This is a connection from an action to the Exit Node.</p>
+          <p>Source Node: {edgeData.source.split('_')[0]} (ID: {edgeData.source.split('_')[1]})</p>
+        </div>
+      ) : (
+        <div>
+          <div className="edge-nodes">
+            <p><strong>Source:</strong> {edgeData.source.name} (ID: {edgeData.source.instance_id})</p>
+            <p><strong>Target:</strong> {edgeData.target.name} (ID: {edgeData.target.instance_id})</p>
+          </div>
+          
+          <div className="conditions-list">
+            <h4>Conditions:</h4>
+            {edgeData.conditions && edgeData.conditions.length > 0 ? (
+              <ul>
+                {edgeData.conditions.map((condition, idx) => (
+                  <li key={idx} className="condition-item">
+                    {condition}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No conditions defined for this edge. The default behavior will be applied.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const styles = `
+.edge-condition-info {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+}
+
+.edge-nodes {
+  margin-bottom: 15px;
+}
+
+.conditions-list {
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.condition-item {
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.condition-item:last-child {
+  border-bottom: none;
+}
+`;
+
 const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) => {
   const [actionData, setActionData] = useState({
     name: '',
@@ -437,7 +507,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
 
   const renderContent = () => {
     if (!selectedElement || !selectedElement.type) {
-      return <div>Select a graph, action, or node to view details</div>;
+      return <div>Select a graph, action, node, or edge to view details</div>;
     }
 
     switch (selectedElement.type) {
@@ -451,6 +521,8 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
         return <EntryExitNodeInfo type="entry" connections={selectedElement.data.connections} />;
       case 'exit':
         return <EntryExitNodeInfo type="exit" connections={selectedElement.data.connections} />;
+      case 'edge':
+        //return <EdgeConditionInfo edgeData={selectedElement.data} />;
       default:
         return <div>Unknown element type</div>;
     }
@@ -471,6 +543,9 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
       case 'graph': return 'Graph Details';
       case 'node': return 'Node Details';
       case 'action': return 'Action Details';
+      case 'entry': return 'Entry Node';
+      case 'exit': return 'Exit Node';
+      case 'edge': return 'Edge Conditions';
       default: return 'Details';
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle} from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useMemo } from 'react';
 import {
   Background,
   ReactFlow,
@@ -11,9 +11,9 @@ import {
 } from '@xyflow/react';
 import produce from 'immer';
 
-import SpinNode, { type SpinNodeData } from './SpinNode.tsx';
+import SpinNode from './SpinNode.tsx';
 import EntryExitNode from './EntryExitNode.jsx';
-
+import ButtonEdgeDemo from './ButtonEdgeDemo.jsx';
 // import '@xyflow/react/dist/style.css';
 
 import '@xyflow/react/dist/base.css';
@@ -29,18 +29,120 @@ const nodeTypes = {
   entryExit: EntryExitNode,
 };
 
-const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }, ref) => {
+const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, onEdgeSelect }, ref) => {
 
   const [activeGraph, setActiveGraph] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState();
   const [edges, setEdges, onEdgesChange] = useEdgesState();
   const [rfInstance, setRfInstance] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState(null);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
 
   console.log("Nodes: ", nodes)
   console.log("Edges: ", edges)
+
+  const buildEdgeData = useCallback((edge) => {
+    if (!edge || !activeGraph) return {
+      type: 'edge',
+      source: { name: '', instance_id: '' },
+      target: { name: '', instance_id: '' },
+      conditions: []
+    };
+    
+    if (edge.source === 'entry-node' || edge.target === 'exit-node') {
+      // Handle special case for entry/exit nodes
+      if (edge.source === 'entry-node') {
+        return {
+          type: 'entry-connection',
+          target: edge.target
+        };
+      } else if (edge.target === 'exit-node') {
+        return {
+          type: 'exit-connection',
+          source: edge.source
+        };
+      }
+    }
+    
+    // Regular node connection
+    const sourceNodeId = edge.source;
+    const targetNodeId = edge.target;
+    
+    // Parse node IDs to get names and instance IDs
+    const [sourceName, sourceInstanceId] = sourceNodeId.split('_');
+    const [targetName, targetInstanceId] = targetNodeId.split('_');
+    
+    // Find source and target actions in the graph
+    const sourceAction = activeGraph.actions.find(
+      action => action.name === sourceName && 
+                action.instance_id.toString() === sourceInstanceId
+    );
+    
+    const targetAction = activeGraph.actions.find(
+      action => action.name === targetName && 
+                action.instance_id.toString() === targetInstanceId
+    );
+    
+    if (sourceAction && targetAction) {
+      // Check if the target action has the source as a parent
+      const parentRelation = targetAction.parents?.find(
+        parent => parent.name === sourceName && 
+                  parent.instance_id.toString() === sourceInstanceId
+      );
+      
+      return {
+        type: 'edge',
+        source: {
+          name: sourceName,
+          instance_id: sourceInstanceId,
+          node: sourceAction
+        },
+        target: {
+          name: targetName,
+          instance_id: targetInstanceId,
+          node: targetAction
+        },
+        conditions: parentRelation?.conditions || []
+      };
+    }
+    
+    return {};
+  }, [activeGraph]);
+
+  const handleEdgeButtonClick = useCallback((event, edge) => {
+    event.stopPropagation();
+    console.log("Edge button clicked:", 'edge.id:', edge.id, 'edge.source:', edge.source, 'edge.target:', edge.target);
+
+    setSelectedNodeId(null);
+    setSelectedEdgeId(edge.id);
+
+    onEdgeSelect({id: edge.id, source: edge.source, target: edge.target});
+
+  }, [onEdgeSelect]);
+
+  // Clean handler for node clicks
+  const handleNodeClick = useCallback((event, node) => {
+    // Clear any selected edge
+    setSelectedEdgeId(null);
+    
+    // Set this node as selected
+    setSelectedNodeId(node.id);
+    
+    // Notify parent component about the selected node
+    onNodeSelect(node.data);
+  }, [onNodeSelect]);
+
+  // Clean handler for pane clicks (background)
+  const handlePaneClick = useCallback(() => {
+    // Clear all selections
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+    
+    // Notify parent that nothing is selected
+    onNodeSelect(null);
+  }, [onNodeSelect]);
 
   useImperativeHandle(ref, () => ({
     getCurrentGraph() {
@@ -52,6 +154,10 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
     clearActiveNode: () => {
       console.log("Clearing active node", selectedNodeId);
       setSelectedNodeId(null);
+    },
+    clearActiveEdge: () => {
+      console.log("Clearing active edge", selectedEdgeId);
+      setSelectedEdgeId(null);
     }
   }));
 
@@ -170,6 +276,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         id: `${action.name}_${action.instance_id} to ${child.name}_${child.instance_id}`,
         source: `${action.name}_${action.instance_id}`,
         target: `${child.name}_${child.instance_id}`,
+        type: 'buttonedge',
   
         // Needed for converting back to UMRF graph
         source_name: action.name,
@@ -191,6 +298,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
           source_id: 'node',
           target_name: entry.name,
           target_id: entry.instance_id,
+          type: 'buttonedge',
         });
       });
     }
@@ -207,6 +315,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
           source_id: exit.instance_id,
           target_name: 'exit',
           target_id: 'node',
+          type: 'buttonedge',
         });
       });
     }
@@ -572,11 +681,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
     [edges, nodes, activeGraph, onUpdateGraph, setEdges]
   );
 
-  const handleNodeClick = (node) => {
-    console.log("Node clicked, node: ", node);
-    setSelectedNodeId(node.id);
-    onNodeSelect(node.data);
-  };
   const onDragOver = useCallback((event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -829,10 +933,24 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
     [activeGraph, onUpdateGraph]
   );
 
+  // Memoize the edgeTypes object to avoid recreation on each render
+  const edgeTypes = useMemo(() => ({
+    buttonedge: (props) => (
+      <ButtonEdgeDemo 
+        {...props} 
+        handleClick={(event) => handleEdgeButtonClick(event, props)}
+      />
+    )
+  }), [handleEdgeButtonClick]);
+
   return (
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+          edges={edges?.map(edge => ({
+    ...edge,
+    selected: edge.id === selectedEdgeId
+  }))}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodesDelete={onNodesDelete}
@@ -846,16 +964,17 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect }
         fitView
         fitViewOptions={{ padding: 2 }}
         style={{ backgroundColor: "#F7F9FB"}}
-        onNodeClick={(event, node) => handleNodeClick(node)}
+        onNodeClick={handleNodeClick}
+        onPaneClick={handlePaneClick}
         >
           <Background />
       </ReactFlow>
   );
 });
 
-export default forwardRef(({graphDataIn, onUpdateGraph, onNodeSelect}, ref) => (
+export default forwardRef(({graphDataIn, onUpdateGraph, onNodeSelect, onEdgeSelect}, ref) => (
   <ReactFlowProvider>
-    <NodeEditorPanel ref={ref} graphDataIn={graphDataIn} onUpdateGraph={onUpdateGraph} onNodeSelect={onNodeSelect} />
+    <NodeEditorPanel ref={ref} graphDataIn={graphDataIn} onUpdateGraph={onUpdateGraph} onNodeSelect={onNodeSelect} onEdgeSelect={onEdgeSelect} />
   </ReactFlowProvider>
 ));
 

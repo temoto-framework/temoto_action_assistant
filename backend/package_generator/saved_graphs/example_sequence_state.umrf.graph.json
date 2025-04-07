@@ -11,8 +11,8 @@
         ],
         "gui_attributes": {
             "position": {
-                "x": -59.89876265466818,
-                "y": -155.90551181102362
+                "x": 0,
+                "y": -200
             }
         }
     },
@@ -25,8 +25,8 @@
         ],
         "gui_attributes": {
             "position": {
-                "x": 102.92463442069742,
-                "y": 239.4263217097863
+                "x": -100,
+                "y": 300
             }
         }
     },
@@ -35,19 +35,7 @@
             "name": "ExampleNavigate",
             "instance_id": 0,
             "type": "sync",
-            "parents": [],
-            "children": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
-            "gui_attributes": {
-                "position": {
-                    "x": -214.28571428571428,
-                    "y": -50
-                }
-            },
+            "state": "FINISHED",
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -88,30 +76,25 @@
                     }
                 }
             },
-            "state": "FINISHED"
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 0,
+                    "y": -50
+                }
+            },
+            "parents": []
         },
         {
             "name": "ExampleNavigate",
             "instance_id": 1,
             "type": "sync",
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 0
-                }
-            ],
-            "children": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 2
-                }
-            ],
-            "gui_attributes": {
-                "position": {
-                    "x": -183.07086614173227,
-                    "y": 73.62204724409449
-                }
-            },
+            "state": "RUNNING",
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -152,25 +135,30 @@
                     }
                 }
             },
-            "state": "RUNNING"
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 0
+                }
+            ],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 2
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 0,
+                    "y": 50
+                }
+            }
         },
         {
             "name": "ExampleNavigate",
             "instance_id": 2,
             "type": "sync",
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
-            "children": [],
-            "gui_attributes": {
-                "position": {
-                    "x": -167.88526434195725,
-                    "y": 175.30933633295837
-                }
-            },
+            "state": "INITIALIZED",
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -211,7 +199,19 @@
                     }
                 }
             },
-            "state": "INITIALIZED"
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 0,
+                    "y": 150
+                }
+            },
+            "children": []
         }
     ]
 }

@@ -1,13 +1,26 @@
 {
 	"graph_name": "example_conditional",
 	"graph_description": "Conditional statement",
-	"graph_entry": [
-	  {"name": "Evaluator", "instance_id": 0}
-	],
-	"graph_exit": [
-	  {"name": "Result_A", "instance_id": 0},
-	  {"name": "Result_B", "instance_id": 0}
-	],
+	"graph_entry": {
+		"actions": [
+			{
+				"name": "Evaluator",
+				"instance_id": 0
+			}
+		]
+	},
+	"graph_exit": {
+		"actions": [
+			{
+				"name": "Result_A", 
+				"instance_id": 0
+			},
+			{
+				"name": "Result_B", 
+				"instance_id": 0
+			}
+		]
+	},
 	"actions": [
 	  {
 		"name": "Evaluator",

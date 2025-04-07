@@ -14,6 +14,7 @@ const ActionInterfacePage = () => {
     const [activeGraphId, setActiveGraphId] = useState(null);
     const [activeActionId, setActiveActionId] = useState(null);
     const [activeNodeId, setActiveNodeId] = useState(null);
+    const [activeEdgeId, setActiveEdgeId] = useState(null);
 
     const [selectedElement, setSelectedElement] = useState({
         type: null,
@@ -37,7 +38,9 @@ const ActionInterfacePage = () => {
         // Clear other active selections visually
         setActiveActionId(null);
         setActiveNodeId(null);
+        setActiveEdgeId(null);
         nodeEditorRef.current?.clearActiveNode();
+        nodeEditorRef.current?.clearActiveEdge();
         
         // Save current graph before switching
         if (activeGraphId && activeGraphId !== graphName && nodeEditorRef.current) {
@@ -129,10 +132,38 @@ const ActionInterfacePage = () => {
         }
     };
 
+    const handleEdgeSelect = (edgeData) => {
+        console.log("edgeData: ", edgeData);
+        if (!edgeData) {
+            setActiveNodeId(null);
+            setActiveEdgeId(edgeData.id);
+        }
+
+        if (edgeData.target === 'exit-node' || edgeData.source === 'entry-node') { 
+            setActiveEdgeId(edgeData.id);
+
+            setSelectedElement({
+                type: 'edge',
+                data: [] 
+            });
+            return;
+        }
+
+        const targetAction = graphs.find(graph => graph.graph_name === activeGraphId).actions.find(action => action.name === edgeData.target.split('_')[0] && action.instance_id.toString() === edgeData.target.split('_')[1]);
+        const targetParent = targetAction.parents.find(parent => parent.name === edgeData.source.split('_')[0] && parent.instance_id.toString() === edgeData.source.split('_')[1]);
+
+        console.log("targetParent: ", targetParent);
+        setActiveNodeId(null);
+        setActiveEdgeId(edgeData.id);
+        setSelectedElement({
+            type: 'edge',
+            data: targetParent
+        });
+    };
+
     const handleNodeSelect = (nodeData) => {
         if (!nodeData) {
             setActiveNodeId(null);
-            // If no node is selected, show the graph instead
             if (activeGraphId) {
                 const graph = graphs.find(g => g.graph_name === activeGraphId);
                 setSelectedElement({
@@ -154,6 +185,7 @@ const ActionInterfacePage = () => {
         }
         
         setActiveNodeId(nodeData.instance_id);
+        setActiveEdgeId(null);
         // Only update what's shown in the info panel, not the active graph
         setSelectedElement({
             type: 'node',
@@ -164,9 +196,11 @@ const ActionInterfacePage = () => {
     const handleActionSelect = async (actionName) => {
         console.log('clicked action!', actionName);
 
-        // Clear node selection
+        // Clear node and edge selection
         setActiveNodeId(null);
+        setActiveEdgeId(null);
         nodeEditorRef.current?.clearActiveNode();
+        nodeEditorRef.current?.clearActiveEdge();
         
         // Find and set the selected action
         const action = actions.find(action => action.name === actionName);
@@ -386,7 +420,9 @@ const ActionInterfacePage = () => {
                     ref={nodeEditorRef}
                     graphDataIn={graphs?.find(graph => graph.graph_name === activeGraphId)}
                     onUpdateGraph={handleGetCurrentGraph}
-                    onNodeSelect={handleNodeSelect}/>
+                    onNodeSelect={handleNodeSelect}
+                    onEdgeSelect={handleEdgeSelect}
+                />
             </div>
             <div className="graph-info-panel">
                 <GraphInfoPanel

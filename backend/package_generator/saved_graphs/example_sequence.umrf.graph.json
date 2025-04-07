@@ -2,31 +2,38 @@
     "graph_name": "example_sequence",
     "graph_description": "Three navigation actions invoked in a sequence",
     "graph_entry": {
-        "actions": [],
-        "gui_attributes": {}
+        "actions": [
+            {
+                "name": "ExampleNavigate",
+                "instance_id": 0
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": -200
+            }
+        }
     },
     "graph_exit": {
-        "actions": [],
-        "gui_attributes": {}
+        "actions": [
+            {
+                "name": "ExampleNavigate",
+                "instance_id": 2
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": -100,
+                "y": 300
+            }
+        }
     },
     "actions": [
         {
             "name": "ExampleNavigate",
             "instance_id": 0,
             "type": "sync",
-            "parents": [],
-            "children": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
-            "gui_attributes": {
-                "position": {
-                    "x": 0,
-                    "y": -50
-                }
-            },
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -66,30 +73,25 @@
                         }
                     }
                 }
-            }
-        },
-        {
-            "name": "ExampleNavigate",
-            "instance_id": 1,
-            "type": "sync",
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 0
-                }
-            ],
+            },
             "children": [
                 {
                     "name": "ExampleNavigate",
-                    "instance_id": 2
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {
                 "position": {
                     "x": 0,
-                    "y": 50
+                    "y": -50
                 }
             },
+            "parents": []
+        },
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 1,
+            "type": "sync",
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -129,25 +131,30 @@
                         }
                     }
                 }
+            },
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 0
+                }
+            ],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 2
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 0,
+                    "y": 50
+                }
             }
         },
         {
             "name": "ExampleNavigate",
             "instance_id": 2,
             "type": "sync",
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
-            "children": [],
-            "gui_attributes": {
-                "position": {
-                    "x": 0,
-                    "y": 150
-                }
-            },
             "input_parameters": {
                 "location": {
                     "pvf_type": "string",
@@ -187,19 +194,20 @@
                         }
                     }
                 }
-            }
+            },
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 0,
+                    "y": 150
+                }
+            },
+            "children": []
         }
-    ],
-    "exit_node_gui_attributes": {
-        "position": {
-            "x": 57.36782902137232,
-            "y": 262.2047244094488
-        }
-    },
-    "entry_node_gui_attributes": {
-        "position": {
-            "x": 15.260001948575336,
-            "y": -150
-        }
-    }
+    ]
 }

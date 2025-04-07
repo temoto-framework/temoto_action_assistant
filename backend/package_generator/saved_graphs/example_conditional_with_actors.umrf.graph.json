@@ -1,19 +1,40 @@
 {
     "graph_name": "example_conditional_with_actors",
     "graph_description": "Conditional statement",
-    "graph_entry": [
-        {
-            "name": "Evaluator",
-            "instance_id": 0
+    "graph_entry": {
+        "actions": [
+            {
+                "name": "Evaluator",
+                "instance_id": 0
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": -200
+            }
         }
-    ],
-    "graph_exit": [],
+    },
+    "graph_exit": {
+        "actions": [],
+        "gui_attributes": {
+            "position": {
+                "x": -100,
+                "y": 200
+            }
+        }
+    },
     "actions": [
         {
             "name": "Evaluator",
+            "actor": "Actor_A",
             "instance_id": 0,
             "type": "sync",
-            "parents": [],
+            "input_parameters": {
+                "condition": {
+                    "pvf_type": "string"
+                }
+            },
             "children": [
                 {
                     "name": "Result_A",
@@ -26,19 +47,15 @@
             ],
             "gui_attributes": {
                 "position": {
-                    "x": 141.9180181217505,
-                    "y": -82.04600409200819
+                    "x": 0,
+                    "y": -50
                 }
             },
-            "input_parameters": {
-                "condition": {
-                    "pvf_type": "string"
-                }
-            },
-            "actor": "Actor_A"
+            "parents": []
         },
         {
             "name": "Result_A",
+            "actor": "Actor_B",
             "instance_id": 0,
             "type": "sync",
             "parents": [
@@ -47,17 +64,17 @@
                     "instance_id": 0
                 }
             ],
-            "children": [],
             "gui_attributes": {
                 "position": {
                     "x": -150,
                     "y": 50
                 }
             },
-            "actor": "Actor_B"
+            "children": []
         },
         {
             "name": "Result_B",
+            "actor": "Actor_C",
             "instance_id": 0,
             "type": "sync",
             "parents": [
@@ -66,14 +83,13 @@
                     "instance_id": 0
                 }
             ],
-            "children": [],
             "gui_attributes": {
                 "position": {
                     "x": 150,
                     "y": 50
                 }
             },
-            "actor": "Actor_C"
+            "children": []
         }
     ]
 }
