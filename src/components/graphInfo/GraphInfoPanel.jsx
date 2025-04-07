@@ -60,6 +60,128 @@ const PREDEFINED_PARAMETERS = [
   }
 ];
 
+// Condition types and possible outcomes for edge conditions
+const CONDITION_TYPES = ['on_true', 'on_false', 'on_error'];
+const CONDITION_OUTCOMES = ['run', 'bypass', 'ignore', 'stop'];
+
+// Add a new component for editing edge conditions
+const EdgeConditionEditor = ({ edgeData, onConditionsUpdated }) => {
+  const [conditions, setConditions] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (edgeData && edgeData.conditions) {
+      // Parse conditions from the format "on_true -> run" to structured data
+      const parsedConditions = edgeData.conditions.map(condStr => {
+        const [condType, outcome] = condStr.split(' -> ');
+        return { condType, outcome };
+      });
+      setConditions(parsedConditions);
+    }
+  }, [edgeData]);
+
+  const handleConditionChange = (index, field, value) => {
+    const updatedConditions = [...conditions];
+    updatedConditions[index] = {
+      ...updatedConditions[index],
+      [field]: value
+    };
+    setConditions(updatedConditions);
+  };
+
+  const handleSaveConditions = () => {
+    // Convert back to the string format expected by the backend
+    const formattedConditions = conditions.map(cond => 
+      `${cond.condType} -> ${cond.outcome}`
+    );
+    
+    // Call the parent component's update function
+    onConditionsUpdated(formattedConditions);
+    setIsEditing(false);
+  };
+
+  if (!edgeData || !edgeData.conditions) {
+    return <p>No condition data available</p>;
+  }
+
+  return (
+    <div className="edge-condition-editor">
+      <h3>Edge Conditions</h3>
+      
+      <div className="edge-source-target">
+        <p><strong>Source:</strong> {edgeData.name} (ID: {edgeData.instance_id})</p>
+        <p><strong>Required:</strong> {edgeData.required ? 'Yes' : 'No'}</p>
+      </div>
+      
+      <div className="conditions-container">
+        <h4>Conditions:</h4>
+        
+        {isEditing ? (
+          <>
+            {conditions.map((condition, index) => (
+              <div key={index} className="condition-edit-row">
+                <select
+                  value={condition.condType}
+                  onChange={(e) => handleConditionChange(index, 'condType', e.target.value)}
+                  className="condition-type-select"
+                >
+                  {CONDITION_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+                
+                <span className="condition-arrow">→</span>
+                
+                <select
+                  value={condition.outcome}
+                  onChange={(e) => handleConditionChange(index, 'outcome', e.target.value)}
+                  className="condition-outcome-select"
+                >
+                  {CONDITION_OUTCOMES.map(outcome => (
+                    <option key={outcome} value={outcome}>{outcome}</option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            
+            <div className="condition-buttons">
+              <button 
+                onClick={handleSaveConditions}
+                className="save-conditions-button"
+              >
+                Save
+              </button>
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="cancel-edit-button"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <ul className="conditions-list">
+              {edgeData.conditions.map((condition, idx) => (
+                <li key={idx} className="condition-item">
+                  {condition}
+                </li>
+              ))}
+            </ul>
+            
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="edit-conditions-button"
+            >
+              Edit Conditions
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Add a new component section for displaying entry/exit node information
 const EntryExitNodeInfo = ({ type, connections }) => {
   return (
@@ -156,7 +278,7 @@ const styles = `
 }
 `;
 
-const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) => {
+const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, onEdgeConditionsUpdated }) => {
   const [actionData, setActionData] = useState({
     name: '',
     description: '',
@@ -195,6 +317,20 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
       setIsEditingName(false);
     }
   }, [selectedElement]);
+
+  // Handle edge condition updates
+  const handleEdgeConditionsUpdated = (updatedConditions) => {
+    if (onEdgeConditionsUpdated && selectedElement.type === 'edge') {
+      // Create updated edge data with new conditions
+      const updatedEdgeData = {
+        ...selectedElement.data,
+        conditions: updatedConditions
+      };
+      
+      // Call the parent component's update function
+      onEdgeConditionsUpdated(updatedEdgeData);
+    }
+  };
 
   const handleAddParameter = () => {
     if (!selectedParameter) return;
@@ -522,7 +658,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
       case 'exit':
         return <EntryExitNodeInfo type="exit" connections={selectedElement.data.connections} />;
       case 'edge':
-        //return <EdgeConditionInfo edgeData={selectedElement.data} />;
+        return <EdgeConditionEditor edgeData={selectedElement.data} onConditionsUpdated={handleEdgeConditionsUpdated} />;
       default:
         return <div>Unknown element type</div>;
     }
@@ -668,6 +804,14 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction }) 
         )}
       </div>
       
+      {/* Show edge condition editor for edges */}
+      {selectedElement.type === 'edge' && (
+        <div className="edge-condition-section">
+          {renderContent()}
+        </div>
+      )}
+      
+      {/* Always show the JSON representation for debugging */}
       <SyntaxHighlighter 
         language="json" 
         style={vs2015}

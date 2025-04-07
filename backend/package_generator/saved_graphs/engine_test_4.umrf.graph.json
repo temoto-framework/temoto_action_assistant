@@ -79,8 +79,8 @@
                     "instance_id": 0,
                     "required": true,
                     "conditions": [
-                        "on_true -> run",
-                        "on_false -> ignore",
+                        "on_true -> ignore",
+                        "on_false -> stop",
                         "on_error -> bypass"
                     ]
                 }

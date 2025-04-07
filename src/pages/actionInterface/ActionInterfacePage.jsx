@@ -136,25 +136,46 @@ const ActionInterfacePage = () => {
         console.log("edgeData: ", edgeData);
         if (!edgeData) {
             setActiveNodeId(null);
-            setActiveEdgeId(edgeData.id);
+            setActiveEdgeId(null);
+            return;
         }
 
-        if (edgeData.target === 'exit-node' || edgeData.source === 'entry-node') { 
-            setActiveEdgeId(edgeData.id);
+        setActiveEdgeId(edgeData.id);
 
+        if (edgeData.target === 'exit-node' || edgeData.source === 'entry-node') { 
             setSelectedElement({
                 type: 'edge',
-                data: [] 
+                data: {
+                    type: edgeData.source === 'entry-node' ? 'entry-connection' : 'exit-connection',
+                    source: edgeData.source,
+                    target: edgeData.target
+                }
             });
             return;
         }
 
-        const targetAction = graphs.find(graph => graph.graph_name === activeGraphId).actions.find(action => action.name === edgeData.target.split('_')[0] && action.instance_id.toString() === edgeData.target.split('_')[1]);
-        const targetParent = targetAction.parents.find(parent => parent.name === edgeData.source.split('_')[0] && parent.instance_id.toString() === edgeData.source.split('_')[1]);
+        // Find the selected graph
+        const currentGraph = graphs.find(graph => graph.graph_name === activeGraphId);
+        if (!currentGraph) return;
+
+        // Find target action
+        const targetAction = currentGraph.actions.find(
+            action => action.name === edgeData.target.split('_')[0] && 
+                    action.instance_id.toString() === edgeData.target.split('_')[1]
+        );
+        
+        if (!targetAction) return;
+
+        // Find the source in the parents of the target
+        const targetParent = targetAction.parents.find(
+            parent => parent.name === edgeData.source.split('_')[0] && 
+                     parent.instance_id.toString() === edgeData.source.split('_')[1]
+        );
+
+        if (!targetParent) return;
 
         console.log("targetParent: ", targetParent);
         setActiveNodeId(null);
-        setActiveEdgeId(edgeData.id);
         setSelectedElement({
             type: 'edge',
             data: targetParent
@@ -341,6 +362,64 @@ const ActionInterfacePage = () => {
         }
     };
 
+    // Add a new handler for edge condition updates
+    const handleEdgeConditionsUpdated = async (updatedEdgeData) => {
+        try {
+            console.log("Updating edge conditions:", updatedEdgeData);
+            
+            // Find the current graph
+            const currentGraph = graphs.find(graph => graph.graph_name === activeGraphId);
+            if (!currentGraph) return;
+            
+            // Find the target action that has this edge as a parent
+            const targetAction = currentGraph.actions.find(action => 
+                action.parents.some(parent => 
+                    parent.name === updatedEdgeData.name && 
+                    parent.instance_id === updatedEdgeData.instance_id
+                )
+            );
+            
+            if (!targetAction) return;
+            
+            // Update the parents array with the new edge conditions
+            const updatedParents = targetAction.parents.map(parent => 
+                (parent.name === updatedEdgeData.name && parent.instance_id === updatedEdgeData.instance_id) 
+                    ? { ...parent, conditions: updatedEdgeData.conditions } 
+                    : parent
+            );
+            
+            // Create an updated action with the new parents
+            const updatedAction = {
+                ...targetAction,
+                parents: updatedParents
+            };
+            
+            // Create updated graph with the modified action
+            const updatedActions = currentGraph.actions.map(action => 
+                action.name === targetAction.name && action.instance_id === targetAction.instance_id 
+                    ? updatedAction 
+                    : action
+            );
+            
+            const updatedGraph = {
+                ...currentGraph,
+                actions: updatedActions
+            };
+            
+            // Save the updated graph to the backend
+            await handleGetCurrentGraph(updatedGraph);
+            
+            // Update selected element to show the updated edge
+            setSelectedElement({
+                type: 'edge',
+                data: updatedEdgeData
+            });
+            
+        } catch (error) {
+            console.error('Error updating edge conditions:', error);
+        }
+    };
+
     useEffect(() => {
         const socket = io('http://localhost:4000');
 
@@ -429,6 +508,7 @@ const ActionInterfacePage = () => {
                     selectedElement={selectedElement}
                     onActionUpdated={handleActionUpdated}
                     onGenerateAction={handleGenerateAction}
+                    onEdgeConditionsUpdated={handleEdgeConditionsUpdated}
                 />
             </div>
         </div>
