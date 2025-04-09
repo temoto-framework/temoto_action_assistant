@@ -1,0 +1,114 @@
+{
+	"graph_name": "example_sequence",
+	"graph_description": "Three navigation actions invoked in a sequence",
+	"graph_entry": [
+	  {
+		"name": "ExampleNavigate",
+		"instance_id": 0
+	  }
+	],
+	"graph_exit": [
+	  {
+		"name": "ExampleNavigate",
+		"instance_id": 2
+	  }
+	],
+	"actions": [
+	  {
+		"name": "ExampleNavigate",
+		"instance_id": 0,
+		"type": "sync",
+		"input_parameters": {
+		  "location": {"pvf_type": "string", "pvf_value": "workshop"},
+		  "pose": {
+			"frame_id": {"pvf_type": "string", "pvf_value": "map"},
+			"position": {
+			  "x": {"pvf_type": "number", "pvf_value": 1.11},
+			  "y": {"pvf_type": "number", "pvf_value": 2.2},
+			  "z": {"pvf_type": "number", "pvf_value": 3.3}
+			},
+			"orientation": {
+			  "r": {"pvf_type": "number", "pvf_value": 0.0},
+			  "p": {"pvf_type": "number", "pvf_value": 0.0},
+			  "y": {"pvf_type": "number", "pvf_value": 0.123}
+			}
+		  }
+		},
+		"children": [
+		  {
+			"name": "ExampleNavigate",
+			"instance_id": 1
+		  }
+		],
+		"gui_attributes": {
+			"position": { "x": 0, "y": -50 }
+		}
+	  },
+	  {
+		"name": "ExampleNavigate",
+		"instance_id": 1,
+		"type": "sync",
+		"input_parameters": {
+		  "location": {"pvf_type": "string", "pvf_value": "warehouse"},
+		  "pose": {
+			"frame_id": {"pvf_type": "string", "pvf_value": "map"},
+			"position": {
+			  "x": {"pvf_type": "number", "pvf_value": 10.1},
+			  "y": {"pvf_type": "number", "pvf_value": 20.2},
+			  "z": {"pvf_type": "number", "pvf_value": 30.3}
+			},
+			"orientation": {
+			  "r": {"pvf_type": "number", "pvf_value": 0.0},
+			  "p": {"pvf_type": "number", "pvf_value": 0.0},
+			  "y": {"pvf_type": "number", "pvf_value": -3.14}
+			}
+		  }
+		},
+		"parents": [
+		  {
+			"name": "ExampleNavigate",
+			"instance_id": 0
+		  }
+		],
+		"children": [
+		  {
+			"name": "ExampleNavigate",
+			"instance_id": 2
+		  }
+		],
+		"gui_attributes": {
+			"position": { "x": 0, "y": 50 }
+		}
+	  },
+	  {
+		"name": "ExampleNavigate",
+		"instance_id": 2,
+		"type": "sync",
+		"input_parameters": {
+		  "location": {"pvf_type": "string", "pvf_value": "lobby"},
+		  "pose": {
+			"frame_id": {"pvf_type": "string", "pvf_value": "map"},
+			"position": {
+			  "x": {"pvf_type": "number", "pvf_value": 100.1},
+			  "y": {"pvf_type": "number", "pvf_value": 200.2},
+			  "z": {"pvf_type": "number", "pvf_value": 300.3}
+			},
+			"orientation": {
+			  "r": {"pvf_type": "number", "pvf_value": 0.0},
+			  "p": {"pvf_type": "number", "pvf_value": 0.0},
+			  "y": {"pvf_type": "number", "pvf_value": 1.57}
+			}
+		  }
+		},
+		"parents": [
+		  {
+			"name": "ExampleNavigate",
+			"instance_id": 1
+		  }
+		],
+		"gui_attributes": {
+			"position": { "x": 0, "y": 150 }
+		}
+	  }
+	]
+  }

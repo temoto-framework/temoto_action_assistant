@@ -1,0 +1,50 @@
+{
+	"graph_name": "example_conditional",
+	"graph_description": "Conditional statement",
+	"graph_entry": [
+	  {"name": "Evaluator", "instance_id": 0}
+	],
+	"graph_exit": [
+	  {"name": "Result_A", "instance_id": 0},
+	  {"name": "Result_B", "instance_id": 0}
+	],
+	"actions": [
+	  {
+		"name": "Evaluator",
+		"instance_id": 0,
+		"type": "sync",
+		"input_parameters": {
+		  "condition": {"pvf_type": "string"}
+		},
+		"children": [
+		  {"name": "Result_A", "instance_id": 0},
+		  {"name": "Result_B", "instance_id": 0}
+		],
+		"gui_attributes": {
+			"position": { "x": 0, "y": -50 }
+		}
+	  },
+	  {
+		"name": "Result_A",
+		"instance_id": 0,
+		"type": "sync",
+		"parents": [
+		  {"name": "Evaluator", "instance_id": 0}
+		],
+		"gui_attributes": {
+			"position": { "x": -150, "y": 50 }
+		}
+	  },
+	  {
+		"name": "Result_B",
+		"instance_id": 0,
+		"type": "sync",
+		"parents": [
+		  {"name": "Evaluator", "instance_id": 0}
+		],
+		"gui_attributes": {
+			"position": { "x": 150, "y": 50 }
+		}
+	  }
+	]
+  }

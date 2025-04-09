@@ -1,0 +1,21 @@
+{
+  "name": "GetCoordinates",
+  "type": "sync",
+  "input_parameters": {
+    "location": {"pvf_type": "string"}
+  },
+  "output_parameters": {
+    "pose": {
+      "position": {
+        "x": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"},
+        "z": {"pvf_type": "number"}
+      },
+      "orientation": {
+        "r": {"pvf_type": "number"},
+        "p": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"}
+      }
+    }
+  }
+}
