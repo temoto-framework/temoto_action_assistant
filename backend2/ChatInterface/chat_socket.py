@@ -11,6 +11,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
     chat_log = {}
     request_response_tracking = {}
     umrf_feedback_data = {}
+    ri_chat_node = None  # Initialize at function scope
     
     def get_current_timestamp():
         """Return current UTC time in ISO format."""
@@ -37,30 +38,41 @@ def setup_chat_socket(app, socketio, chat_enabled):
             chat_log[actor].append([current_time, user, message])
 
         # Check if ri_chat_node is available and the message is not empty.
-        if ri_chat_node and message:
-            ros_message = json.dumps({
-                "targets": actor_list, 
-                "message": message
-            })
-            
-            ri_chat_node.send_chat_message(ros_message)
+        if ri_chat_node is not None and message:
+            try:
+                ros_message = json.dumps({
+                    "targets": actor_list, 
+                    "message": message
+                })
+                
+                ri_chat_node.send_chat_message(ros_message)
 
-            # Log a feedback message if debug mode is enabled
-            if app.config.get('DEBUG_MODE', False):
+                # Log a feedback message if debug mode is enabled
+                if app.config.get('DEBUG_MODE', False):
+                    current_time = get_current_timestamp()
+                    feedback_user = "debug"
+                    feedback_message = "Message sent"
+                    for actor in actor_list:
+                        chat_log[actor].append([current_time, feedback_user, feedback_message])
+                
+                socketio.emit('chat_log', chat_log)
+                return jsonify({"debug": "Message sent"}), 200
+            except Exception as e:
+                print(f"Error sending message to ROS: {e}")
+                # Log an error message if sending failed.
                 current_time = get_current_timestamp()
-                feedback_user = "debug"
-                feedback_message = "Message sent"
+                error_user = "error"
+                error_message = f"Error sending message: {str(e)}"
                 for actor in actor_list:
-                    chat_log[actor].append([current_time, feedback_user, feedback_message])
-            
-            socketio.emit('chat_log', chat_log)
-            return jsonify({"debug": "Message sent"}), 200
-
+                    chat_log[actor].append([current_time, error_user, error_message])
+                
+                socketio.emit('chat_log', chat_log)
+                return jsonify({"error": f"Error: {str(e)}"}), 500
         else:
             # Log an error message if sending failed.
             current_time = get_current_timestamp()
             error_user = "error"
-            error_message = "Unable to send message"
+            error_message = "ROS node not available or empty message"
             for actor in actor_list:
                 chat_log[actor].append([current_time, error_user, error_message])
 
@@ -382,6 +394,10 @@ def setup_chat_socket(app, socketio, chat_enabled):
             if app.config.get('DEBUG_MODE', False):
                 print(f"[DEBUG] Received message with type: {msg_type} for targets: {actor_list}")
             
+            if not actor_list:
+                print("[WARNING] Received message with no targets, skipping")
+                return
+                
             for actor in actor_list:
                 # Use the actor's identifier as the user.
                 user = str(actor)
@@ -389,12 +405,17 @@ def setup_chat_socket(app, socketio, chat_enabled):
                     chat_log[actor] = []
                 chat_log[actor].append([current_time, user, msg])
             
-            socketio.emit('chat_log', chat_log)
-            if app.config.get('DEBUG_MODE', False):
-                print("[DEBUG] Emitted chat_log event")
+            try:
+                socketio.emit('chat_log', chat_log)
+                if app.config.get('DEBUG_MODE', False):
+                    print("[DEBUG] Emitted chat_log event")
+            except Exception as e:
+                print(f"[ERROR] Failed to emit chat_log event: {e}")
             
-        except json.JSONDecodeError:
-            print(f"[ERROR] Failed to parse JSON message: {message}")
+        except json.JSONDecodeError as e:
+            print(f"[ERROR] Failed to parse JSON message: {message}, error: {e}")
+        except Exception as e:
+            print(f"[ERROR] Unexpected error in chat_feedback_callback: {e}")
     
     def display_feed_callback(target, name, image_data):
         """Callback to handle image data from ROS"""
@@ -430,11 +451,25 @@ def setup_chat_socket(app, socketio, chat_enabled):
     
 
     if chat_enabled:
-        # Import from local module
-        import ChatInterface.chat_ros as ri_chat
-        ri_chat.run_ros_chat_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
-        ri_chat.wait_until_initialized()
-        ri_chat_node = ri_chat.node
-        return ri_chat_node
+        try:
+            # Import from local module
+            from ChatInterface import chat_ros
+            
+            # Start the ROS thread
+            chat_ros.run_ros_chat_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
+            
+            # Wait for node to initialize with timeout
+            if chat_ros.wait_until_initialized(timeout=10.0):
+                ri_chat_node = chat_ros.ros_chat_node
+                print("ROS chat node initialized successfully")
+            else:
+                print("Warning: Timed out waiting for ROS chat node to initialize")
+            
+            return ri_chat_node
+        except Exception as e:
+            print(f"Error initializing chat node: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
     else:
         return None

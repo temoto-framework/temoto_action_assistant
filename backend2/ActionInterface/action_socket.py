@@ -1,69 +1,55 @@
-from flask import request, jsonify
+import rclpy
+from rclpy.node import Node
+import threading
 
-# Global graph data store
-graphs = {}
 
-def setup_action_socket(app, socketio, initial_graphs):
-    """Setup all Flask routes and SocketIO handlers for the action interface"""
-    global graphs
-    
-    # Initialize graphs with provided data
-    graphs.update(initial_graphs)
-    
-    @app.route('/api/graphs/<key>', methods=['GET'])
-    def get_graph(key):
-        value = graphs.get(key)
-        if value:
-            return jsonify(value)
-        else:
-            return jsonify({"error": "Data not found"}), 404
+# Global variables
+ros_action_node = None
+ros_action_node_ready = threading.Event()
 
-    @app.route('/api/graphs/<key>', methods=['PUT'])
-    def set_graph(key):
-        if key in graphs:
-            new_data = request.get_json()
-            graphs[key] = new_data
-            print(f'Updated graph: {key}')
-            return jsonify({"message": "Graph updated successfully"}), 200
-        else:
-            return jsonify({"error": "Graph not found"}), 404
+def wait_until_initialized(timeout=10):
+    """Wait until the ros_action_node is initialized or timeout occurs"""
+    return ros_action_node_ready.wait(timeout=timeout)
 
-    @app.route('/api/graphs/exec/<key>', methods=['PUT'])
-    def exec_graph(key):
-        if key in graphs:
-            from ActionInterface.action_ros import get_action_node
-            action_node = get_action_node()
-            
-            if action_node:
-                if "graph_state" not in graphs[key] or graphs[key]["graph_state"] != "RUNNING":
-                    action_node.start_graph(key)
-                    print(f'Running graph "{key}"')
-                elif graphs[key]["graph_state"] == "RUNNING":
-                    action_node.stop_graph(key)
-                    print(f'Stopping graph "{key}"')
-
-                return jsonify({"message": "Graph action executed"}), 200
-            else:
-                return jsonify({"error": "Runtime not available"}), 400
-        else:
-            return jsonify({"error": "Graph not found"}), 404
-            
-    # Function for updating graphs
-    def update_graphs_list(updated_graphs):
-        graphs.update(updated_graphs)
-        socketio.emit('graphs', list(graphs.values()))
+class ActionNode(Node):
+    """ROS Node for action-related functionality"""
+    def __init__(self):
+        super().__init__('temoto_assistant_action_node')
         
-    # Make update_graphs_list accessible
-    app.update_graphs_list = update_graphs_list
+        self.get_logger().info('Action node initialized')
+
+
+
+def run_ros_action_interface():
+    global ros_action_node
+    try:
+        print("Starting ROS action node initialization...")
+        if not rclpy.ok():
+            rclpy.init()
+        ros_action_node = ActionNode()
+        print("ROS action node created, setting ready event...")
+        ros_action_node_ready.set()
+        print("Starting ROS spin...")
+        rclpy.spin(ros_action_node)
+    except Exception as e:
+        print(f"Error in ROS action interface: {e}")
+    finally:
+        if ros_action_node:
+            ros_action_node.destroy_node()
+        rclpy.shutdown()
+
+def run_ros_action_thread():
+    """Start the ROS action interface in a separate thread"""
+    global ros_action_node
+    ros_action_node = None
+    ros_action_node_ready.clear()
     
-    return True
-
-def get_graphs():
-    """Return the current graphs dictionary"""
-    return graphs
-
-def update_graphs(new_graphs):
-    """Update the graphs dictionary with new graphs"""
-    global graphs
-    graphs.update(new_graphs)
-    return True
+    thread = threading.Thread(
+        target=run_ros_action_interface, 
+        args=(),
+        daemon=True
+    )
+    thread.start()
+    
+    # Return the thread for advanced control if needed
+    return thread

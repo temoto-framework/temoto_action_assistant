@@ -3,22 +3,19 @@ from rclpy.node import Node
 
 import json
 import threading
-from rclpy.node import Node
+import time
 from std_msgs.msg import String
 from sensor_msgs.msg import CompressedImage
 
 from temoto_msgs.msg import UmrfGraphStart, UmrfGraphStop, UmrfGraphFeedback
-from std_msgs.msg import String
-from sensor_msgs.msg import CompressedImage
 
-import time
-
-node = None
-node_ready = threading.Event()
+# Global variables
+ros_chat_node = None
+ros_chat_node_ready = threading.Event()
 
 def wait_until_initialized(timeout=10):
-    """Wait until the node is initialized or timeout occurs"""
-    return node_ready.wait(timeout=timeout)
+    """Wait until the ros_chat_node is initialized or timeout occurs"""
+    return ros_chat_node_ready.wait(timeout=timeout)
 
 class ChatNode(Node):
     """ROS Node for chat-related functionality"""
@@ -39,7 +36,6 @@ class ChatNode(Node):
         self.umrf_graph_stop_pub = self.create_publisher(UmrfGraphStop, 'umrf_graph_stop', 10)
         self.umrf_graph_feedback_sub = self.create_subscription(
             UmrfGraphFeedback, 'umrf_graph_feedback', self.umrf_graph_feedback_cb, 10)
-
             
         # Track actors with pending requests that need responses
         self.actors_awaiting_response = set()
@@ -162,15 +158,35 @@ class ChatNode(Node):
 
 
 def run_ros_chat_interface(graph_feedback_callback, chat_feedback_callback, display_feed_callback):
-    rclpy.init()
-    node = ChatNode(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
+    global ros_chat_node
     try:
-        rclpy.spin(node)
-        node.destroy_node()
+        print("Starting ROS chat node initialization...")
+        if not rclpy.ok():
+            rclpy.init()
+        ros_chat_node = ChatNode(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
+        print("ROS chat node created, setting ready event...")
+        ros_chat_node_ready.set()
+        print("Starting ROS spin...")
+        rclpy.spin(ros_chat_node)
+    except Exception as e:
+        print(f"Error in ROS chat interface: {e}")
+    finally:
+        if ros_chat_node:
+            ros_chat_node.destroy_node()
         rclpy.shutdown()
-    except rclpy.executors.ExternalShutdownException:
-        node.get_logger().info("External shutdown signal received, stopping ROS2 node.")
 
 def run_ros_chat_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback):
-    thread = threading.Thread(target=run_ros_chat_interface, args=(graph_feedback_callback, chat_feedback_callback, display_feed_callback))
+    """Start the ROS chat interface in a separate thread"""
+    global ros_chat_node
+    ros_chat_node = None
+    ros_chat_node_ready.clear()
+    
+    thread = threading.Thread(
+        target=run_ros_chat_interface, 
+        args=(graph_feedback_callback, chat_feedback_callback, display_feed_callback),
+        daemon=True
+    )
     thread.start()
+    
+    # Return the thread for advanced control if needed
+    return thread

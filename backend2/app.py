@@ -94,24 +94,34 @@ if __name__ == '__main__':
         import rclpy
 
         # Initialize ROS
-        if not rclpy.ok():
-            rclpy.init()
+        try:
+            if not rclpy.ok():
+                rclpy.init()
 
-        # Check for targeted runtimes
-        targeted_runtime = chat_enabled or action_enabled
-        
-        # If no specific component is enabled, enable all by default with runtime flag
-        if not targeted_runtime:
-            chat_enabled = True
-            action_enabled = True
-        
-        # Initialize ROS nodes with dedicated module callbacks
-        print(" * Initializing Socket connections and ROS nodes...")
-        
-        chat_node = setup_chat_socket(app, socketio, chat_enabled)         
-        action_node = setup_action_socket(app, socketio, action_enabled)              
+            # Check for targeted runtimes
+            targeted_runtime = chat_enabled or action_enabled
             
-        print(" * ROS interface active")
+            # If no specific component is enabled, enable all by default with runtime flag
+            if not targeted_runtime:
+                chat_enabled = True
+                action_enabled = True
+            
+            # Initialize ROS nodes with dedicated module callbacks
+            print(" * Initializing Socket connections and ROS nodes...")
+            
+            chat_node = setup_chat_socket(app, socketio, chat_enabled)
+            if chat_enabled and chat_node is None:
+                print(" ! Warning: Chat node failed to initialize")
+                
+            action_node = setup_action_socket(app, socketio, action_enabled)
+            if action_enabled and action_node is None:
+                print(" ! Warning: Action node failed to initialize")
+                
+            print(" * ROS interface active")
+        except Exception as e:
+            print(f" ! Error initializing ROS: {e}")
+            import traceback
+            traceback.print_exc()
 
     else:
         # Load example graphs if no runtime
