@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./DisplayPanel.css";
 import { io } from "socket.io-client";
 
+// Helper function to get the server URL dynamically
+const getServerUrl = () => {
+  return `http://${window.location.hostname}:4000`;
+};
+
 // Helper function to generate a client ID
 function generateClientId() {
   const newClientId = 'display_' + Math.random().toString(36).substring(2, 15);
@@ -26,8 +31,8 @@ const DisplayPanel = () => {
   // Reference for the display content div
   const displayContentRef = useRef(null);
   
-  // Server configuration
-  const SERVER_URL = 'http://localhost:4000';
+  // Server configuration - using dynamic URL
+  const SERVER_URL = getServerUrl();
   
   // Function to refresh the display panel state - wrapped in useCallback to prevent dependency issues
   const refreshDisplayPanel = useCallback(async () => {
@@ -44,7 +49,7 @@ const DisplayPanel = () => {
     } catch (error) {
       console.error("Error refreshing display panel:", error);
     }
-  }, [connected, socket, clientId]);
+  }, [connected, socket, clientId, SERVER_URL]);
   
   // Initialize socket connection
   useEffect(() => {
@@ -64,7 +69,7 @@ const DisplayPanel = () => {
     
     // Clean up socket connection on component unmount
     return () => newSocket.disconnect();
-  }, []);
+  }, [SERVER_URL]);
   
   // Handle page refresh
   useEffect(() => {

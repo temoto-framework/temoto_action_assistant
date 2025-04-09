@@ -2,8 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ChatPanel.css";
 import io from "socket.io-client";
 
-// Establish connection to the backend server.
-const socket = io("http://localhost:4000");
+// Get the server address dynamically instead of hardcoding localhost
+const getServerUrl = () => {
+  // Use the current hostname (works when connecting via IP address)
+  return `http://${window.location.hostname}:4000`;
+};
+
+// Establish connection to the backend server using dynamic URL
+const socket = io(getServerUrl());
 
 const ChatPanel = () => {
   const [messages, setMessages] = useState({});
@@ -18,7 +24,7 @@ const ChatPanel = () => {
   // on page refresh
   const refreshChatInterface = async () => {
     try {
-      await fetch("http://localhost:4000/chat_interface_page_refresh", {
+      await fetch(`${getServerUrl()}/chat_interface_page_refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -128,7 +134,7 @@ const ChatPanel = () => {
     setInput("");
 
     try {
-      const response = await fetch("http://localhost:4000/send_message", {
+      const response = await fetch(`${getServerUrl()}/send_message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
@@ -151,7 +157,7 @@ const ChatPanel = () => {
     const actor = prompt("Enter the actor's name:");
     if (!actor) return;
     try {
-      const response = await fetch("http://localhost:4000/add_new_actor", {
+      const response = await fetch(`${getServerUrl()}/add_new_actor`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ actor_name: actor }),

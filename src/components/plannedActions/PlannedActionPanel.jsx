@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./PlannedActionPanel.css";
 import io from "socket.io-client";
 
-// Initialize the Socket.IO connection.
-// This instance persists across component re-mounts.
-const socket = io("http://localhost:4000");
+// Helper function to get the server URL dynamically
+const getServerUrl = () => {
+  return `http://${window.location.hostname}:4000`;
+};
+
+// Initialize the Socket.IO connection with dynamic server URL
+const socket = io(getServerUrl());
 
 /**
  * ActionItem component displays a single action.
@@ -58,7 +62,7 @@ const ActionItem = ({ nodeData }) => {
 
 /**
  * PlannedActionPanel component listens for the "umrf_feedback_data" socket event,
- * extracts actions from each actor’s graph, and displays them.
+ * extracts actions from each actor's graph, and displays them.
  * It includes a drop-down menu to filter actions by actor, defaulting to "None".
  */
 const PlannedActionPanel = () => {

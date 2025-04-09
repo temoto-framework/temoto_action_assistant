@@ -7,14 +7,15 @@ import json
 import datetime
 import time
 import threading
+import socket 
 
 # Import modules from organized folders                                                 
 from ChatInterface.chat_socket import setup_chat_socket
 from ActionInterface.action_socket import setup_action_socket
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Global variables
 runtime_enabled = False
@@ -56,6 +57,18 @@ def load_graphs(graphs_dir):
     except Exception as e:
         print(f"Error loading graphs: {e}")
     return graphs
+
+def get_local_ip():
+    """Get the local IP address of the machine"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        hostname = socket.gethostname()
+        return socket.gethostbyname(hostname)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -127,6 +140,12 @@ if __name__ == '__main__':
         # Load example graphs if no runtime
         graphs = load_graphs("example_graphs")
         print(f" * Loaded {len(graphs)} example graphs")
+    
+    ip = get_local_ip()
+    print("\n" + "=" * 50)
+    print(f"Server running on: http://{ip}:4000")
+    print(f"Connect other devices using this address")
+    print("=" * 50 + "\n")
     
     # Run the Flask app
     socketio.run(app, host='0.0.0.0', port=4000)
