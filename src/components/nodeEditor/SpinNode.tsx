@@ -25,13 +25,33 @@ export default memo(({ data }: NodeProps<Node<SpinNodeData>>) => {
             <div>
               <div className="title">{data.title}</div>
               {data.subline && <div className="subline">{data.subline}</div>}
+              <div className="source-handle-labels">
+                <div className="source-handle-label left">true</div>
+                <div className="source-handle-label center">false</div>
+                <div className="source-handle-label right">error</div>
+              </div>
             </div>
           </div>
         </div>
         <Handle 
           type="source" 
           position={Position.Bottom} 
-          className="react-flow__handle source" 
+          className="react-flow__handle source source-on-true" 
+          id="source-on-true"
+          style={{ left: '25%' }}
+        />
+        <Handle 
+          type="source" 
+          position={Position.Bottom} 
+          className="react-flow__handle source source-on-false" 
+          id="source-on-false"
+        />
+        <Handle 
+          type="source" 
+          position={Position.Bottom} 
+          className="react-flow__handle source source-on-error" 
+          id="source-on-error"
+          style={{ left: '75%' }}
         />
       </div>
     </>

@@ -40,12 +40,13 @@ body {
 .react-flow__node-turbo {
   border-radius: var(--node-border-radius);
   display: flex;
-  height: 50px;
+  min-height: 50px;
   min-width: 170px;
+  width: auto;
+  max-width: 250px;
   font-family: 'Fira Mono', Monospace;
   font-weight: 400;
   letter-spacing: -0.2px;
-  /* box-shadow: var(--node-box-shadow); */
 }
 
 .react-flow__node-turbo .wrapper {
@@ -56,6 +57,7 @@ body {
   border-radius: var(--node-border-radius);
   flex-grow: 1;
   background: rgba(233, 42, 102, 0);
+  width: 100%;
 }
 
 /* Make the inner container always show the spinner when RUNNING */
@@ -131,7 +133,7 @@ body {
 
 .react-flow__node-turbo .inner {
   background: var(--bg-color);
-  padding: 16px 20px;
+  padding: 12px 16px 6px 16px;
   border-radius: var(--node-border-radius);
   display: flex;
   flex-direction: column;
@@ -140,6 +142,7 @@ body {
   text-align: center;
   flex-grow: 1;
   position: relative;
+  width: 100%;
 }
 
 .react-flow__node-turbo .icon {
@@ -148,17 +151,25 @@ body {
 
 .react-flow__node-turbo .body {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .react-flow__node-turbo .title {
   font-size: 14px;
-  margin-bottom: 2px;
-  line-height: 1;
+  margin-bottom: 4px;
+  line-height: 1.2;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .react-flow__node-turbo .subline {
   font-size: 12px;
   color: #777;
+  margin-bottom: 6px;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .react-flow__handle {
@@ -188,6 +199,27 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
+}
+
+.react-flow__handle.source-on-true {
+  bottom: -3px;
+  left: 25% !important;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.react-flow__handle.source-on-false {
+  bottom: -3px;
+  left: 50% !important;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.react-flow__handle.source-on-error {
+  bottom: -3px;
+  left: 75% !important;
+  transform: translateX(-50%);
+  z-index: 10;
 }
 
 .react-flow__handle.react-flow__handle-bottom {
@@ -257,4 +289,47 @@ body {
   pointer-events: none; /* Allow interactions with elements behind */
   font-weight: bold;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.source-handle-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 6px;
+  gap: 4px;
+}
+
+.source-handle-label {
+  text-align: center;
+  width: 33.33%;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: default;
+  user-select: none;
+  opacity: 0.8;
+}
+
+.source-handle-label.left {
+  background-color: rgba(76, 175, 80, 0.2); /* Soft green for true */
+  color: rgba(76, 175, 80, 1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.source-handle-label.center {
+  background-color: rgba(255, 152, 0, 0.2); /* Soft orange for false */
+  color: rgba(255, 152, 0, 1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.source-handle-label.right {
+  background-color: rgba(244, 67, 54, 0.2); /* Soft red for error */
+  color: rgba(244, 67, 54, 1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.source-handle-label:hover {
+  opacity: 1;
+  transform: scale(1.05);
 }

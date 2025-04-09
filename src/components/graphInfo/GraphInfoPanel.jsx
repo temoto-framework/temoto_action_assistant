@@ -67,7 +67,7 @@ const CONDITION_OUTCOMES = ['run', 'bypass', 'ignore', 'stop'];
 // Add a new component for editing edge conditions
 const EdgeConditionEditor = ({ edgeData, onConditionsUpdated }) => {
   const [conditions, setConditions] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     if (edgeData && edgeData.conditions) {
@@ -77,16 +77,18 @@ const EdgeConditionEditor = ({ edgeData, onConditionsUpdated }) => {
         return { condType, outcome };
       });
       setConditions(parsedConditions);
+      setHasChanges(false);
     }
   }, [edgeData]);
 
-  const handleConditionChange = (index, field, value) => {
+  const handleConditionChange = (index, value) => {
     const updatedConditions = [...conditions];
     updatedConditions[index] = {
       ...updatedConditions[index],
-      [field]: value
+      outcome: value
     };
     setConditions(updatedConditions);
+    setHasChanges(true);
   };
 
   const handleSaveConditions = () => {
@@ -97,7 +99,7 @@ const EdgeConditionEditor = ({ edgeData, onConditionsUpdated }) => {
     
     // Call the parent component's update function
     onConditionsUpdated(formattedConditions);
-    setIsEditing(false);
+    setHasChanges(false);
   };
 
   if (!edgeData || !edgeData.conditions) {
@@ -105,77 +107,41 @@ const EdgeConditionEditor = ({ edgeData, onConditionsUpdated }) => {
   }
 
   return (
-    <div className="edge-condition-editor">
-      <h3>Edge Conditions</h3>
-      
-      <div className="edge-source-target">
-        <p><strong>Source:</strong> {edgeData.name} (ID: {edgeData.instance_id})</p>
-        <p><strong>Required:</strong> {edgeData.required ? 'Yes' : 'No'}</p>
-      </div>
+    <div className="edge-source-target">
+      <p><strong>Source:</strong> {edgeData.name} (ID: {edgeData.instance_id})</p>
+      <p><strong>Required:</strong> {edgeData.required ? 'Yes' : 'No'}</p>
       
       <div className="conditions-container">
         <h4>Conditions:</h4>
         
-        {isEditing ? (
-          <>
-            {conditions.map((condition, index) => (
-              <div key={index} className="condition-edit-row">
-                <select
-                  value={condition.condType}
-                  onChange={(e) => handleConditionChange(index, 'condType', e.target.value)}
-                  className="condition-type-select"
-                >
-                  {CONDITION_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-                
-                <span className="condition-arrow">→</span>
-                
-                <select
-                  value={condition.outcome}
-                  onChange={(e) => handleConditionChange(index, 'outcome', e.target.value)}
-                  className="condition-outcome-select"
-                >
-                  {CONDITION_OUTCOMES.map(outcome => (
-                    <option key={outcome} value={outcome}>{outcome}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
-            
-            <div className="condition-buttons">
-              <button 
-                onClick={handleSaveConditions}
-                className="save-conditions-button"
+        <div className="conditions-list">
+          {conditions.map((condition, index) => (
+            <div key={index} className="condition-edit-row">
+              <span className="condition-type">{condition.condType}</span>
+              <span className="condition-arrow">→</span>
+              
+              <select
+                value={condition.outcome}
+                onChange={(e) => handleConditionChange(index, e.target.value)}
+                className="condition-outcome-select"
               >
-                Save
-              </button>
-              <button 
-                onClick={() => setIsEditing(false)}
-                className="cancel-edit-button"
-              >
-                Cancel
-              </button>
+                {CONDITION_OUTCOMES.map(outcome => (
+                  <option key={outcome} value={outcome}>{outcome}</option>
+                ))}
+              </select>
             </div>
-          </>
-        ) : (
-          <>
-            <ul className="conditions-list">
-              {edgeData.conditions.map((condition, idx) => (
-                <li key={idx} className="condition-item">
-                  {condition}
-                </li>
-              ))}
-            </ul>
-            
+          ))}
+        </div>
+        
+        {hasChanges && (
+          <div className="condition-buttons">
             <button 
-              onClick={() => setIsEditing(true)}
-              className="edit-conditions-button"
+              onClick={handleSaveConditions}
+              className="save-conditions-button"
             >
-              Edit Conditions
+              Save Changes
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

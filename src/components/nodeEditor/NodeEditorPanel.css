@@ -111,3 +111,25 @@
     width: 5px;
     height: 5px;
 }
+
+/* Handle positioning for the three bottom handles */
+.react-flow__handle.source-left {
+    bottom: -3px;
+    left: 25% !important;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.react-flow__handle.source-center {
+    bottom: -3px;
+    left: 50% !important;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.react-flow__handle.source-right {
+    bottom: -3px;
+    left: 75% !important;
+    transform: translateX(-50%);
+    z-index: 10;
+}
