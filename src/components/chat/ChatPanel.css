@@ -13,38 +13,47 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  background-color: #272727;
+  background-color: #1a1a1a; /* Darker background for better contrast with parent (#222) */
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for more depth */
   width: 100%;
   height: 100%;
   overflow: hidden;
   color: #f8f9fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  border: 1px solid #333; /* Added subtle border */
 }
 
 /* Tab container for managing chat tabs */
 .tab-container {
-  padding: 1px 15px;
-  background-color: #272727;
-  border-bottom: 1px solid #444;
+  padding: 0px 15px;
+  background-color: #141414; /* Darker background for tab container */
+  border-bottom: 1px solid #333;
+  height: 54px; /* Fixed height */
+  display: flex; /* Add flex display */
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Added to help with centering */
+  box-sizing: border-box;
 }
 
 .actor-selector {
   display: flex;
-  align-items: center;
+  align-items: center; /* Center items vertically */
+  justify-content: center; /* Added to help with centering */
   gap: 8px;
   width: 100%;
+  height: 36px; /* Set a specific height smaller than container */
+  margin: 9px 0; /* Equal margin top and bottom (54px - 36px = 18px, so 9px on each side) */
 }
 
 /* Add tab button styling */
 .add-tab-button {
-  padding: 6px;
+  padding: 0px;
   width: 28px;
   height: 28px;
   border: none;
   border-radius: 50%;
-  background-color: #444;
+  background-color: #333; /* Darker button background */
   color: #eee;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -54,17 +63,17 @@
   font-size: 16px;
   font-weight: bold;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
 }
 
 .add-tab-button:hover {
-  background-color: #555;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  background-color: #444;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5);
 }
 
 .add-tab-button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Scrollable tabs container */
@@ -76,7 +85,9 @@
   gap: 6px;
   padding: 0 10px;
   scrollbar-width: thin;
-  scrollbar-color: #555 #2a2a2a;
+  scrollbar-color: #444 #1a1a1a;
+  align-items: center; /* Center items vertically */
+  height: 36px; /* Same height as actor-selector for consistency */
 }
 
 /* Scrollbar styling for tabs */
@@ -85,20 +96,20 @@
 }
 
 .tabs-scrollable::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: #444;
   border-radius: 6px;
 }
 
 .tabs-scrollable::-webkit-scrollbar-track {
-  background-color: #2a2a2a;
+  background-color: #1a1a1a;
 }
 
 /* Individual tab button styling */
 .tab-button {
-  padding: 10px 15px;
+  padding: 0 15px; /* Adjusted padding for better vertical centering */
   border: none;
   border-radius: 4px;
-  background-color: #444;
+  background-color: #333; /* Darker tabs */
   color: #eee;
   cursor: pointer;
   flex-shrink: 0;
@@ -106,18 +117,22 @@
   white-space: nowrap;
   font-weight: 500;
   font-size: 0.85rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex; /* Added flex to center its content */
+  align-items: center; /* Center content vertically */
+  justify-content: center; /* Center content horizontally too */
+  height: 28px; /* Fixed height for consistent appearance */
 }
 
 .tab-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  background-color: rgba(85, 27, 27, 0.99);
 }
 
 /* Active tab styling */
 .active-tab {
-  background-color: #8b0000;
-  color: #eee;
+  background-color: #6b0000; /* Darker red */
+  color: #fff;
 }
 
 /* Chat log container */
@@ -125,11 +140,11 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #d0d0d0;
+  background-color: #c0c0c0; /* Slightly darker background for chat log */
   padding: 20px;
   margin: 0;
   scrollbar-width: thin;
-  scrollbar-color: #777 #d0d0d0;
+  scrollbar-color: #666 #c0c0c0;
 }
 
 /* Scrollbar styling */
@@ -138,41 +153,41 @@
 }
 
 .chat-log::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: #444;
   border-radius: 6px;
 }
 
 .chat-log::-webkit-scrollbar-track {
-  background-color: #2a2a2a;
+  background-color: #1a1a1a;
 }
 
 /* Chat message styling */
 .chat-message {
-  background-color: #f0f0f0;
+  background-color: #e6e6e6; /* Slightly darker background for messages */
   border-radius: 5px;
   padding: 10px 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  border-left: 3px solid #aaa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-left: 3px solid #888; /* Darker default border */
   margin-bottom: 12px;
-  color: #333;
+  color: #222; /* Darker text color for better readability */
   word-break: break-word;
   transition: transform 0.2s ease;
 }
 
 .chat-message:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .chat-message strong {
-  color: #222;
+  color: #111; /* Darker username text */
   font-weight: 600;
   margin-right: 5px;
 }
 
 .chat-timestamp {
   font-size: 0.7rem;
-  color: #777;
+  color: #666; /* Darker timestamp color */
   display: block;
   margin-bottom: 3px;
   font-family: monospace;
@@ -180,26 +195,26 @@
 
 /* Message type styling */
 .chat-message.request-type {
-  border-left-color: #c74545;
+  border-left-color: #a03535; /* Darker red */
 }
 
 .chat-message.response-type {
-  border-left-color: #45a045;
+  border-left-color: #357535; /* Darker green */
 }
 
 .chat-message.info-type {
-  border-left-color: #4575a0;
+  border-left-color: #355a80; /* Darker blue */
 }
 
 .chat-message.error-type {
-  border-left-color: #c74545;
+  border-left-color: #a03535; /* Darker red */
 }
 
 .chat-message.debug-type {
-  border-left-color: #9c27b0;
+  border-left-color: #7d1e8e; /* Darker purple */
   font-size: 0.9em;
-  color: #555;
-  background-color: #f7f0f7;
+  color: #444;
+  background-color: #f0e6f2; /* Slightly darker background for debug messages */
 }
 
 /* Input container for sending messages */
@@ -207,31 +222,31 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px;
-  background-color: #272727;
-  border-top: 1px solid #444;
+  padding: 10px 30px;
+  background-color: #141414; /* Darker input container */
+  border-top: 1px solid #333;
 }
 
 /* Input field styling */
 .chat-input-container input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #444;
+  border: 1px solid #111; /* Darker border */
   border-radius: 5px;
   font-size: 16px;
-  background-color: #333;
+  background-color: #333; /* Darker input field */
   color: #eee;
   transition: all 0.2s ease;
 }
 
 .chat-input-container input:focus {
   outline: none;
-  border-color: #73c1e5;
+  border-color: #ffffff;
   box-shadow: 0 0 0 2px rgba(115, 193, 229, 0.2);
 }
 
 .chat-input-container input::placeholder {
-  color: #777;
+  color: #666; /* Darker placeholder text */
 }
 
 /* Button styling within input container */
@@ -239,24 +254,24 @@
   padding: 12px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #444;
+  background-color: #333; /* Darker button */
   color: #eee;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .chat-input-container button:hover {
-  background-color: #555;
+  background-color: #444;
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4);
 }
 
 .chat-input-container button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Voice prompt button specific styling */
@@ -267,14 +282,14 @@
 
 /* Styling for tabs that are awaiting response */
 .awaiting-response-tab {
-  background-color: #e3e573 !important;
+  background-color: #d6d860 !important; /* Slightly darker yellow */
   color: #000 !important;
   border: none;
   position: relative;
 }
 
 .active-tab.awaiting-response-tab {
-  background-color: #d6d850 !important;
+  background-color: #c9cb3d !important; /* Darker yellow for active state */
   color: #000 !important;
 }
 
@@ -285,27 +300,31 @@
 
 /* Debug toggle button */
 .debug-toggle-button {
-  padding: 6px 8px;
+  padding: 0 8px;
   border: none;
   border-radius: 4px;
-  background-color: #444;
+  background-color: #333; /* Darker debug button */
   color: #eee;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
   font-weight: 500;
   font-size: 0.9rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex; /* Added to center content */
+  align-items: center;
+  justify-content: center;
+  height: 28px; /* Fixed height to match other elements */
 }
 
 .debug-toggle-button:hover {
-  background-color: #555;
+  background-color: #444;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .debug-toggle-button.debug-active {
-  background-color: #73e573;
+  background-color: #5bc25b; /* Darker active debug button */
   color: #000;
 }
 
@@ -316,9 +335,9 @@
   justify-content: center;
   padding: 30px;
   text-align: center;
-  color: #666;
+  color: #555; /* Darker text color */
   font-style: italic;
-  background-color: #e0e0e0;
+  background-color: #d3d3d3; /* Darker empty state background */
   border-radius: 5px;
   min-height: 80px;
   width: 100%;

@@ -23,30 +23,13 @@ const ChatInterfacePage = () => {
   return isMobile ? (
     // Mobile Layout
     <div className="chat-interface-page mobile">
-      {/* Toggle Button for Planned Action Panel */}
-      <div className="button-container">
-        <button
-          className="toggle-planned-action-panel-button"
-          onClick={() => setShowPlannedActionPanel(!showPlannedActionPanel)}
-        >
-          {showPlannedActionPanel ? "<<<" : ">>>"}
-        </button>
-      </div>
       {/* Render Planned Action Panel or Display & Chat Panels */}
-      {showPlannedActionPanel ? (
-        <div className="planned-action-panel-container">
-          <PlannedActionPanel />
+        <div className="display-panel">
+          <DisplayPanel />
         </div>
-      ) : (
-        <>
-          <div className="display-panel">
-            <DisplayPanel />
-          </div>
-          <div className="chat-panel">
-            <ChatPanel />
-          </div>
-        </>
-      )}
+        <div className="chat-panel">
+          <ChatPanel />
+        </div>
     </div>
   ) : (
     // Desktop Layout

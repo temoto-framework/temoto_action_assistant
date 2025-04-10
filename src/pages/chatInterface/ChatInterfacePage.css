@@ -3,6 +3,12 @@ html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
+  box-sizing: border-box; /* Add this to ensure consistent box model */
+}
+
+/* Apply box-sizing to all elements */
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 /* ------------------------- Connection Info Banner ------------------------- */
@@ -26,10 +32,10 @@ html, body, #root {
   grid-template-columns: 400px 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 10px;
-  width: 100%;
-  height: 100%;
-  padding-left: 0px;
-  background-color: #1a1a1a;
+  width: 100%; /* Adjust width to account for margin */
+  height: 100%; /* Adjust height to account for margin */
+  background-color: #111;
+  border-radius: 10px;
   min-height: 600px;
 }
 
@@ -65,10 +71,10 @@ html, body, #root {
 .chat-interface-page.mobile {
   display: block;
   padding: 0px;
-  background-color: #1a1a1a;
+  background-color: #111;
   width: 100%;
   height: 100%;
-  min-height: 600px;
+  min-height: 500px;
 }
 
 

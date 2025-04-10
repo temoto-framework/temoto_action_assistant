@@ -4,10 +4,11 @@
   display: flex;
   background-color: #000000;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow */
   padding: 20px;
   height: 100%;
   overflow: auto;
+  border: 1px solid #333; /* Added subtle border */
 }
 
 .display-content {
@@ -23,7 +24,6 @@
 .display-image-container {
   width: 100%;
   height: 100%;
-  background-color: #000000;
   border-radius: 5px;
   padding: 15px;
   display: grid;
@@ -46,12 +46,13 @@
 }
 
 .display-image {
-  background-color: #000000;
+  background-color: #0a0a0a;
   border-radius: 5px;
   position: relative;
   aspect-ratio: 1/1;
   overflow: hidden;
   transition: all 0.3s ease;
+  border: 1px solid #333; /* Added border for definition */
 }
 
 /* Full size display styling */
@@ -61,7 +62,6 @@
   left: 0;
   width: calc(100% - 30px);
   height: calc(100% - 30px);
-  z-index: 10;
   aspect-ratio: unset;
   margin: 15px;
 }
@@ -77,12 +77,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 10px;
+  padding: 8px 12px; /* Slightly larger padding */
   font-size: 14px;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .toggle-size-btn {
-  background-color: transparent;
+  background-color: #252525; /* Darker button background */
   color: white;
   border: none;
   font-size: 18px;
@@ -101,14 +101,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 3px; /* Added border radius */
+  width: 26px;
+  height: 26px;
+}
+
+.toggle-size-btn:hover {
+  background-color: #333;
 }
 
 .remove-btn {
-  background-color: transparent;
+  background-color: #252525; /* Darker button background */
   color: white;
   border: none;
   font-size: 18px;
   cursor: pointer;
+  border-radius: 3px; /* Added border radius */
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background-color: #333;
 }
 
 .no-images-placeholder {
@@ -116,7 +133,7 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: #aaa;
+  color: #888; /* Darker text */
   font-style: italic;
   grid-column: 1 / -1;
   grid-row: 1 / -1;
@@ -126,7 +143,7 @@
 .display-target-container {
   width: 370px; /* Set a fixed width for desktop */
   height: 100%;
-  background-color: #1a1a1a;
+  background-color: #0f0f0f; /* Darker background */
   border-radius: 5px;
   padding: 15px;
   display: flex;
@@ -138,9 +155,9 @@
   right: 0; /* Position from the right */
   visibility: hidden;
   opacity: 0;
-  z-index: 150;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.3); /* Add shadow on the left side */
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  border: 1px solid #333; /* Added border */
 }
 
 /* Mobile behavior - make it full screen when in mobile view */
@@ -164,26 +181,29 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #555;
+  background-color: #333; /* Darker button */
   color: white;
   border: none;
   border-radius: 4px;
-  width: 24px;
-  height: 24px;
+  width: 28px; /* Slightly larger */
+  height: 28px; /* Slightly larger */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 151;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+}
+
+.mobile-expand-btn:hover, .mobile-collapse-btn:hover {
+  background-color: #444;
 }
 
 /* Error indicator styling */
 .error-indicator {
   position: absolute;
   top: 10px;
-  right: 40px;
-  background-color: #cc4444;
+  right: 45px; /* Moved slightly to accommodate larger expand button */
+  background-color: #a03535; /* Darker red */
   color: white;
   width: 20px;
   height: 20px;
@@ -192,36 +212,37 @@
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  z-index: 151;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
 }
 
 .display-panel-target {
-  background-color: #444;
+  background-color: #333; /* Darker target panel */
   border-radius: 5px;
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #444; /* Added border */
 }
 
 .display-panel-target h3 {
   margin: 0 0 5px 0;
   color: white;
   font-size: 16px;
-  border-bottom: 1px solid #555;
+  border-bottom: 1px solid #444;
   padding-bottom: 5px;
 }
 
 .display-image-name {
-  background-color: #eee;
-  border: 1px solid #000000;
+  background-color: #252525; /* Darker select background */
+  border: 1px solid #444;
   border-radius: 5px;
   padding: 10px;
   width: 100%;
   box-sizing: border-box;
   font-size: 14px;
+  color: #ddd; /* Lighter text for contrast */
 }
 
 .selected-target-images {
@@ -232,7 +253,7 @@
 }
 
 .selected-image-badge {
-  background-color: #666;
+  background-color: #444; /* Darker badge */
   color: white;
   padding: 5px 10px;
   border-radius: 15px;
@@ -245,7 +266,7 @@
 .remove-badge {
   background: none;
   border: none;
-  color: #ff6666;
+  color: #ff7f7f; /* Lighter red for better visibility */
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
@@ -253,16 +274,18 @@
 }
 
 .active-target {
-  background-color: #272727;
+  background-color: #1a1a1a; /* Darker active target */
+  border: 1px solid #555; /* Highlighting border */
 }
 
 .no-targets-placeholder {
-  background-color: #272727;
+  background-color: #1a1a1a; /* Darker placeholder */
   border-radius: 5px;
   padding: 20px;
   text-align: center;
-  color: #ccc;
+  color: #aaa;
   font-style: italic;
+  border: 1px solid #333; /* Added border */
 }
 
 .display-panel-container {
@@ -279,32 +302,31 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
-  z-index: 2;
   gap: 10px;
   padding: 10px;
   text-align: center;
 }
 
 .image-error-overlay button {
-  background-color: #3a3a3a;
+  background-color: #333; /* Darker button */
   color: white;
-  border: 1px solid #666;
+  border: 1px solid #555;
   border-radius: 4px;
-  padding: 5px 10px;
+  padding: 6px 12px; /* Slightly larger padding */
   cursor: pointer;
   font-size: 12px;
 }
 
 .image-error-overlay button:hover {
-  background-color: #555;
+  background-color: #444;
 }
 
 .image-error-badge {
-  background-color: #cc4444 !important;
+  background-color: #a03535 !important; /* Darker error red */
 }

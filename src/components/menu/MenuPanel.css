@@ -1,82 +1,145 @@
 /* ------------------------- Menu Panel ------------------------- */
 .menu-panel {
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-    background-color: #272727;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    height: 100%;
-    border-radius: 10px;
-  }
-  
-  /* Push the bottom container to the bottom */
-  .menu-panel-bottom {
-    margin-top: auto; /* This pushes the container to the bottom */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 5px;
-  }
-  
-  /* Optionally style the logo */
-  .temoto-logo {
-    max-width: 85%;
-    height: auto;
-    transition: transform 0.15s ease;
-  }
-  
-  .info-button:hover .temoto-logo {
-    transform: scale(1.03);
-  }
-  
-  /* ------------------------- Menu Buttons ------------------------- */
-  .menu-panel button {
-    width: 100%;
-    padding: 12px 16px;
-    border: none;
-    border-radius: 4px;
-    background-color: #555; /* Default gray */
-    color: white;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  }
-  
-  .menu-panel button:hover {
-    background-color: #666;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .menu-panel button:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Active button styling */
-  .menu-button.active {
-    background-color: #c74545; /* Only active button is red */
-    color: white;
-  }
-  
-  /* Info button specific styling */
-  .info-button {
-    background-color: transparent !important;
-    padding: 8px !important;
-    box-shadow: none !important;
-    margin-top: 5px;
-  }
-  
-  .info-button:hover {
-    background-color: transparent !important;
-    transform: none !important;
-  }
-  
-  .info-button.active {
-    background-color: transparent !important;
-  }
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  background-color: #1a1a1a; /* Darker background for better contrast with parent (#222) */
+  padding: 12px; /* Slightly more padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px solid #333; /* Added subtle border */
+}
+
+/* Mobile specific styles */
+.menu-panel.mobile {
+  height: auto;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  overflow: hidden;
+  z-index: 1000; /* Ensure it's above other components */
+}
+
+/* Push the bottom container to the bottom */
+.menu-panel-bottom {
+  margin-top: auto; /* This pushes the container to the bottom */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px; /* Slightly more padding */
+}
+
+/* Hide bottom container in mobile mode */
+.menu-panel.mobile .menu-panel-bottom {
+  display: none;
+}
+
+/* Optionally style the logo */
+.temoto-logo {
+  max-width: 85%;
+  height: auto;
+  transition: transform 0.15s ease;
+}
+
+.info-button:hover .temoto-logo {
+  transform: scale(1.03);
+}
+
+/* ------------------------- Menu Buttons ------------------------- */
+.menu-panel button {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333; /* Darker default button color */
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); /* Stronger shadow */
+}
+
+/* Mobile specific button styles */
+.menu-panel.mobile button {
+  border-radius: 0;
+  text-align: left;
+  padding: 14px 16px;
+  box-shadow: none;
+  border-bottom: 1px solid #333;
+  font-size: 1.05rem;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+.menu-panel.mobile button:last-child {
+  border-bottom: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.menu-panel.mobile button:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+/* Add icons to mobile menu buttons */
+.menu-panel.mobile button::before {
+  content: "•";
+  margin-right: 10px;
+  color: #888;
+  font-size: 1.2rem;
+}
+
+.menu-panel button:hover {
+  background-color: #a03535e1; /* Darker hover state */
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
+
+.menu-panel.mobile button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.menu-panel button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Active button styling */
+.menu-button.active {
+  background-color: #a03535; /* Darker red for active button */
+  color: white;
+  border: 1px solid #c74545; /* Light border to make it pop */
+}
+
+.menu-panel.mobile .menu-button.active {
+  border: none;
+  border-left: 4px solid #c74545;
+  background-color: #2a2a2a;
+}
+
+.menu-panel.mobile .menu-button.active::before {
+  color: #c74545;
+}
+
+/* Info button specific styling */
+.info-button {
+  background-color: transparent !important;
+  padding: 8px !important;
+  box-shadow: none !important;
+  margin-top: 5px;
+}
+
+.info-button:hover {
+  transform: none !important;
+}
+
+.info-button.active {
+  background-color: transparent !important;
+}

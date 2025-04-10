@@ -1,9 +1,14 @@
 /* webapp */
 .webapp {
     display: flex;
-    height: 100vh;
-    background-color: #1a1a1a;
-    padding:5px;
+    height: 100%;
+    background-color: #111;
+    padding: 10px;
+}
+
+/* For mobile: change to column layout */
+.webapp.mobile {
+    flex-direction: column;
 }
 
 /* navigation sidebar */
@@ -15,10 +20,110 @@
     padding-right: 20px;
 }
 
+/* Mobile navigation top bar */
+.nav.mobile {
+    width: 100%;
+    flex-direction: row;
+    padding: 10px 15px;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    min-height: 60px;
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 10px;
+    position: relative; /* Needed for proper dropdown positioning */
+    z-index: 100; /* Ensure the nav bar stays above content */
+}
+
 /* app content area */
 .app {
     display: flex;
     flex: 1; 
     overflow-y: auto;
-    min-height: 300px;
+    min-height: 200px;
+}
+
+/* Mobile menu toggle button */
+.mobile-menu-toggle {
+    background-color: #a03535; /* Matching the active button color */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.15s ease;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: #b84040;
+    transform: translateY(-1px);
+}
+
+.mobile-menu-toggle:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Add hamburger icon to menu button */
+.mobile-menu-toggle::before {
+    content: "☰";
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+/* Mobile menu dropdown */
+.mobile-menu-dropdown {
+    position: absolute;
+    top: 70px;
+    right: 15px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 9999; /* Extremely high z-index to ensure it's above all other components */
+    overflow: hidden;
+    border: 1px solid #333;
+    width: 200px; /* Slightly wider for better touch targets */
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.mobile-menu-dropdown.hidden {
+    display: none;
+}
+
+/* Mobile banner container */
+.mobile-banner-container {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-banner {
+    height: 20px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Add animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Backdrop for mobile menu to prevent clicks on underlying elements */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999; /* Just below the dropdown */
+    animation: fadeIn 0.2s ease-in-out;
 }
