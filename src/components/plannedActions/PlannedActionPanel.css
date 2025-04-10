@@ -1,121 +1,458 @@
-/* Remove or override any old .queue-item h3 { position: absolute; ... } */
+/* Alternative spinner - three dots */
+.status-thinking {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
 
-/* Container for the entire panel */
-.planned-action-sub-panel {
-  background-color: #1a1a1a;
+.status-thinking span {
+  width: 4px;
+  height: 4px;
+  margin: 0 1px;
+  background-color: currentColor;
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.status-thinking span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.status-thinking span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}/* Modern Planned Action Panel Styles */
+
+.action-panel {
+  background-color: #272727;
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
-}
-
-/* Sub-container for the list of actions */
-.planned-action-sub-container {
-  background-color: #ddd;
+  color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Panel header */
+.panel-header {
   padding: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  overflow-y: auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #272727;
+  border-bottom: 1px solid #444;
 }
 
-/* Individual action container */
-.planned-action-item {
-  background-color: #eee;
-  border-radius: 5px;
-  padding: 20px;
-  padding-bottom: 30px;
-  color: black;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.panel-header h2 {
+  margin: 0 0 16px 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #fff;
 }
 
-/* Larger text for the action name */
-.action-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: left;
-  margin-bottom: 7px;
-}
-
-.status-action-item {
-  color: rgb(167, 167, 167);
-  text-align: right;
-  font-size: 12px;
-}
-
-/* Show/hide parameters link */
-.parameter-toggle {
-  cursor: pointer;
-  color: rgb(179, 0, 0);
-  text-decoration: underline;
-  margin-bottom: 5px;
-}
-
-/* Nested list styling for parameters */
-.planned-action-item ul {
-  list-style-type: disc;
-  padding-left: 20px;
-  margin: 5px 0;
-}
-
-.planned-action-item ul li {
-  margin: 2px 0;
-  font-size: 1rem;
-}
-
-/* For empty queue messages */
-.planned-action-item p {
-  color: #999;
-  font-style: italic;
-  text-align: center;
-  margin: 0;
-}
-
-/* Status color highlights for the entire item box */
-.status-finished {
-  background-color: #73e573 !important;
-}
-
-.status-running {
-  background-color: #e3e573 !important;
-}
-
-.status-stopped {
-  background-color: #E57373 !important;
-}
-
-.status-handling {
-  background-color: #73c1e5 !important;
-}
-
-.actor-filter {
-  display: flex;
-  align-items: center;
-  padding: 9px;
-  font-size: 1rem;
-  background-color: #272727; 
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+/* Actor selector dropdown */
+.actor-selector {
+  margin-top: 10px;
   margin-bottom: 15px;
 }
 
-.actor-filter label {
-  margin-right: 20px;
-  margin-left: 20px;
-  color: white;
-  white-space: nowrap; 
+.actor-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 5px;
+  background-color: #444;
+  border: 1px solid #666;
+  color: #eee;
+  font-size: 0.95rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 30px;
 }
 
-.actor-filter select {
+.actor-dropdown:focus {
+  outline: none;
+  border-color: #a9d6a5;
+  box-shadow: 0 0 0 2px rgba(169, 214, 165, 0.2);
+}
+
+.actor-dropdown option {
+  padding: 8px;
+  background-color: #333;
+}
+
+/* Panel content */
+.panel-content {
   flex: 1;
-  padding: 5px;
-  font-size: 1rem;
-  border-radius: 3px;
-  border: none;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  position: relative;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+/* Action list */
+.actions-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
+  padding-right: 6px;
+  padding-bottom: 20px;
+  align-items: flex-start;
+}
+
+.actions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.actions-list::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 6px;
+}
+
+.actions-list::-webkit-scrollbar-track {
+  background-color: #2a2a2a;
+}
+
+/* Action items */
+.action-item {
+  background-color: #333;
+  border-radius: 5px;
+  padding: 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-left: 4px solid #555;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: #eee;
+  margin-bottom: 15px;
+  position: relative;
+  width: 100%;
   box-sizing: border-box;
-  margin-right: 20px;
-  background-color: #eee;
+}
+
+.action-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Action header */
+.action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #555;
+}
+
+.action-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.action-status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background-color: #444;
+  color: white;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Spinner for ERROR state when graph is running - pulse dot approach */
+.status-spinner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.status-spinner::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+}
+
+@keyframes spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toggle button for showing parameters */
+.action-toggle {
+  display: inline-block;
+  cursor: pointer;
+  color: #fff;
+  font-size: 0.9rem;
+  background-color: #444;
+  padding: 8px 14px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  text-align: center;
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.action-toggle:hover {
+  background-color: #555;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.action-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Parameters styling */
+.action-parameters {
+  background-color: #444;
+  border-radius: 5px;
+  padding: 16px;
+  border: 1px solid #555;
+  overflow-x: auto;
+}
+
+/* Redesigned parameter display */
+.param-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.param-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.param-section-header {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 5px;
+}
+
+.param-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 10px;
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.param-bullet {
+  color: #a9d6a5;
+  margin-right: 5px;
+}
+
+.param-item-name {
+  color: #d6cca9;
+  font-weight: 500;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+}
+
+.param-separator {
+  color: #eee;
+  margin-left: 5px;
+}
+
+.param-item-value {
+  color: #eee;
+  word-break: break-word;
+  padding-left: 25px;
+  border-left: 2px solid #555;
+  margin-left: 5px;
+}
+
+.null-value {
+  color: #888;
+  font-style: italic;
+}
+
+.param-empty {
+  color: #888;
+  font-style: italic;
+  padding-left: 25px;
+}
+
+/* Graph state positioned at the bottom */
+.graph-state {
+  margin-top: 20px;
+  border-radius: 5px;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background-color: #333;
+  color: #eee;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* Empty state styling */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: #aaa;
+  font-style: italic;
+  background-color: #333;
+  border-radius: 5px;
+  min-height: 100px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Status colors */
+.status-finished {
+  border-left-color: #73e573 !important;
+}
+
+.status-finished .action-status {
+  background-color: #73e573;
+  color: #000;
+}
+
+.status-running {
+  border-left-color: #e3e573 !important;
+}
+
+.status-running .action-status {
+  background-color: #e3e573;
+  color: #000;
+}
+
+.status-stopped {
+  border-left-color: #E57373 !important;
+}
+
+.status-stopped .action-status {
+  background-color: #E57373;
+  color: #000;
+}
+
+.status-handling {
+  border-left-color: #73c1e5 !important;
+}
+
+.status-handling .action-status {
+  background-color: #73c1e5;
+  color: #000;
+}
+
+/* ERROR state styling */
+.status-error {
+  border-left-color: #E57373 !important;
+}
+
+.status-error .action-status {
+  background-color: #E57373;
+  color: #000;
+}
+
+/* ERROR state when graph is running */
+.status-error.graph-running {
+  border-left-color: #73c1e5 !important;
+}
+
+.status-error.graph-running .action-status {
+  background-color: #73c1e5;
+  color: #000;
+}
+
+/* Graph state status colors */
+.graph-state.status-running {
+  background-color: #6b6b1e;
+  color: #e3e573;
+}
+
+.graph-state.status-paused,
+.graph-state.status-handling {
+  background-color: #1e4c6b;
+  color: #73c1e5;
+}
+
+.graph-state.status-stopped {
+  background-color: #6b1e1e;
+  color: #E57373;
+}
+
+.graph-state.status-finished {
+  background-color: #1e6b1e;
+  color: #73e573;
+}
+
+.graph-state.status-error {
+  background-color: #6b1e1e;
+  color: #E57373;
 }

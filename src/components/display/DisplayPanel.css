@@ -124,7 +124,7 @@
 
 /* Target container */
 .display-target-container {
-  width: 100%;
+  width: 370px; /* Set a fixed width for desktop */
   height: 100%;
   background-color: #1a1a1a;
   border-radius: 5px;
@@ -135,11 +135,21 @@
   overflow-y: auto;
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0; /* Position from the right */
   visibility: hidden;
   opacity: 0;
   z-index: 150;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.3); /* Add shadow on the left side */
+}
+
+/* Mobile behavior - make it full screen when in mobile view */
+@media (max-width: 768px) {
+  .display-target-container {
+    width: 100%; /* Full width on mobile */
+    right: 0;
+    left: 0;
+  }
 }
 
 /* Show target container when targets expanded */

@@ -178,12 +178,20 @@ const ChatPanel = () => {
 
   /**
    * Toggles the selection of a tab (actor).
+   * With Shift key: toggles the actor to add/remove from selection
+   * Without Shift key: selects only this actor
    */
-  const handleToggleTab = (actor) => {
-    if (activeTabs.includes(actor)) {
-      setActiveTabs(activeTabs.filter((a) => a !== actor));
+  const handleToggleTab = (actor, event) => {
+    // If shift key is pressed, toggle the selection
+    if (event.shiftKey) {
+      if (activeTabs.includes(actor)) {
+        setActiveTabs(activeTabs.filter((a) => a !== actor));
+      } else {
+        setActiveTabs([...activeTabs, actor]);
+      }
     } else {
-      setActiveTabs([...activeTabs, actor]);
+      // If shift is not pressed, select only this actor
+      setActiveTabs([actor]);
     }
   };
 
@@ -241,17 +249,31 @@ const ChatPanel = () => {
   const getTabClass = (actor) => {
     let className = "tab-button";
     
-    // First check if it's awaiting response (higher priority)
-    if (actorsAwaitingResponse.includes(actor)) {
-      className += " awaiting-response-tab";
-    }
-    
-    // Then check if it's active
+    // First check if it's active
     if (activeTabs.includes(actor)) {
       className += " active-tab";
     }
     
+    // Then check if it's awaiting response (this should come second so it can override active if needed)
+    if (actorsAwaitingResponse.includes(actor)) {
+      className += " awaiting-response-tab";
+    }
+    
     return className;
+  };
+
+  // Helper to determine message type class
+  const getMessageTypeClass = (message) => {
+    if (message.length <= 3) return "";
+    
+    const type = message[3];
+    switch(type) {
+      case "request": return "request-type";
+      case "response": return "response-type";
+      case "info": return "info-type";
+      case "error": return "error-type";
+      default: return "";
+    }
   };
 
   return (
@@ -259,47 +281,55 @@ const ChatPanel = () => {
       <div className="chat-container">
         {/* Tab Section */}
         <div className="tab-container">
-          <button className="add-tab-button" onClick={handleAddTab}>
-            +
-          </button>
-          <div className="tabs-scrollable">
-            {Object.keys(messages).map((actor) => (
-              <button
-                key={actor}
-                className={getTabClass(actor)}
-                onClick={() => handleToggleTab(actor)}
-              >
-                {actor}
-                {actorsAwaitingResponse.includes(actor) && (
-                  <span className="awaiting-response-indicator">⏳</span>
-                )}
-              </button>
-            ))}
+          <div className="actor-selector">
+            <button className="add-tab-button" onClick={handleAddTab}>
+              +
+            </button>
+            
+            <div className="tabs-scrollable">
+              {Object.keys(messages).map((actor) => (
+                <button
+                  key={actor}
+                  className={getTabClass(actor)}
+                  onClick={(e) => handleToggleTab(actor, e)}
+                >
+                  {actor}
+                  {actorsAwaitingResponse.includes(actor) && (
+                    <span className="awaiting-response-indicator">⏳</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            <button 
+              className={`debug-toggle-button ${showDebugMessages ? 'debug-active' : ''}`} 
+              onClick={toggleDebugMessages}
+              title="Toggle Debug Messages"
+            >
+              {showDebugMessages ? "🐞" : "🐞"}
+            </button>
           </div>
-          <button 
-            className={`debug-toggle-button ${showDebugMessages ? 'debug-active' : ''}`} 
-            onClick={toggleDebugMessages}
-            title="Toggle Debug Messages"
-          >
-            {showDebugMessages ? "🐞 On" : "🐞 Off"}
-          </button>
         </div>
 
         {/* Chat Log */}
         <div className="chat-log" ref={chatLogRef}>
           {activeTabs.length > 0 ? (
-            combinedMessages.map((chat, idx) => {
-              // Each chat entry is in the form [timestamp, user, message].
-              const [timestamp, user, message] = chat;
-              const messageClass = `chat-message ${user === "debug" ? "debug-type" : ""}`;
-              
-              return (
-                <p key={idx} className={messageClass}>
-                  {showDebugMessages && <span className="chat-timestamp">{timestamp}</span>}{" "}
-                  <strong>{user}:</strong> {message}
-                </p>
-              );
-            })
+            combinedMessages.length > 0 ? (
+              combinedMessages.map((chat, idx) => {
+                // Each chat entry is in the form [timestamp, user, message, type].
+                const [timestamp, user, message, type] = chat;
+                const messageClass = `chat-message ${user === "debug" ? "debug-type" : getMessageTypeClass(chat)}`;
+                
+                return (
+                  <div key={idx} className={messageClass}>
+                    {showDebugMessages && <span className="chat-timestamp">{timestamp}</span>}
+                    <strong>{user}:</strong> {message}
+                  </div>
+                );
+              })
+            ) : (
+              <p>No messages yet. Start a conversation.</p>
+            )
           ) : (
             <p>No actor selected. Please select at least one actor.</p>
           )}
@@ -314,9 +344,6 @@ const ChatPanel = () => {
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
           />
-          <button onClick={handleVoicePrompt} className="voice-prompt-button">
-            🎙️
-          </button>
           <button onClick={handleSend}>Send</button>
         </div>
       </div>

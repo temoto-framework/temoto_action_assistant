@@ -3,24 +3,70 @@ import json
 import datetime
 import threading
 import re
-import traceback
 
 def setup_chat_socket(app, socketio, chat_enabled):
     """Setup all Flask routes and SocketIO handlers for the chat interface"""
 
     chat_log = {}
     request_response_tracking = {}
-    umrf_feedback_data = {}
+    umrf_planned_data = {}
     ri_chat_node = None  # Initialize at function scope
     
     def get_current_timestamp():
         """Return current UTC time in ISO format."""
         return datetime.datetime.utcnow().isoformat() + "Z"
 
-    def graph_feedback_callback(actor, graph):
-        """Callback function to handle graph feedback from ROS."""
-        umrf_store_feedback_data(actor, graph)
+    ### PLANNED ACTIONS
 
+    def graph_planned_callback(actor, graph):
+        """Callback function to handle graph feedback from ROS."""
+        try:
+            # Debug logging to track data flow
+            print(f"[DEBUG] graph_planned_callback received data for actor: {actor}")
+            print(f"[DEBUG] graph data type: {type(graph)}")
+            
+            # Ensure we're working with a dictionary
+            if isinstance(graph, str):
+                try:
+                    graph = json.loads(graph)
+                    print("[DEBUG] Successfully parsed graph string to JSON")
+                except json.JSONDecodeError as e:
+                    print(f"[ERROR] Failed to parse graph string: {str(e)}")
+            
+            # Store the graph data
+            umrf_store_planned_data(actor, graph)
+            
+        except Exception as e:
+            print(f"[ERROR] Error in graph_planned_callback: {str(e)}")
+            
+
+    def umrf_store_planned_data(actor, graph):
+        """Store UMRF feedback data and emit to clients."""
+        try:
+            print(f"[DEBUG] Storing graph data for actor: {actor}")
+            
+            graph_stored = {}
+
+            if "actions" in graph:
+                graph_stored["actions"] = graph["actions"]
+            else:
+                graph_stored["actions"] = umrf_planned_data.get(actor, {}).get("actions", [])
+            
+            if "graph_state" in graph:
+                graph_stored["graph_state"] = graph["graph_state"]
+            else:
+                graph_stored["graph_state"] = umrf_planned_data.get(actor, {}).get("graph_state", "UNKNOWN")
+
+            # Store the data
+            umrf_planned_data[actor] = graph_stored
+                        
+            # Emit the updated data to all clients
+            socketio.emit('umrf_planned_data', umrf_planned_data)
+            
+        except Exception as e:
+            print(f"[ERROR] Error in umrf_store_planned_data: {str(e)}")
+
+    ### CHAT 
 
     @app.route('/send_message', methods=['POST'])
     def http_send_message():
@@ -104,7 +150,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
     @app.route('/chat_interface_page_refresh', methods=['POST'])
     def chat_interface_page_refresh():
         socketio.emit('chat_log', chat_log)
-        socketio.emit('umrf_feedback_data', umrf_feedback_data)
+        socketio.emit('umrf_planned_data', umrf_planned_data)
         socketio.emit('debug_mode', app.config.get('DEBUG_MODE', False))
         return jsonify({"message": "Chat interface refreshed", "chat_log": chat_log}), 200
     
@@ -191,7 +237,6 @@ def setup_chat_socket(app, socketio, chat_enabled):
             
         except Exception as e:
             print(f"Error in handle_get_feeds: {str(e)}")
-            traceback.print_exc()
 
     @socketio.on('display_subscribe_to_image')
     def handle_subscribe_to_image(data):
@@ -362,9 +407,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
                 }
             )
         except Exception as e:
-            import traceback
             print(f"ERROR in get_image: {str(e)}")
-            print(traceback.format_exc())
             return Response(
                 f"Server error: {str(e)}", 
                 status=500,
@@ -443,12 +486,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
         # Notify clients that the image was updated
         socketio.emit('image_updated', {"target": target, "name": name})
         print(f"Emitted image_updated for {target}/{name}")
-    
-    def umrf_store_feedback_data(actor, graph):
-        """Store UMRF feedback data"""
-        umrf_feedback_data[actor] = graph
-        socketio.emit('umrf_feedback_data', umrf_feedback_data)
-    
+        
 
     if chat_enabled:
         try:
@@ -456,7 +494,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
             from ChatInterface import chat_ros
             
             # Start the ROS thread
-            chat_ros.run_ros_chat_thread(graph_feedback_callback, chat_feedback_callback, display_feed_callback)
+            chat_ros.run_ros_chat_thread(graph_planned_callback, chat_feedback_callback, display_feed_callback)
             
             # Wait for node to initialize with timeout
             if chat_ros.wait_until_initialized(timeout=10.0):
@@ -468,8 +506,6 @@ def setup_chat_socket(app, socketio, chat_enabled):
             return ri_chat_node
         except Exception as e:
             print(f"Error initializing chat node: {e}")
-            import traceback
-            traceback.print_exc()
             return None
     else:
         return None
