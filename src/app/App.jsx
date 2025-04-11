@@ -4,11 +4,12 @@ import MenuPanel from "../components/menu/MenuPanel";
 import ChatInterfacePage from "../pages/chatInterface/ChatInterfacePage";
 import ActionInterfacePage from "../pages/actionInterface/ActionInterfacePage";
 import PlannedActionsPage from "../pages/plannedActionsInterface/PlannedActionsPage";
+import HomePage from "../pages/home/HomePage";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import temoto_banner from "../public/temoto_logo_name.png";
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("ChatInterfacePage");
+  const [currentPage, setCurrentPage] = useState("HomePage");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { aspectRatio, height } = useWindowDimensions();
 
@@ -27,17 +28,17 @@ const App = () => {
   /* Setup page rendered */
   const renderPage = () => {
     switch (currentPage) {
+      case "HomePage":
+        return <HomePage />;
       case "ChatInterfacePage":
         return <ChatInterfacePage />;
       case "ActionInterfacePage":
         return <ActionInterfacePage />;
       case "PlannedActionsPage":
         return <PlannedActionsPage />;
-      case "InfoInterfacePage":
-        // Assuming you'll implement this later
-        return <div>Info Page</div>;
+
       default:
-        return <ChatInterfacePage />;
+        return <HomePage />;
     }
   };
 

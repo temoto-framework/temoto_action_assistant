@@ -1,0 +1,480 @@
+/* HomePage.css - Matching the style of the existing app with optimizations */
+
+/* Main container */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #111;
+  color: #f8f9fa;
+  padding: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Banner section - optimized for desktop */
+.home-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px 20px; /* Reduced from 40px 20px */
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  margin: 15px; 
+  margin-top: 0px;
+  border: 1px solid #333;
+  text-align: center;
+}
+
+.banner-logo {
+  max-width: 240px; /* Reduced from 300px */
+  height: auto;
+  margin-bottom: 15px; /* Reduced from 20px */
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.home-banner h1 {
+  font-size: 1.4rem; /* Reduced from 1.5rem */
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 18px; /* Reduced from 25px */
+  color: #a3d4ff;
+  letter-spacing: 0.5px;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.banner-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #a03535;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+}
+
+.banner-button:hover {
+  background-color: #b84040;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4);
+}
+
+.banner-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.github-icon {
+  margin-right: 8px;
+}
+
+/* Navigation section */
+.home-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.nav-button:hover {
+  background-color: #a03535e1;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.nav-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button.active {
+  background-color: #a03535;
+  color: white;
+  border: 1px solid #c74545;
+}
+
+/* Content section */
+.home-content {
+  flex: 1;
+  padding: 0 20px 20px;
+  overflow-y: auto;
+}
+
+.section-content {
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+}
+
+.section-content h2 {
+  margin-top: 0;
+  color: #a3d4ff;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.section-description {
+  margin-bottom: 25px;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+/* Feature grid for About section */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.feature-card {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #444;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  color: #a3d4ff;
+  font-size: 1.2rem;
+}
+
+/* Tutorials section */
+.tutorials-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tutorial-card {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tutorial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.tutorial-card h3 {
+  margin-top: 0;
+  color: #a3d4ff;
+}
+
+.tutorial-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.difficulty-level {
+  background-color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #ddd;
+}
+
+.tutorial-link {
+  color: #a03535;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.tutorial-link:hover {
+  color: #c74545;
+  text-decoration: underline;
+}
+
+/* Papers section */
+.papers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.paper-card {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #444;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paper-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.paper-card h3 {
+  margin-top: 0;
+  color: #a3d4ff;
+  font-size: 1.1rem;
+}
+
+.paper-authors {
+  font-style: italic;
+  color: #bbb;
+  margin-bottom: 5px;
+}
+
+.paper-venue {
+  color: #999;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.paper-links {
+  display: flex;
+  gap: 15px;
+}
+
+.paper-links a {
+  color: #a03535;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.paper-links a:hover {
+  color: #c74545;
+  text-decoration: underline;
+}
+
+/* Team section */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.team-card {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.team-card-header {
+  margin-bottom: 10px;
+}
+
+.team-card h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #a3d4ff;
+}
+
+.affiliation {
+  color: #999;
+  font-size: 0.9rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.contribution {
+  color: #ddd;
+  flex-grow: 1;
+  margin-bottom: 15px;
+}
+
+.author-links {
+  display: flex;
+  gap: 15px;
+  margin-top: auto;
+}
+
+.author-links a {
+  color: #a03535;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.author-links a:hover {
+  color: #c74545;
+  text-decoration: underline;
+}
+
+/* Footer section */
+.home-footer {
+  padding: 20px;
+  background-color: #1a1a1a;
+  border-top: 1px solid #333;
+  text-align: center;
+  margin-top: 20px;
+  color: #999;
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
+
+.footer-links {
+  margin-top: 10px;
+}
+
+.footer-links a {
+  color: #a3d4ff;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+  color: #c2e3ff;
+  text-decoration: underline;
+}
+
+.separator {
+  margin: 0 10px;
+  color: #555;
+}
+
+/* Mobile banner optimization - more compact */
+.home-banner.mobile {
+  padding: 12px 10px;
+  margin: 8px;
+}
+
+.home-banner.mobile .banner-logo {
+  max-width: 150px;
+  margin-bottom: 8px;
+}
+
+.home-banner.mobile h1 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.home-banner.mobile .banner-actions {
+  flex-direction: row;
+  gap: 8px;
+}
+
+.home-banner.mobile .banner-button {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
+/* Adjust overall spacing for mobile */
+.home-page.mobile .home-navigation {
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+
+.home-page.mobile .home-content {
+  padding: 0 8px 8px;
+}
+
+.home-page.mobile .section-content {
+  padding: 12px;
+}
+
+/* Ensure content fits better on mobile */
+.home-page.mobile .feature-grid,
+.home-page.mobile .tutorials-list,
+.home-page.mobile .papers-list,
+.home-page.mobile .team-grid {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Optimize footer for mobile */
+.home-page.mobile .home-footer {
+  padding: 12px 10px;
+  margin-top: 8px;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .home-navigation {
+    flex-wrap: wrap;
+  }
+
+  .nav-button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .feature-grid,
+  .tutorials-list,
+  .papers-list,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-banner {
+    padding: 25px 15px;
+  }
+
+  .banner-logo {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .section-content {
+    padding: 15px;
+  }
+  
+  /* Keep banner buttons in a row by default, override previous media query */
+  .home-banner .banner-actions {
+    flex-direction: row;
+    gap: 8px;
+  }
+}

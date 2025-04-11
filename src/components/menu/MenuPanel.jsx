@@ -1,21 +1,19 @@
 import React from "react";
 import "./MenuPanel.css";
 import temoto_logo from "../../public/temoto_logo_icon.png";
-import temoto_name from "../../public/temoto_logo_name.png";
 
 const MenuPanel = ({ setPage, currentPage, isMobile }) => {
   const buttons = [
-    { id: 1, text: "Chat HRI", page: "ChatInterfacePage" },
-    { id: 2, text: "Action", page: "ActionInterfacePage" },
+    { id: 1, text: "Home", page: "HomePage" },
+    { id: 2, text: "Chat HRI", page: "ChatInterfacePage" },
+    { id: 3, text: "Action", page: "ActionInterfacePage" },
   ];
   
   // Add Planned Actions to mobile menu options
   const mobileButtons = [
     ...buttons,
-    { id: 3, text: "Planned Actions", page: "PlannedActionsPage" }
+    { id: 4, text: "Planned Actions", page: "PlannedActionsPage" }
   ];
-  
-  const info = { text: "Info", page: "InfoInterfacePage" };
   
   return (
     <div className={`menu-panel ${isMobile ? 'mobile' : ''}`}>
@@ -30,22 +28,10 @@ const MenuPanel = ({ setPage, currentPage, isMobile }) => {
         </button>
       ))}
       
-      {/* Only show info button if not in mobile mode, otherwise add it as a regular menu item */}
-      {isMobile ? (
-        <button
-          className={`menu-button ${currentPage === info.page ? 'active' : ''}`}
-          onClick={() => setPage(info.page)}
-        >
-          {info.text}
-        </button>
-      ) : (
+      {/* Only show logo if not in mobile mode */}
+      {!isMobile && (
         <div className="menu-panel-bottom">
-          <button
-            className={`info-button ${currentPage === info.page ? 'active' : ''}`}
-            onClick={() => setPage(info.page)}
-          >
-            {<img src={temoto_logo} alt="Temoto Logo" className="temoto-logo" />}
-          </button>
+          <img src={temoto_logo} alt="Temoto Logo" className="temoto-logo" />
         </div>
       )}
     </div>
