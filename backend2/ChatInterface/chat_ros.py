@@ -62,6 +62,13 @@ class ChatNode(Node):
                     data = msg.history[0]
                     graph_json = json.loads(data)
                     
+                    # Include graph state
+                    graph["graph_state"] = graph_json.get("graph_state", "RUNNING")
+                    if graph["graph_state"] == "STOPPED":
+                        graph["actions"] = []
+                        self.graph_planned_parent(msg.actor, graph)
+                        return
+
                     # Extract actions
                     if "actions" in graph_json and isinstance(graph_json["actions"], list):
                         for action in graph_json["actions"]:
@@ -75,10 +82,7 @@ class ChatNode(Node):
                             }
                             # Add to graph
                             graph["actions"].append(action_entry)
-                            
-                    # Also include graph metadata
-                    graph["graph_state"] = graph_json.get("graph_state", "RUNNING")
-                    
+                                                
                 except Exception as e:
                     self.get_logger().error(f"Error processing graph: {str(e)}")
                     
