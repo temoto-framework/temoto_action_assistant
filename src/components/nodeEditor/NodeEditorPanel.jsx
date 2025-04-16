@@ -162,7 +162,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
   }));
 
   const jsonToFlow = useCallback((graphJson) => {
-    // Early return if graphJson is undefined or null
     if (!graphJson) {
       console.warn('jsonToFlow called with undefined or null graphJson');
       setNodes([]);
@@ -271,31 +270,66 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     const new_nodes = [...entry_nodes, ...action_nodes, ...exit_nodes];
   
     // Create edges between action nodes
-    const action_edges = graphJson.actions?.flatMap(action =>
-      action.children?.map(child => ({
-        id: `${action.name}_${action.instance_id} to ${child.name}_${child.instance_id}`,
-        source: `${action.name}_${action.instance_id}`,
-        target: `${child.name}_${child.instance_id}`,
-        type: 'buttonedge',
+    const action_edges = graphJson.actions?.flatMap(action => { 
+
+         // OLD: connect by action children
+    //   action.children?.map(child => {
+    //     return {
+    //     id: `${action.name}_${action.instance_id} to ${child.name}_${child.instance_id}`,
+    //     source: `${action.name}_${action.instance_id}`,
+    //     sourceHandle: parent?.sourceHandle || 'source-on-true',
+    //     target: `${child.name}_${child.instance_id}`,
+    //     type: 'buttonedge',
   
-        // Needed for converting back to UMRF graph
-        source_name: action.name,
-        source_id:   action.instance_id,
-        target_name: child.name,
-        target_id:   child.instance_id,
-      })) || []
-    );
+    //     // Needed for converting back to UMRF graph
+    //     source_name: action.name,
+    //     source_id:   action.instance_id,
+    //     target_name: child.name,
+    //     target_id:   child.instance_id,
+    //   }
+    // }) || []
+
+      const CONDITION_TO_SOURCE_HANDLE = {
+        'on_true': 'source-on-true',
+        'on_false': 'source-on-false',
+        'on_error': 'source-on-error'
+      }
+        
+      return action.parents?.map(parent => {
+          const parsedConditions = parent.conditions.map(condStr => {
+            const [condType, outcome] = condStr.split(' -> ');
+            return { condType, outcome };
+          });
+
+          const runCondition = parsedConditions.find(cond => cond.outcome === 'run')?.condType
+          const sourceHandle = CONDITION_TO_SOURCE_HANDLE[runCondition]
+
+          return {
+              id: `${parent.name}_${parent.instance_id} to ${action.name}_${action.instance_id}`,
+              source: `${parent.name}_${parent.instance_id}`,
+              sourceHandle: sourceHandle,
+              target: `${action.name}_${action.instance_id}`,
+              type: 'buttonedge',
+      
+              // Needed for converting back to UMRF graph
+              source_name: parent.name,
+              source_id:   parent.instance_id,
+              target_name: action.name,
+              target_id:   action.instance_id,
+          }
+      }) || []
+    }).flat(); 
 
     // Create edges from entry node to entry actions
     const entry_edges = [];
     if (graphJson.graph_entry && graphJson.graph_entry.actions && graphJson.graph_entry.actions.length > 0) {
       graphJson.graph_entry.actions.forEach(entry => {
         entry_edges.push({
-          id: `entry-to-${entry.name}_${entry.instance_id}`,
+          id: `entry to ${entry.name}_${entry.instance_id}`,
           source: 'entry-node',
           target: `${entry.name}_${entry.instance_id}`,
           source_name: 'entry',
-          source_id: 'node',
+          source_id: null,
           target_name: entry.name,
           target_id: entry.instance_id,
           type: 'buttonedge',
@@ -307,14 +341,14 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     const exit_edges = [];
     if (graphJson.graph_exit && graphJson.graph_exit.actions && graphJson.graph_exit.actions.length > 0) {
       graphJson.graph_exit.actions.forEach(exit => {
-        exit_edges.push({
-          id: `${exit.name}_${exit.instance_id}-to-exit`,
+        exit_edges.push({ 
+          id: `${exit.name}_${exit.instance_id} to exit`,
           source: `${exit.name}_${exit.instance_id}`,
           target: 'exit-node',
           source_name: exit.name,
           source_id: exit.instance_id,
           target_name: 'exit',
-          target_id: 'node',
+          target_id: null,
           type: 'buttonedge',
         });
       });
@@ -515,7 +549,11 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
               instance_id: edge.target_id
             };
             
-            umrf_node.children.push(child);
+            umrf_node.children.push({
+              name: child.name,
+              instance_id: child.instance_id,
+              sourceHandle: edge.sourceHandle
+            });
           } else if (node.data.title === edge.target_name && node.data.instance_id === edge.target_id) {
             // If node is a target, add to parents
             const parentKey = `${edge.source_name}_${edge.source_id}_to_${edge.target_name}_${edge.target_id}`;
@@ -558,16 +596,14 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     (params) => {
       console.log("onConnect: ", params);
       
-      // Add the new edge to React Flow
-      const newEdges = addEdge(params, edges);
+      const newEdges = addEdge(params, edges); //takes in an edge
+      console.log("newEdges: ", newEdges);
       setEdges(newEdges);
 
-      // Find source and target nodes
       const sourceNode = nodes.find(node => node.id === params.source);
       const targetNode = nodes.find(node => node.id === params.target);
 
       if (sourceNode && targetNode) {
-        // Handle entry/exit node connections
         if (sourceNode.type === 'entryExit' || targetNode.type === 'entryExit') {
           // Update the active graph state with entry/exit connections
           const updatedGraph = produce(activeGraph, draft => {
@@ -806,7 +842,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     [activeGraph, onUpdateGraph]
   );
 
-  // Add a new method to handle edge deletions
   const onEdgesDelete = useCallback(
     (deletedEdges) => {
       console.log("Edges deleted:", deletedEdges);

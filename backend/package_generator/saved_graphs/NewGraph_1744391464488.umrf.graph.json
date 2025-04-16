@@ -1,0 +1,65 @@
+{
+    "graph_name": "NewGraph_1744391464488",
+    "graph_description": "Newly created graph",
+    "graph_entry": {
+        "actions": [],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": -150
+            }
+        }
+    },
+    "graph_exit": {
+        "actions": [],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": 150
+            }
+        }
+    },
+    "actions": [
+        {
+            "name": "ExampleNavigate",
+            "instance_id": 1744391467071,
+            "type": "sync",
+            "input_parameters": {},
+            "parents": [],
+            "children": [
+                {
+                    "name": "ExampleManipulate",
+                    "instance_id": 1744391468137
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 96.98824680471168,
+                    "y": -88.22979936419782
+                }
+            }
+        },
+        {
+            "name": "ExampleManipulate",
+            "instance_id": 1744391468137,
+            "type": "sync",
+            "input_parameters": {},
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1744391467071
+                }
+            ],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": 150.68549448455005,
+                    "y": 112.23992530719869
+                }
+            }
+        }
+    ],
+    "gui_attributes": {
+        "status": "saved"
+    }
+}

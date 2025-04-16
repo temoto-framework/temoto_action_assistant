@@ -79,7 +79,8 @@
             "children": [
                 {
                     "name": "ExampleNavigate",
-                    "instance_id": 1
+                    "instance_id": 1,
+                    "sourceHandle": "source-on-true"
                 }
             ],
             "gui_attributes": {
@@ -144,7 +145,8 @@
             "children": [
                 {
                     "name": "ExampleNavigate",
-                    "instance_id": 2
+                    "instance_id": 2,
+                    "sourceHandle": "source-on-true"
                 }
             ],
             "gui_attributes": {

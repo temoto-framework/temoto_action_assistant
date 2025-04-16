@@ -10,8 +10,11 @@ import subprocess
 from package_generator.scripts.generate_package import generate_package, save_graph
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+# socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+
+CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 runtime_enabled = False
 graphs = {}

@@ -73,6 +73,7 @@ const ActionInterfacePage = () => {
     };
 
     const handleGetCurrentGraph = async (updatedGraph) => {
+        console.log("Sending graph to PUT /api/graphs/:graphName")
         try {
             const response = await fetch(`http://localhost:4000/api/graphs/${updatedGraph.graph_name}`, {
                 method: 'PUT',
@@ -367,11 +368,9 @@ const ActionInterfacePage = () => {
         try {
             console.log("Updating edge conditions:", updatedEdgeData);
             
-            // Find the current graph
             const currentGraph = graphs.find(graph => graph.graph_name === activeGraphId);
             if (!currentGraph) return;
             
-            // Find the target action that has this edge as a parent
             const targetAction = currentGraph.actions.find(action => 
                 action.parents.some(parent => 
                     parent.name === updatedEdgeData.name && 
