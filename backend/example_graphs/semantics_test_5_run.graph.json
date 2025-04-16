@@ -1,25 +1,31 @@
 {
   "graph_name": "semantics_test_5_run",
   "graph_description": "tests the capability of on action being able to stop other actions",
-  "graph_entry": [
+  "graph_entry": 
     {
-      "name": "TaTimer",
-      "instance_id": 0
-    },
+      "actions": [
+        {
+          "name": "TaTimer",
+          "instance_id": 0
+        },
+        {
+          "name": "TaTimer",
+          "instance_id": 1
+        }
+    ]
+  },
+  "graph_exit": 
     {
-      "name": "TaTimer",
-      "instance_id": 1
-    }
-  ],
-  "graph_exit": [
-    {
-      "name": "TaTimer",
-      "instance_id": 1,
-      "conditions": [
-        "on_stopped -> run"
+      "actions": [
+        {
+          "name": "TaTimer",
+          "instance_id": 1,
+          "conditions": [
+            "on_stopped -> run"
+          ]
+        }
       ]
-    }
-  ],
+    },
   "actions": [
     {
       "name": "TaTimer",
