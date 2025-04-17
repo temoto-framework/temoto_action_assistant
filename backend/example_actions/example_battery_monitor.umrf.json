@@ -1,0 +1,7 @@
+{
+  "name": "ExampleBatteryMonitor",
+  "type": "sync",
+  "input_parameters": {
+    "min_level": {"pvf_type": "number"}
+  }
+}

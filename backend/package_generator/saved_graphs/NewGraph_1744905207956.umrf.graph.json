@@ -1,0 +1,26 @@
+{
+    "graph_name": "NewGraph_1744905207956",
+    "graph_description": "Newly created graph",
+    "graph_entry": {
+        "actions": [],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": -150
+            }
+        }
+    },
+    "graph_exit": {
+        "actions": [],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": 150
+            }
+        }
+    },
+    "actions": [],
+    "gui_attributes": {
+        "status": "saved"
+    }
+}

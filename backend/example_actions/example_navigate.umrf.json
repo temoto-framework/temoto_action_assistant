@@ -1,0 +1,20 @@
+{
+  "name": "ExampleNavigate",
+  "type": "sync",
+  "input_parameters": {
+    "location": {"pvf_type": "string"},
+    "pose": {
+      "frame_id": {"pvf_type": "string"},
+      "position": {
+        "x": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"},
+        "z": {"pvf_type": "number"}
+      },
+      "orientation": {
+        "r": {"pvf_type": "number"},
+        "p": {"pvf_type": "number"},
+        "y": {"pvf_type": "number"}
+      }
+    }
+  }
+}

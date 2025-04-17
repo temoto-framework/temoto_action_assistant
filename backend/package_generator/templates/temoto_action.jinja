@@ -1,0 +1,73 @@
+#pragma once
+
+#include "temoto_action_engine/action_base.h"
+#include "temoto_action_engine/temoto_error.h"
+#include "temoto_action_engine/messaging.h"
+
+{% if gen_input_params %}
+#include "{{ action_name }}/input_parameters.hpp"
+{% endif %}
+{% if gen_output_params %}
+#include "{{ action_name }}/output_parameters.hpp"
+{% endif %}
+
+#include <boost/config.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/dll/alias.hpp>
+
+/**
+ * @brief Class that integrates TeMoto Base Subsystem specific and Action Engine specific codebases.
+ *
+ */
+class TemotoAction : public ActionBase
+{
+public:
+
+  TemotoAction()
+  {}
+
+  /**
+   * @brief Get the Name of the action
+   *
+   * @return const std::string&
+   */
+  const std::string& getName()
+  {
+    return getUmrfNodeConst().getFullName();
+  }
+
+  virtual void updateParameters(const ActionParameters& parameters_in)
+  {
+  }
+
+  {% if gen_input_params %}
+  input_parameters_t params_in;
+  {% endif %}
+  {% if gen_output_params %}
+  output_parameters_t params_out;
+  {% endif %}
+
+private:
+
+  void getInputParameters()
+  {
+    {% if gen_input_params %}
+    const auto& params{getUmrfNodeConst().getInputParameters()};
+
+    {% for gen_param in gen_input_params %}
+    params_in.{{ gen_param["cpp_access"] }} = params.getParameterData<{{ gen_param["cpp_type"] }}>("{{ gen_param["name"] }}");
+    {% endfor %}
+    {% endif %}
+  }
+
+  void setOutputParameters()
+  {
+    {% if gen_output_params %}
+    auto& params{getUmrfNode().getOutputParametersNc()};
+
+    {% for gen_param in gen_output_params %}
+    params.setParameter("{{ gen_param["name"] }}", "{{ gen_param["type"] }}", boost::any(params_out.{{ gen_param["cpp_access"] }}));
+    {% endfor %}
+    {% endif %}
+  }
+};

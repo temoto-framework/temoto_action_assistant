@@ -1,31 +1,33 @@
 {
-	"graph_name": "example_sequence_state",
+	"graph_name": "example_sequence",
 	"graph_description": "Three navigation actions invoked in a sequence",
-	"graph_state": "RUNNING",
-	"graph_entry": [
-	  {
-		"name": "ExampleNavigate",
-		"instance_id": 0
-	  }
-	],
-	"graph_exit": [
-	  {
-		"name": "ExampleNavigate",
-		"instance_id": 2
-	  }
-	],
+	"graph_entry": {
+		"actions": [
+			{
+				"name": "ExampleNavigate",
+				"instance_id": 0
+			}
+		]
+	},
+	"graph_exit": {
+		"actions": [
+			{
+				"name": "ExampleNavigate",
+				"instance_id": 2
+			}
+		]
+	},
 	"actions": [
-	  {
-		"name": "ExampleNavigate",
-		"instance_id": 0,
-		"type": "sync",
-		"state": "FINISHED",
-		"input_parameters": {
-		  "location": {"pvf_type": "string", "pvf_value": "workshop"},
-		  "pose": {
-			"frame_id": {"pvf_type": "string", "pvf_value": "map"},
-			"position": {
-			  "x": {"pvf_type": "number", "pvf_value": 1.11},
+		{
+			"name": "ExampleNavigate",
+			"instance_id": 0,
+			"type": "sync",
+			"input_parameters": {
+				"location": {"pvf_type": "string", "pvf_value": "workshop"},
+				"pose": {
+					"frame_id": {"pvf_type": "string", "pvf_value": "map"},
+					"position": {
+						"x": {"pvf_type": "number", "pvf_value": 1.11},
 			  "y": {"pvf_type": "number", "pvf_value": 2.2},
 			  "z": {"pvf_type": "number", "pvf_value": 3.3}
 			},
@@ -50,7 +52,6 @@
 		"name": "ExampleNavigate",
 		"instance_id": 1,
 		"type": "sync",
-		"state": "RUNNING",
 		"input_parameters": {
 		  "location": {"pvf_type": "string", "pvf_value": "warehouse"},
 		  "pose": {
@@ -87,7 +88,6 @@
 		"name": "ExampleNavigate",
 		"instance_id": 2,
 		"type": "sync",
-		"state": "INITIALIZED",
 		"input_parameters": {
 		  "location": {"pvf_type": "string", "pvf_value": "lobby"},
 		  "pose": {

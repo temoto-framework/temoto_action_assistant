@@ -1,0 +1,179 @@
+{
+    "graph_name": "semantics_test_4",
+    "graph_description": "tests the conditional execution functionality",
+    "graph_entry": [
+        {
+            "name": "TaTriggerResult",
+            "instance_id": 0
+        }
+    ],
+    "graph_exit": [
+        {
+            "name": "TaCompareString",
+            "instance_id": 1
+        }
+    ],
+    "actions": [
+        {
+            "name": "TaTriggerResult",
+            "instance_id": 0,
+            "type": "sync",
+            "input_parameters": {
+                "result": {
+                    "pvf_value": "on_true",
+                    "pvf_type": "string"
+                }
+            },
+            "children": [
+                {
+                    "name": "TaRelayString",
+                    "instance_id": 0
+                },
+                {
+                    "name": "TaRelayString",
+                    "instance_id": 1
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": -40.385805232052874,
+                    "y": -504.22158615613625
+                }
+            }
+        },
+        {
+            "name": "TaRelayString",
+            "instance_id": 0,
+            "type": "sync",
+            "input_parameters": {
+                "string_in": {
+                    "pvf_value": "EXPECT_TRUE",
+                    "pvf_type": "string"
+                }
+            },
+            "output_parameters": {
+                "string_out": {
+                    "pvf_type": "string"
+                }
+            },
+            "parents": [
+                {
+                    "name": "TaTriggerResult",
+                    "instance_id": 0,
+                    "required": true,
+                    "conditions": [
+                        "on_true -> run",
+                        "on_false -> ignore",
+                        "on_error -> bypass"
+                    ]
+                }
+            ],
+            "children": [
+                {
+                    "name": "TaCompareString",
+                    "instance_id": 1,
+                    "remap": [
+                        {
+                            "from": "string_out",
+                            "to": "str_a"
+                        }
+                    ]
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": -164.6746391734179,
+                    "y": -402.55698377718295
+                }
+            }
+        },
+        {
+            "name": "TaRelayString",
+            "instance_id": 1,
+            "type": "sync",
+            "input_parameters": {
+                "string_in": {
+                    "pvf_value": "EXPECT_FALSE",
+                    "pvf_type": "string"
+                }
+            },
+            "output_parameters": {
+                "string_out": {
+                    "pvf_type": "string"
+                }
+            },
+            "parents": [
+                {
+                    "name": "TaTriggerResult",
+                    "instance_id": 0,
+                    "required": true,
+                    "conditions": [
+                        "on_true -> ignore",
+                        "on_false -> run",
+                        "on_error -> bypass"
+                    ]
+                }
+            ],
+            "children": [
+                {
+                    "name": "TaCompareString",
+                    "instance_id": 1,
+                    "remap": [
+                        {
+                            "from": "string_out",
+                            "to": "str_a"
+                        }
+                    ]
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 95.44183020418438,
+                    "y": -398.23415066572494
+                }
+            }
+        },
+        {
+            "name": "TaCompareString",
+            "instance_id": 1,
+            "type": "sync",
+            "input_parameters": {
+                "str_a": {
+                    "pvf_type": "string"
+                },
+                "str_b": {
+                    "pvf_type": "string",
+                    "pvf_value": "EXPECT_TRUE"
+                }
+            },
+            "parents": [
+                {
+                    "name": "TaRelayString",
+                    "instance_id": 0,
+                    "required": false,
+                    "conditions": [
+                        "on_true -> run",
+                        "on_false -> bypass",
+                        "on_error -> bypass"
+                    ]
+                },
+                {
+                    "name": "TaRelayString",
+                    "instance_id": 1,
+                    "required": false,
+                    "conditions": [
+                        "on_true -> run",
+                        "on_false -> bypass",
+                        "on_error -> bypass"
+                    ]
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": -30.803876912611358,
+                    "y": -278.6856714946526
+                }
+            }
+        }
+    ]
+}

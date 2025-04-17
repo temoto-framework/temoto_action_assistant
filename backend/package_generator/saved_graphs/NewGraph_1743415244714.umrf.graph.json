@@ -1,0 +1,42 @@
+{
+    "actions": [
+        {
+            "name": "ExampleBatteryMonitor",
+            "instance_id": 3953499214,
+            "type": "sync",
+            "parents": [],
+            "children": [],
+            "gui_attributes": {
+                "position": {
+                    "x": 52.69870967741946,
+                    "y": 287.12129032258065
+                }
+            },
+            "state": "UNINITIALIZED"
+        },
+        {
+            "name": "NewAction_1743414777409",
+            "instance_id": 3953528381,
+            "type": "sync",
+            "parents": [],
+            "children": [
+                {
+                    "name": "ExampleBatteryMonitor",
+                    "instance_id": 40014
+                }
+            ],
+            "gui_attributes": {
+                "position": {
+                    "x": 303.89032258064526,
+                    "y": 20.488870967741896
+                }
+            },
+            "state": "UNINITIALIZED"
+        }
+    ],
+    "graph_description": "Newly created graph",
+    "graph_entry": [],
+    "graph_exit": [],
+    "graph_name": "NewGraph_1743415244714",
+    "graph_state": "INITIALIZED"
+}

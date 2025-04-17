@@ -1,0 +1,46 @@
+/* Selected Node styling for React Flow */
+
+/* Base selected node styling */
+.react-flow__node.selected {
+  z-index: 10 !important;
+}
+
+/* Option 1: Blue selection to match the active graph button */
+.react-flow__node.selected .wrapper {
+  box-shadow: 0 0 0 3px #007bff;
+  border-radius: var(--node-border-radius, 10px);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Add a pulsing animation effect to make selection more visible */
+@keyframes selected-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 123, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+  }
+}
+
+/* Apply animation to selected nodes */
+.react-flow__node.selected .inner {
+  animation: selected-pulse 2s infinite;
+}
+
+/* Apply a subtle background enhancement to selected nodes */
+.react-flow__node.selected .inner {
+  background: linear-gradient(
+    135deg, 
+    var(--bg-color, rgb(209, 209, 209)) 0%, 
+    rgba(245, 125, 189, 0.1) 100%
+  );
+}
+
+/* Style connected edges from the selected node */
+.react-flow__node.selected + .react-flow__edge .react-flow__edge-path {
+  stroke: var(--xy-theme-selected, #F57DBD);
+  stroke-width: 2;
+} 

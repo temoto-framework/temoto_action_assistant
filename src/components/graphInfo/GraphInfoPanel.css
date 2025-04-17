@@ -1,0 +1,353 @@
+.graph-info-panel {
+flex: 0 0 300px;
+background-color: #f0f0f0;
+overflow-y: auto;
+}
+
+.graph-info-container {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #bebebe; 
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+.graph-info-container h2 {
+    color: #000;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    font-size: 1.5rem;
+}
+
+.graph-info-container pre {
+    background-color: #666;
+    color: #fff;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+    width: 100%;
+    overflow-x: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    text-align: left;
+}
+
+.graph-info-container pre:hover {
+    background-color: #555;
+}
+
+.graph-info-container pre.placeholder-text {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    font-style: italic;
+    color: #eee;
+}
+
+.generate-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+.generate-button:hover {
+    background-color: #218838;
+    transform: scale(1.02);
+}
+
+.success-message {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.status-badge.draft {
+  background-color: #f39c12; /* Orange for draft */
+}
+
+.status-badge.generated {
+  background-color: #2ecc71; /* Green for generated */
+}
+
+.status-badge.unknown {
+  background-color: #2ecc71; /* Green for generated */
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.info-header h2 {
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.action-name-editor {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.name-display {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.name-display:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.action-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.edit-icon {
+  margin-left: 8px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.name-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.name-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  font-size: 16px;
+}
+
+.save-name-button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-name-button:hover {
+  background-color: #45a049;
+}
+
+.parameter-addition-section {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.add-parameter-button {
+  width: 100%;
+  padding: 8px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-parameter-button:hover {
+  background-color: #45a049;
+}
+
+.parameter-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.parameter-select, .parameter-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+}
+
+.parameter-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.parameter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-parameter-button, .cancel-parameter-button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirm-parameter-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-parameter-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.current-parameters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.parameter-chip {
+  display: flex;
+  align-items: center;
+  background-color: #444;
+  color: white;
+  border-radius: 20px;
+  padding: 5px 10px;
+  gap: 8px;
+  max-width: 100%;
+  font-size: 0.9em;
+}
+
+.parameter-name {
+  font-weight: bold;
+  margin-right: 5px;
+  text-transform: capitalize;
+}
+
+.parameter-value {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.remove-parameter-button {
+  background: none;
+  border: none;
+  color: #ff4444;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  margin-left: 5px;
+}
+
+/* Edge Information Styling */
+.edge-info {
+  margin-top: 10px;
+}
+
+.edge-connection-details {
+  background: #f8f8f8;
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 10px;
+  border-left: 4px solid var(--xy-theme-selected, #F57DBD);
+}
+
+.connection-nodes {
+  margin-bottom: 15px;
+}
+
+.source-node, .target-node {
+  padding: 5px 0;
+}
+
+.required-flag {
+  display: inline-block;
+  background: #e9e9e9;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.conditions-container {
+  margin-top: 10px;
+}
+
+.conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.condition-item {
+  background: #edf2f7;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: monospace;
+  color: #333;
+  border-left: 3px solid #007bff;
+}
+
+.remap-container {
+  margin-top: 20px;
+}
+
+.remap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.remap-item {
+  background: #edf2f7;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: monospace;
+  color: #333;
+  border-left: 3px solid #4CAF50;
+}

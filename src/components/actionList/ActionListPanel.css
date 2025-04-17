@@ -1,0 +1,117 @@
+/* .item-container {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #bebebe; 
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height:100%;
+    border-radius: 10px;
+}
+
+.item-container button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #666;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.item-container button:hover {
+    background-color: #555;
+    transform: scale(1.02);
+}
+
+/* Add styles for the active button
+.item-container button.active {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+}
+
+ */
+
+ /* ButtonColumn.css */
+
+.buttons-column {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #bebebe; 
+    padding: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height:100%;
+    border-radius: 10px;
+}
+
+.buttons-row {
+    display: flex;
+    gap: 10px;
+}
+
+.text-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #666;
+    min-width: 290px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.text-button:hover {
+    background-color: #555;
+    transform: scale(1.02);
+}
+
+.text-button.active {
+    background-color: #007bff;
+    color: #fff;
+    /* border: 1px solid #007bff; */
+}
+
+.text-button.active-action {
+    background-color: #28a745;
+    color: white;
+}
+
+.icon-button {
+    padding: 10px;
+    background-color: #8f8f8f;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.icon-button.running {
+    background-color: #26c549;
+    color: #fff;
+}
+
+.icon-button:hover {
+    background-color: #33da57;
+}
+
+.icon-button svg {
+    width: 20px;
+    height: 20px;
+}

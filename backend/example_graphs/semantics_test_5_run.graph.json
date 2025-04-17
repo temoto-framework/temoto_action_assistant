@@ -1,0 +1,81 @@
+{
+  "graph_name": "semantics_test_5_run",
+  "graph_description": "tests the capability of on action being able to stop other actions",
+  "graph_entry": 
+    {
+      "actions": [
+        {
+          "name": "TaTimer",
+          "instance_id": 0
+        },
+        {
+          "name": "TaTimer",
+          "instance_id": 1
+        }
+    ]
+  },
+  "graph_exit": 
+    {
+      "actions": [
+        {
+          "name": "TaTimer",
+          "instance_id": 1,
+          "conditions": [
+            "on_stopped -> run"
+          ]
+        }
+      ]
+    },
+  "actions": [
+    {
+      "name": "TaTimer",
+      "instance_id": 0,
+      "type": "sync",
+      "input_parameters": {
+        "count_until": {
+          "pvf_type": "number",
+          "pvf_value": 3.0
+        }
+      },
+      "output_parameters": {
+        "final_count": {
+          "pvf_type": "number"
+        }
+      },
+      "children": [
+        {
+          "name": "TaTimer",
+          "instance_id": 1
+        }
+      ]
+    },
+    {
+      "name": "TaTimer",
+      "instance_id": 1,
+      "type": "sync",
+      "input_parameters": {
+        "count_until": {
+          "pvf_type": "number",
+          "pvf_value": 0.0
+        }
+      },
+      "output_parameters": {
+        "final_count": {
+          "pvf_type": "number"
+        }
+      },
+      "parents": [
+        {
+          "name": "TaTimer",
+          "instance_id": 0,
+          "required": false,
+          "conditions": [
+            "on_true -> bypass",
+            "on_false -> run",
+            "on_error -> bypass"
+          ]
+        }
+      ]
+    }
+  ]
+}
