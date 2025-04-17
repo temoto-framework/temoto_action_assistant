@@ -8,6 +8,11 @@ import traceback
 def setup_action_socket(app, socketio, action_enabled):
     """Setup all Flask routes and SocketIO handlers for the action interface"""
     
+
+
+
+
+
     """Setup ROS nodes and threads for the action interface"""
     if action_enabled:
         try:
@@ -19,7 +24,7 @@ def setup_action_socket(app, socketio, action_enabled):
             
             # Wait for node to initialize with timeout
             if action_ros.wait_until_initialized(timeout=10.0):
-                ri_action_node = action_ros.ros_action_node
+                ri_action_node = action_ros.ros_action_node()
                 print("ROS action node initialized successfully")
             else:
                 print("Warning: Timed out waiting for ROS action node to initialize")

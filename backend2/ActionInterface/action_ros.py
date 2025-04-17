@@ -15,10 +15,10 @@ class ActionNode(Node):
     """ROS Node for action-related functionality"""
     def __init__(self):
         super().__init__('temoto_assistant_action_node')
-        
+    
+
         self.get_logger().info('Action node initialized')
-
-
+        
 
 def run_ros_action_interface():
     global ros_action_node
