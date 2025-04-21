@@ -333,13 +333,14 @@ const PlannedActionPanel = () => {
       <div className="panel-content">
         {actors.length > 0 && selectedActor ? (
           <>
-            {/* Actions list for selected actor */}
+            {/* Actions list for selected actor - USING ORIGINAL ORDER */}
             <div className="actions-list">
               {!actions[selectedActor] || actions[selectedActor].length === 0 ? (
                 <div className="empty-state">
                   <p>No actions planned for {selectedActor}</p>
                 </div>
               ) : (
+                /* Simply display the actions in their original order */
                 actions[selectedActor].map((action, index) => (
                   <ActionItem 
                     key={index} 
