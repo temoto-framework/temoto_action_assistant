@@ -49,8 +49,8 @@ class ChatNode(Node):
 
     ### PLANNED PANEL METHODS
 
-    def umrf_graph_feedback_chat(self, msg):
-        if self.graph_planned_parent:
+    def umrf_graph_feedback_chat(self, msg): 
+        if self.graph_planned_parent: 
             self.get_logger().info(f"[umrf_graph_feedback -----> DEBUG] msg.history: {msg.history}")
             # Initialize empty graph
             graph = {"actions": []}
@@ -77,7 +77,8 @@ class ChatNode(Node):
                                 action["name"]: {
                                     "input_parameters": action.get("input_parameters", {}),
                                     "output_parameters": action.get("output_parameters", {}),
-                                    "state": action.get("state", "UNKNOWN")
+                                    "state": action.get("state", "UNKNOWN"),
+                                    "instance_id": action.get("instance_id", "")
                                 }
                             }
                             # Add to graph
@@ -114,7 +115,6 @@ class ChatNode(Node):
                 for target in msg.targets:
                     self.graph_planned_parent(target, graph)
                     self.get_logger().info(f"Published empty graph for target: {target}")
-                
                 return
             
             try:
@@ -133,7 +133,7 @@ class ChatNode(Node):
                         if "name" not in action:
                             self.get_logger().warning("Action missing 'name' field, skipping")
                             continue
-                            
+
                         # Create action entry with name as key and copy input/output parameters
                         action_entry = {
                             action["name"]: {
@@ -141,6 +141,9 @@ class ChatNode(Node):
                                 "output_parameters": action.get("output_parameters", {})
                             }
                         }
+
+                        # Add instance_id
+                        action_entry[action["name"]]["instance_id"] = action.get("instance_id", "")
 
                         # Set state inside the action's object, not at the action_entry level
                         if start_action:
@@ -217,7 +220,7 @@ class ChatNode(Node):
                         if "name" not in action:
                             self.get_logger().warning("Action missing 'name' field, skipping")
                             continue
-                            
+                        
                         # Create action entry with name as key and copy input/output parameters
                         action_entry = {
                             action["name"]: {
@@ -226,6 +229,9 @@ class ChatNode(Node):
                             }
                         }
                         
+                        # Add instance_id
+                        action_entry[action["name"]]["instance_id"] = action.get("instance_id", "")
+
                         # Set appropriate state
                         if continue_from_passed:
                             action_entry[action["name"]]["state"] = "FINISHED"
@@ -244,7 +250,7 @@ class ChatNode(Node):
                         
                     # Include graph metadata
                     graph["graph_state"] = graph_json.get("graph_state", "RUNNING")
-                
+                     
                 # Debug log the graph structure
                 self.get_logger().info(f"Generated graph structure: {json.dumps(graph)}")
                     

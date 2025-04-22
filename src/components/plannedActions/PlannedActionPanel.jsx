@@ -303,6 +303,33 @@ const PlannedActionPanel = () => {
     }
   };
 
+  // Helper function to extract instance_id from action
+  const getInstanceId = (action) => {
+    const actionName = Object.keys(action)[0];
+    if (!actionName) return -1;
+    
+    const actionData = action[actionName];
+    return actionData && actionData.instance_id !== undefined ? actionData.instance_id : -1;
+  };
+
+  // Sort actions by instance_id
+  const getSortedActions = (actorActions) => {
+    if (!actorActions || !Array.isArray(actorActions)) return [];
+    
+    return [...actorActions].sort((a, b) => {
+      const instanceIdA = getInstanceId(a);
+      const instanceIdB = getInstanceId(b);
+      
+      // Sort by instance_id numerically if both exist
+      if (instanceIdA !== -1 && instanceIdB !== -1) {
+        return instanceIdA - instanceIdB; // Numeric sort instead of string comparison
+      }
+      
+      // If either doesn't have an instance_id, keep original order
+      return 0;
+    });
+  };
+
   return (
     <div className="action-panel">
       <div className="panel-header">
@@ -333,15 +360,15 @@ const PlannedActionPanel = () => {
       <div className="panel-content">
         {actors.length > 0 && selectedActor ? (
           <>
-            {/* Actions list for selected actor - USING ORIGINAL ORDER */}
+            {/* Actions list for selected actor - NOW SORTED BY INSTANCE_ID */}
             <div className="actions-list">
               {!actions[selectedActor] || actions[selectedActor].length === 0 ? (
                 <div className="empty-state">
                   <p>No actions planned for {selectedActor}</p>
                 </div>
               ) : (
-                /* Simply display the actions in their original order */
-                actions[selectedActor].map((action, index) => (
+                /* Sort the actions by instance_id before displaying */
+                getSortedActions(actions[selectedActor]).map((action, index) => (
                   <ActionItem 
                     key={index} 
                     nodeData={action} 
