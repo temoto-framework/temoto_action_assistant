@@ -11,16 +11,25 @@
         "gui_attributes": {
             "position": {
                 "x": 0,
-                "y": -200
+                "y": -156
             }
         }
     },
     "graph_exit": {
-        "actions": [],
+        "actions": [
+            {
+                "name": "Result_A",
+                "instance_id": 0
+            },
+            {
+                "name": "Result_B",
+                "instance_id": 0
+            }
+        ],
         "gui_attributes": {
             "position": {
-                "x": -100,
-                "y": 200
+                "x": 2,
+                "y": 210
             }
         }
     },
@@ -50,8 +59,7 @@
                     "x": 0,
                     "y": -50
                 }
-            },
-            "parents": []
+            }
         },
         {
             "name": "Result_A",
@@ -69,8 +77,7 @@
                     "x": -150,
                     "y": 50
                 }
-            },
-            "children": []
+            }
         },
         {
             "name": "Result_B",
@@ -88,8 +95,7 @@
                     "x": 150,
                     "y": 50
                 }
-            },
-            "children": []
+            }
         }
     ]
 }

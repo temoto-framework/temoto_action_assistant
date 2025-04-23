@@ -296,12 +296,12 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
       }
         
       return action.parents?.map(parent => {
-          const parsedConditions = parent.conditions.map(condStr => {
+          const parsedConditions = parent.conditions?.map(condStr => {
             const [condType, outcome] = condStr.split(' -> ');
             return { condType, outcome };
           });
 
-          const runCondition = parsedConditions.find(cond => cond.outcome === 'run')?.condType
+          const runCondition = parsedConditions?.find(cond => cond.outcome === 'run')?.condType
           const sourceHandle = CONDITION_TO_SOURCE_HANDLE[runCondition]
 
           return {

@@ -62,8 +62,8 @@
           "instance_id": 0,
           "required": true,
           "conditions": [
-            "on_true -> run",
-            "on_false -> ignore",
+            "on_true -> bypass",
+            "on_false -> run ",
             "on_error -> bypass"
           ]
         }
@@ -140,9 +140,9 @@
           "instance_id": 0,
           "required": false,
           "conditions": [
-            "on_true -> run",
+            "on_true -> ignore",
             "on_false -> bypass",
-            "on_error -> bypass"
+            "on_error -> run"
           ]
         },
         {

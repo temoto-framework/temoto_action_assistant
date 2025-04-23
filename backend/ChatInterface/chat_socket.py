@@ -4,7 +4,7 @@ import datetime
 import threading
 import re
 
-def setup_chat_socket(app, socketio, chat_enabled):
+def setup_chat_socket(app, socketio, runtime_enabled):
     """Setup all Flask routes and SocketIO handlers for the chat interface"""
 
     chat_log = {}
@@ -488,7 +488,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
         print(f"Emitted image_updated for {target}/{name}")
         
 
-    if chat_enabled:
+    if runtime_enabled:
         try:
             # Import from local module
             from ChatInterface import chat_ros

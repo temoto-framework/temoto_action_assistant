@@ -12,17 +12,36 @@ import os
 import time
 import subprocess
 
-def setup_action_socket(app, socketio, action_enabled):
+graphs = {}
+
+def load_graphs(graphs_dir):
+    try:
+        for filename in os.listdir(graphs_dir):
+            if filename.endswith('.json'):
+                with open(os.path.join(graphs_dir, filename), 'r') as file:
+                    graph = json.load(file)
+                    graphs[graph["graph_name"]] = graph
+    except FileNotFoundError:
+        print(f"Warning: Directory {graphs_dir} not found. Continuing with empty graphs.")
+    except Exception as e:
+        print(f"Error loading graphs: {e}")
+    return graphs
+
+def get_graphs():
+    return graphs
+
+def setup_action_socket(app, socketio, runtime_enabled):
     """Setup all Flask routes and SocketIO handlers for the action interface"""
     
-    graphs = {}
     actions = {}
     ri_action_node = None # TODO: ideally the ros node should not be exposed like that
 
     @app.route('/api/graphs/<key>', methods=['GET'])
     def get_graph(key):
-        nonlocal graphs
+        print(f'key: {key}')
+        print(f'graphs: {graphs}')
         value = graphs.get(key)
+        print(f'value: {value}')
         if value:
             return jsonify(value)
         else:
@@ -30,7 +49,6 @@ def setup_action_socket(app, socketio, action_enabled):
 
     @app.route('/api/graphs/<key>', methods=['PUT'])
     def set_graph(key):
-        nonlocal graphs
         if key in graphs:
             new_data = request.get_json()
             print(f'new_data: {new_data}')
@@ -50,7 +68,6 @@ def setup_action_socket(app, socketio, action_enabled):
 
     @app.route('/api/graphs/exec/<key>', methods=['PUT'])
     def exec_graph(key):
-        nonlocal graphs
         if key in graphs:
             if "graph_state" not in graphs[key] or graphs[key]["graph_state"] != "RUNNING":
                 ri_action_node.start_graph(key)
@@ -77,7 +94,6 @@ def setup_action_socket(app, socketio, action_enabled):
 
     @app.route('/api/graphs', methods=['POST'])
     def create_graph():
-        nonlocal graphs
         try:
             graph_data = request.json
             graph_data['gui_attributes']['status'] = 'saved'
@@ -148,15 +164,6 @@ def setup_action_socket(app, socketio, action_enabled):
             print(f'Error generating action: {e}')
             return jsonify({'error': str(e)}), 400
     
-    def load_graphs(graphs_dir):
-        graphs = {}
-        for filename in os.listdir(graphs_dir):
-            if filename.endswith('.json'):
-                with open(os.path.join(graphs_dir, filename), 'r') as file:
-                    graph = json.load(file)
-                graphs[graph["graph_name"]] = graph
-    return graphs
-
     def load_actions(actions_dir):
         actions = {}
         for filename in os.listdir(actions_dir):
@@ -168,7 +175,6 @@ def setup_action_socket(app, socketio, action_enabled):
 
     # Potential duplication with Julian's
     def graph_feedback_callback(actor, graphs_in): 
-        global graphs
         global actions
 
         for g in graphs_in:
@@ -179,7 +185,7 @@ def setup_action_socket(app, socketio, action_enabled):
         socketio.emit('graphs', graphs_list)
 
     """Setup ROS nodes and threads for the action interface"""
-    if action_enabled:
+    if runtime_enabled:
         try:
             # Import from local module
             from ActionInterface import action_ros

@@ -8,10 +8,10 @@ import datetime
 import time
 import threading
 import socket 
+from ActionInterface.action_socket import get_graphs, load_graphs, setup_action_socket
 
 # Import modules from organized folders                                                 
 from ChatInterface.chat_socket import setup_chat_socket
-from ActionInterface.action_socket import setup_action_socket
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -20,7 +20,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Global variables
 runtime_enabled = False
 debug_mode = False
-graphs = {}
 
 # Runtime Status
 chat_node = None
@@ -35,28 +34,13 @@ def handle_connect():
     print('Client connected')
     socketio.emit('runtime_enabled', runtime_enabled)
     socketio.emit('debug_mode', debug_mode)
-    socketio.emit('graphs', list(graphs.values()))
+    socketio.emit('graphs', list(get_graphs().values()))
     socketio.emit('chat_enabled', chat_enabled)
     socketio.emit('action_enabled', action_enabled)
 
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
-
-def load_graphs(graphs_dir):
-    """Load graph JSON files from directory"""
-    graphs = {}
-    try:
-        for filename in os.listdir(graphs_dir):
-            if filename.endswith('.json'):
-                with open(os.path.join(graphs_dir, filename), 'r') as file:
-                    graph = json.load(file)
-                    graphs[graph["graph_name"]] = graph
-    except FileNotFoundError:
-        print(f"Warning: Directory {graphs_dir} not found. Continuing with empty graphs.")
-    except Exception as e:
-        print(f"Error loading graphs: {e}")
-    return graphs
 
 def get_local_ip():
     """Get the local IP address of the machine"""
@@ -100,8 +84,23 @@ if __name__ == '__main__':
     print(f" * Chat interface: {'enabled' if chat_enabled else 'disabled'}")
     print(f" * Action interface: {'enabled' if action_enabled else 'disabled'}")
 
-    # Define empty global graphs container
-    graphs = {}
+    # Check for targeted runtimes
+    targeted_runtime = chat_enabled or action_enabled
+            
+    # If no specific component is enabled, enable all by default with runtime flag
+    if not targeted_runtime:
+        chat_enabled = True
+        action_enabled = True
+
+    if chat_enabled:
+        chat_node = setup_chat_socket(app, socketio, runtime_enabled)
+        if chat_node is None and runtime_enabled:
+            print(" ! Warning: Chat node failed to initialize")
+
+    if action_enabled:
+        action_node = setup_action_socket(app, socketio, runtime_enabled)
+        if action_node is None and runtime_enabled:
+            print(" ! Warning: Action node failed to initialize")
 
     if runtime_enabled:
         import rclpy
@@ -110,34 +109,16 @@ if __name__ == '__main__':
         try:
             if not rclpy.ok():
                 rclpy.init()
-
-            # Check for targeted runtimes
-            targeted_runtime = chat_enabled or action_enabled
-            
-            # If no specific component is enabled, enable all by default with runtime flag
-            if not targeted_runtime:
-                chat_enabled = True
-                action_enabled = True
             
             # Initialize ROS nodes with dedicated module callbacks
             print(" * Initializing Socket connections and ROS nodes...")
-            
-            chat_node = setup_chat_socket(app, socketio, chat_enabled)
-            if chat_enabled and chat_node is None:
-                print(" ! Warning: Chat node failed to initialize")
-                
-            action_node = setup_action_socket(app, socketio, action_enabled)
-            if action_enabled and action_node is None:
-                print(" ! Warning: Action node failed to initialize")
                 
             print(" * ROS interface active")
         except Exception as e:
             print(f" ! Error initializing ROS: {e}")
             import traceback
             traceback.print_exc()
-
     else:
-        # Load example graphs if no runtime
         graphs = load_graphs("example_graphs")
         print(f" * Loaded {len(graphs)} example graphs")
     

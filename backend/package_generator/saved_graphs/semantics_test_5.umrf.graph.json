@@ -1,8 +1,38 @@
 {
     "graph_name": "semantics_test_5",
     "graph_description": "tests the capability of on action being able to stop other actions",
-    "graph_entry": [],
-    "graph_exit": [],
+    "graph_entry": {
+        "actions": [
+            {
+                "name": "TaTimer",
+                "instance_id": 0
+            },
+            {
+                "name": "TaTimer",
+                "instance_id": 1
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": 0,
+                "y": -150
+            }
+        }
+    },
+    "graph_exit": {
+        "actions": [
+            {
+                "name": "TaTimer",
+                "instance_id": 1
+            }
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": -100,
+                "y": 150
+            }
+        }
+    },
     "actions": [
         {
             "name": "TaTimer",
@@ -27,8 +57,8 @@
             ],
             "gui_attributes": {
                 "position": {
-                    "x": -87.27272727272728,
-                    "y": -264.54545454545456
+                    "x": 0,
+                    "y": 0
                 }
             },
             "parents": []
@@ -62,8 +92,8 @@
             ],
             "gui_attributes": {
                 "position": {
-                    "x": -69.54545454545455,
-                    "y": -115.90909090909092
+                    "x": 0,
+                    "y": 0
                 }
             },
             "children": []
