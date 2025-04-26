@@ -13,7 +13,6 @@ import produce from 'immer';
 
 import SpinNode from './SpinNode.tsx';
 import EntryExitNode from './EntryExitNode.jsx';
-import ButtonEdgeDemo from './ButtonEdgeDemo.jsx';
 // import '@xyflow/react/dist/style.css';
 
 import '@xyflow/react/dist/base.css';
@@ -279,7 +278,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     //     source: `${action.name}_${action.instance_id}`,
     //     sourceHandle: parent?.sourceHandle || 'source-on-true',
     //     target: `${child.name}_${child.instance_id}`,
-    //     type: 'buttonedge',
   
     //     // Needed for converting back to UMRF graph
     //     source_name: action.name,
@@ -292,7 +290,8 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
       const CONDITION_TO_SOURCE_HANDLE = {
         'on_true': 'source-on-true',
         'on_false': 'source-on-false',
-        'on_error': 'source-on-error'
+        'on_error': 'source-on-error',
+        'on_stopped': 'source-on-stopped'
       }
         
       return action.parents?.map(parent => {
@@ -304,18 +303,32 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           const runCondition = parsedConditions?.find(cond => cond.outcome === 'run')?.condType
           const sourceHandle = CONDITION_TO_SOURCE_HANDLE[runCondition]
 
+          const id = `${parent.name}_${parent.instance_id} to ${action.name}_${action.instance_id}`
+          const source = `${parent.name}_${parent.instance_id}`
+          const target = `${action.name}_${action.instance_id}`
+
+          const source_name = parent.name
+          const source_id = parent.instance_id
+          const target_name = action.name
+          const target_id = action.instance_id
+
+          // If the source handle is undefined and the source is not the entry node, fail gracefully
+          if (sourceHandle === undefined && source !== `entry-node` ) {
+            console.log(`No source handle found for ${source} to ${action.name}_${action.instance_id}`);
+            return []
+          }
+
           return {
-              id: `${parent.name}_${parent.instance_id} to ${action.name}_${action.instance_id}`,
-              source: `${parent.name}_${parent.instance_id}`,
+              id: id,
+              source: source,
               sourceHandle: sourceHandle,
-              target: `${action.name}_${action.instance_id}`,
-              type: 'buttonedge',
+              target: target,
       
               // Needed for converting back to UMRF graph
-              source_name: parent.name,
-              source_id:   parent.instance_id,
-              target_name: action.name,
-              target_id:   action.instance_id,
+              source_name: source_name,
+              source_id:   source_id,
+              target_name: target_name,
+              target_id:   target_id,
           }
       }) || []
     }).flat(); 
@@ -332,7 +345,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           source_id: null,
           target_name: entry.name,
           target_id: entry.instance_id,
-          type: 'buttonedge',
         });
       });
     }
@@ -349,7 +361,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           source_id: exit.instance_id,
           target_name: 'exit',
           target_id: null,
-          type: 'buttonedge',
         });
       });
     }
@@ -552,7 +563,9 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
             umrf_node.children.push({
               name: child.name,
               instance_id: child.instance_id,
-              sourceHandle: edge.sourceHandle
+              // gui_attributes: {
+              //   sourceHandle: edge.sourceHandle
+              // }
             });
           } else if (node.data.title === edge.target_name && node.data.instance_id === edge.target_id) {
             // If node is a target, add to parents
@@ -562,7 +575,10 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
             // Create parent with original metadata if it exists
             const parent = originalParent ? { ...originalParent } : {
               name: edge.source_name,
-              instance_id: edge.source_id
+              instance_id: edge.source_id,
+              // gui_attributes: {
+              //   targetHandle: edge.targetHandle
+              // }
             };
             
             umrf_node.parents.push(parent);
@@ -842,7 +858,8 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     [activeGraph, onUpdateGraph]
   );
 
-  const onEdgesDelete = useCallback(
+  const onEdgesDelete = (edges) => setEdges((eds) => eds.filter(e => !edges.includes(e)));
+  const onEdgesDelete1 = useCallback(
     (deletedEdges) => {
       console.log("Edges deleted:", deletedEdges);
       
@@ -968,16 +985,6 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     [activeGraph, onUpdateGraph]
   );
 
-  // Memoize the edgeTypes object to avoid recreation on each render
-  const edgeTypes = useMemo(() => ({
-    buttonedge: (props) => (
-      <ButtonEdgeDemo 
-        {...props} 
-        handleClick={(event) => handleEdgeButtonClick(event, props)}
-      />
-    )
-  }), [handleEdgeButtonClick]);
-
   return (
       <ReactFlow
         nodes={nodes}
@@ -985,11 +992,10 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     ...edge,
     selected: edge.id === selectedEdgeId
   }))}
-        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodesDelete={onNodesDelete}
-        onEdgesDelete={onEdgesDelete}
+        //onEdgesDelete={onEdgesDelete}
         onConnect={onConnect}
         onInit={setRfInstance}
         nodeTypes={nodeTypes}

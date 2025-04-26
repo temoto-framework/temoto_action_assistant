@@ -29,6 +29,7 @@ export default memo(({ data }: NodeProps<Node<SpinNodeData>>) => {
                 <div className="source-handle-label left">true</div>
                 <div className="source-handle-label center">false</div>
                 <div className="source-handle-label right">error</div>
+                <div className="source-handle-label right">stopped</div>
               </div>
             </div>
           </div>
@@ -38,20 +39,28 @@ export default memo(({ data }: NodeProps<Node<SpinNodeData>>) => {
           position={Position.Bottom} 
           className="react-flow__handle source source-on-true" 
           id="source-on-true"
-          style={{ left: '25%' }}
+          style={{ left: '5%' }}
         />
         <Handle 
           type="source" 
           position={Position.Bottom} 
           className="react-flow__handle source source-on-false" 
           id="source-on-false"
+          style={{ left: '20%' }}
         />
         <Handle 
           type="source" 
           position={Position.Bottom} 
           className="react-flow__handle source source-on-error" 
           id="source-on-error"
-          style={{ left: '75%' }}
+          style={{ left: '35%' }}
+        />
+        <Handle 
+          type="source" 
+          position={Position.Bottom} 
+          className="react-flow__handle source source-on-stopped" 
+          id="source-on-stopped"
+          style={{ left: '50%' }}
         />
       </div>
     </>
