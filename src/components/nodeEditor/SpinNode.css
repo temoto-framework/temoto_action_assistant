@@ -203,21 +203,28 @@ body {
 
 .react-flow__handle.source-on-true {
   bottom: -3px;
-  left: 25% !important;
+  left: 17% !important;
   transform: translateX(-50%);
   z-index: 10;
 }
 
 .react-flow__handle.source-on-false {
   bottom: -3px;
-  left: 50% !important;
+  left: 36% !important;
   transform: translateX(-50%);
   z-index: 10;
 }
 
 .react-flow__handle.source-on-error {
   bottom: -3px;
-  left: 75% !important;
+  left: 55% !important;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.react-flow__handle.source-on-stopped {
+  bottom: -3px;
+  left: 80% !important;
   transform: translateX(-50%);
   z-index: 10;
 }
@@ -311,22 +318,28 @@ body {
   opacity: 0.8;
 }
 
-.source-handle-label.left {
+.source-handle-label.true {
   background-color: rgba(76, 175, 80, 0.2); /* Soft green for true */
   color: rgba(76, 175, 80, 1);
   border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
-.source-handle-label.center {
+.source-handle-label.false {
   background-color: rgba(255, 152, 0, 0.2); /* Soft orange for false */
   color: rgba(255, 152, 0, 1);
   border: 1px solid rgba(255, 152, 0, 0.3);
 }
 
-.source-handle-label.right {
+.source-handle-label.error {
   background-color: rgba(244, 67, 54, 0.2); /* Soft red for error */
   color: rgba(244, 67, 54, 1);
   border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.source-handle-label.stopped {
+  background-color: rgba(158, 158, 158, 0.2); /* Soft gray */
+  color: rgba(117, 117, 117, 1);
+  border: 1px solid rgba(158, 158, 158, 0.3);
 }
 
 .source-handle-label:hover {

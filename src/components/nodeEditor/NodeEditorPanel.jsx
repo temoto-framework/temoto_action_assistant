@@ -110,6 +110,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     return {};
   }, [activeGraph]);
 
+  // TODO: Remove if you don't need this anymore
   const handleEdgeButtonClick = useCallback((event, edge) => {
     event.stopPropagation();
     console.log("Edge button clicked:", 'edge.id:', edge.id, 'edge.source:', edge.source, 'edge.target:', edge.target);
@@ -858,8 +859,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
     [activeGraph, onUpdateGraph]
   );
 
-  const onEdgesDelete = (edges) => setEdges((eds) => eds.filter(e => !edges.includes(e)));
-  const onEdgesDelete1 = useCallback(
+  const onEdgesDelete = useCallback(
     (deletedEdges) => {
       console.log("Edges deleted:", deletedEdges);
       
@@ -880,11 +880,10 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
                 );
               }
             }
-            return; // Skip the regular edge handling below
           }
           
           // Handle exit node connection deletion
-          if (deletedEdge.target === 'exit-node') {
+          else if (deletedEdge.target === 'exit-node') {
             const sourceParts = deletedEdge.source.split('_');
             if (sourceParts.length === 2) {
               // Remove from graph_exit
@@ -895,11 +894,11 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
                 );
               }
             }
-            return; // Skip the regular edge handling below
           }
           
           // Find source and target actions for regular connections
-          const sourceAction = draft.actions.find(
+          else {
+            const sourceAction = draft.actions.find(
             action => `${action.name}_${action.instance_id}` === deletedEdge.source
           );
           const targetAction = draft.actions.find(
@@ -908,6 +907,8 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           
           if (sourceAction && targetAction) {
             // Remove child from source action
+            console.log("sourceAction: ", sourceAction);
+            console.log("targetAction: ", targetAction);
             if (sourceAction.children) {
               sourceAction.children = sourceAction.children.filter(
                 child => !(child.name === targetAction.name && 
@@ -923,6 +924,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
               );
             }
           }
+        }
         });
       });
       
@@ -988,14 +990,15 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
   return (
       <ReactFlow
         nodes={nodes}
-          edges={edges?.map(edge => ({
-    ...edge,
-    selected: edge.id === selectedEdgeId
-  }))}
+        edges={edges}
+  //         edges={edges?.map(edge => ({
+  //   ...edge,
+  //   selected: edge.id === selectedEdgeId
+  // }))}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodesDelete={onNodesDelete}
-        //onEdgesDelete={onEdgesDelete}
+        onEdgesDelete={onEdgesDelete}
         onConnect={onConnect}
         onInit={setRfInstance}
         nodeTypes={nodeTypes}
