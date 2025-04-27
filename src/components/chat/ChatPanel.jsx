@@ -87,20 +87,36 @@ const ChatPanel = () => {
     socket.on("chat_log", (chatLog) => {
       setMessages(chatLog);
       
-      // Check for any "request" type messages and update UI
+      // Track which actors have pending requests
       const updatedAwaitingActors = [];
+      
       Object.entries(chatLog).forEach(([actor, messages]) => {
-        // Look through recent messages for request types
-        const recentMessages = messages.slice(-5);
-        for (const message of recentMessages) {
-          if (message.length > 3 && message[3] === "request") {
-            updatedAwaitingActors.push(actor);
-            break;
+        // Sort messages by timestamp to ensure proper ordering
+        const sortedMessages = [...messages].sort((a, b) => new Date(a[0]) - new Date(b[0]));
+        
+        // Find the last message that's either a request from the actor or a response from the user
+        let lastRequestResponseMessage = null;
+        
+        for (const message of sortedMessages) {
+          if (message.length >= 4) {
+            // Only consider messages that are requests from the actor or responses from the user
+            if ((message[3] === "request" && message[1] === actor) || 
+                (message[3] === "response" && message[1] === "user")) {
+              lastRequestResponseMessage = message;
+            }
           }
+        }
+        
+        // If the last relevant message is a request from the actor, mark as awaiting
+        if (lastRequestResponseMessage && 
+            lastRequestResponseMessage[3] === "request" && 
+            lastRequestResponseMessage[1] === actor) {
+          updatedAwaitingActors.push(actor);
         }
       });
       
       setActorsAwaitingResponse(updatedAwaitingActors);
+      console.log("Actors awaiting response:", updatedAwaitingActors);
     });
     
     return () => {
@@ -126,10 +142,26 @@ const ChatPanel = () => {
       return;
     }
     
+    // Determine if this is a response to a request
+    const isResponse = activeTabs.some(actor => actorsAwaitingResponse.includes(actor));
+    
     const request = {
       actor: activeTabs, // Send to all selected actors
       message: input.trim(),
+      type: isResponse ? "response" : "request", // Set type based on context
     };
+
+    console.log("Sending message with type:", request.type);
+    console.log("Current awaiting actors before:", actorsAwaitingResponse);
+
+    // If this is a response, immediately clear the awaiting status for these actors
+    if (isResponse) {
+      const updatedAwaitingActors = actorsAwaitingResponse.filter(
+        actor => !activeTabs.includes(actor)
+      );
+      setActorsAwaitingResponse(updatedAwaitingActors);
+      console.log("Updated awaiting actors after sending response:", updatedAwaitingActors);
+    }
 
     setInput("");
 
@@ -178,10 +210,17 @@ const ChatPanel = () => {
 
   /**
    * Toggles the selection of a tab (actor).
-   * With Shift key: toggles the actor to add/remove from selection
+   * With Shift key: toggles the actor to add/remove from selection (except for awaiting response)
    * Without Shift key: selects only this actor
+   * For awaiting response tabs: always select only this tab
    */
   const handleToggleTab = (actor, event) => {
+    // If this is an awaiting response tab, always select only this tab
+    if (actorsAwaitingResponse.includes(actor)) {
+      setActiveTabs([actor]);
+      return;
+    }
+    
     // If shift key is pressed, toggle the selection
     if (event.shiftKey) {
       if (activeTabs.includes(actor)) {
@@ -204,11 +243,6 @@ const ChatPanel = () => {
       handleSend();
     }
   };
-
-  /**
-   * Simulates a voice prompt action (placeholder).
-   */
-  const handleVoicePrompt = () => alert("Voice Prompt Activated! (🎙️)");
 
   /**
    * Toggles debug message visibility
@@ -262,9 +296,10 @@ const ChatPanel = () => {
     return className;
   };
 
-  // Helper to determine message type class
+  // Helper to determine message type class - fixing the previous implementation
   const getMessageTypeClass = (message) => {
-    if (message.length <= 3) return "";
+    // Safety check if message doesn't have enough elements
+    if (!Array.isArray(message) || message.length < 4) return "";
     
     const type = message[3];
     switch(type) {
@@ -286,7 +321,7 @@ const ChatPanel = () => {
               +
             </button>
             
-            <div className="tabs-scrollable">
+                          <div className="tabs-scrollable">
               {Object.keys(messages).map((actor) => (
                 <button
                   key={actor}
@@ -295,7 +330,11 @@ const ChatPanel = () => {
                 >
                   {actor}
                   {actorsAwaitingResponse.includes(actor) && (
-                    <span className="awaiting-response-indicator">⏳</span>
+                    <span className="awaiting-response-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
                   )}
                 </button>
               ))}
@@ -306,13 +345,13 @@ const ChatPanel = () => {
               onClick={toggleDebugMessages}
               title="Toggle Debug Messages"
             >
-              {showDebugMessages ? "🐞" : "🐞"}
+              {showDebugMessages ? "debug" : "debug"}
             </button>
           </div>
         </div>
 
-        {/* Chat Log */}
-        <div className="chat-log" ref={chatLogRef}>
+        {/* Chat Log - Add debug-active class when showDebugMessages is true */}
+        <div className={`chat-log ${showDebugMessages ? 'debug-active' : ''}`} ref={chatLogRef}>
           {activeTabs.length > 0 ? (
             combinedMessages.length > 0 ? (
               combinedMessages.map((chat, idx) => {
@@ -321,9 +360,10 @@ const ChatPanel = () => {
                 const messageClass = `chat-message ${user === "debug" ? "debug-type" : getMessageTypeClass(chat)}`;
                 
                 return (
-                  <div key={idx} className={messageClass}>
+                  <div key={idx} className={messageClass} data-user={user}>
                     {showDebugMessages && <span className="chat-timestamp">{timestamp}</span>}
                     <strong>{user}:</strong> {message}
+                    <span className="message-type-indicator">{type}</span>
                   </div>
                 );
               })

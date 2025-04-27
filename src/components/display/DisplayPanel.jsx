@@ -27,6 +27,8 @@ const DisplayPanel = () => {
   const [isTargetContainerCollapsed, setIsTargetContainerCollapsed] = useState(true);
   // Using the useState initializer function to avoid unnecessary re-renders
   const [clientId] = useState(() => localStorage.getItem('displayPanelClientId') || generateClientId());
+  // Add state to track if we're in mobile view
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
   
   // Reference for the display content div
   const displayContentRef = useRef(null);
@@ -58,6 +60,9 @@ const DisplayPanel = () => {
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setConnected(true);
+      
+      // Clear any error states on reconnect
+      setImageErrors({});
     });
     
     newSocket.on('disconnect', () => {
@@ -70,6 +75,22 @@ const DisplayPanel = () => {
     // Clean up socket connection on component unmount
     return () => newSocket.disconnect();
   }, [SERVER_URL]);
+  
+  // Add resize listener to detect mobile view
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Handle page refresh
   useEffect(() => {
@@ -237,6 +258,13 @@ const DisplayPanel = () => {
         setFullScreenImageIndex(fullScreenImageIndex - 1);
       }
       
+      // Clear any error state for this image
+      setImageErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[`${targetId}-${imageName}`];
+        return newErrors;
+      });
+      
       // Unsubscribe from the feed
       if (socket && connected) {
         socket.emit('display_unsubscribe_from_image', { 
@@ -272,15 +300,6 @@ const DisplayPanel = () => {
         
         // Reset the refresh timestamp to trigger a new image load
         refreshImageSrc(targetId, imageName);
-        
-        // Set up multiple retries to handle subscription latency
-        const retryIntervals = [500, 1000, 2000, 4000]; // ms
-        retryIntervals.forEach(delay => {
-          setTimeout(() => {
-            console.log(`Retry loading image after ${delay}ms`);
-            refreshImageSrc(targetId, imageName);
-          }, delay);
-        });
       }
     }
   };
@@ -304,49 +323,14 @@ const DisplayPanel = () => {
   };
   
   // Handle image load error
-  const handleImageError = (selection, cacheKey) => {
+  const handleImageError = (selection) => {
     console.error(`Failed to load image: ${selection.targetId}/${selection.imageName}`);
-    console.error(`URL attempted: ${SERVER_URL}/api/images/${selection.targetId}/${selection.imageName}?t=${cacheKey}`);
     
     // Mark this image as having an error
     setImageErrors(prev => ({
       ...prev,
       [`${selection.targetId}-${selection.imageName}`]: true
     }));
-    
-    // Retry a few times over several seconds
-    const retryDelays = [1000, 3000, 5000];
-    let retryCount = 0;
-    
-    const retryImage = () => {
-      if (retryCount < retryDelays.length) {
-        setTimeout(() => {
-          console.log(`Retry attempt ${retryCount + 1} for ${selection.targetId}/${selection.imageName}`);
-          refreshImageSrc(selection.targetId, selection.imageName);
-          retryCount++;
-          retryImage();
-        }, retryDelays[retryCount]);
-      }
-    };
-    
-    retryImage();
-  };
-  
-  // Handle manual refresh attempt
-  const handleManualRefresh = (selection) => {
-    console.log(`Manual refresh for ${selection.targetId}/${selection.imageName}`);
-    
-    // Re-subscribe to the feed
-    if (socket && connected) {
-      socket.emit('display_subscribe_to_image', { 
-        target: selection.targetId, 
-        name: selection.imageName,
-        client_id: clientId 
-      });
-    }
-    
-    // Reset error state and refresh timestamp
-    refreshImageSrc(selection.targetId, selection.imageName);
   };
   
   // Toggle target container collapse state
@@ -362,26 +346,15 @@ const DisplayPanel = () => {
       >
         {/* Image display container */}
         <div className="display-image-container">
-          {isTargetContainerCollapsed && (
-            <button 
-              className="mobile-expand-btn"
-              onClick={toggleTargetContainer}
-              title="Show Targets"
-            >
-              ≡
-            </button>
-          )}
-          
-          {/* Error indicator alongside the expand button when collapsed */}
-          {isTargetContainerCollapsed && Object.values(imageErrors).some(error => error) && (
-            <div 
-              className="error-indicator" 
-              title="One or more images have errors"
-              onClick={toggleTargetContainer}
-            >
-              !
-            </div>
-          )}
+          {/* Always show expand button regardless of container state */}
+          <button 
+            className={`mobile-expand-btn ${isMobileView ? 'mobile' : ''}`}
+            onClick={toggleTargetContainer}
+            style={{ display: isTargetContainerCollapsed ? 'flex' : 'none' }}
+            title="Show Targets"
+          >
+            ≡
+          </button>
           
           {selectedImages.length > 0 ? (
             selectedImages.map((selection, index) => {
@@ -391,36 +364,30 @@ const DisplayPanel = () => {
               const hasError = imageErrors[`${selection.targetId}-${selection.imageName}`];
               const isFullscreen = fullScreenImageIndex === index;
               
-              console.log(`Rendering image from: ${imageSrc}, hasError: ${hasError}, isFullscreen: ${isFullscreen}`);
-              
               // Only render the image if it's fullscreen or no image is in fullscreen mode
               if (fullScreenImageIndex === null || isFullscreen) {
                 return (
                   <div key={`${selection.targetId}-${selection.imageName}-${index}`} 
                        className={`display-image ${hasError ? 'image-error' : ''} ${isFullscreen ? 'fullscreen' : ''}`}>
                     
-                    <img 
-                      src={imageSrc}
-                      alt={`${selection.targetId} - ${selection.imageName}`}
-                      onLoad={() => {
-                        console.log(`Successfully loaded image: ${selection.targetId}/${selection.imageName}`);
-                        // Reset error state if it was previously in error
-                        if (hasError) {
-                          setImageErrors(prev => ({
-                            ...prev,
-                            [`${selection.targetId}-${selection.imageName}`]: false
-                          }));
-                        }
-                      }}
-                      onError={() => handleImageError(selection, cacheKey)}
-                    />
-                    
-                    {hasError && (
-                      <div className="image-error-overlay">
-                        <p>Failed to load image</p>
-                        <button onClick={() => handleManualRefresh(selection)}>
-                          Retry
-                        </button>
+                    {!hasError ? (
+                      <img 
+                        src={imageSrc}
+                        alt={`${selection.targetId} - ${selection.imageName}`}
+                        onLoad={() => {
+                          // Reset error state if it was previously in error
+                          if (hasError) {
+                            setImageErrors(prev => ({
+                              ...prev,
+                              [`${selection.targetId}-${selection.imageName}`]: false
+                            }));
+                          }
+                        }}
+                        onError={() => handleImageError(selection)}
+                      />
+                    ) : (
+                      <div className="subscription-message">
+                        Subscribed to {selection.targetId}/{selection.imageName}
                       </div>
                     )}
                     
@@ -457,26 +424,19 @@ const DisplayPanel = () => {
           )}
         </div>
         
-        {/* Target container - always rendered with mobile style */}
-        {!isTargetContainerCollapsed && (
-          <div className="display-target-container">
-            <button 
-              className="mobile-collapse-btn"
-              onClick={toggleTargetContainer}
-              title="Show Images"
-            >
-              ×
-            </button>
-            
-            {/* Error indicator in expanded mode */}
-            {!isTargetContainerCollapsed && Object.values(imageErrors).some(error => error) && (
-              <div 
-                className="error-indicator" 
-                title="One or more images have errors"
-              >
-                !
-              </div>
-            )}
+        {/* Target container - always rendered but conditionally shown */}
+        <div 
+          className="display-target-container" 
+          style={{ visibility: isTargetContainerCollapsed ? 'hidden' : 'visible', opacity: isTargetContainerCollapsed ? 0 : 1 }}
+        >
+          <button 
+            className="mobile-collapse-btn"
+            onClick={toggleTargetContainer}
+            style={{ display: isTargetContainerCollapsed ? 'none' : 'flex' }}
+            title="Show Images"
+          >
+            ×
+          </button>
             
             {targets.length > 0 ? (
               targets.map(target => (
@@ -503,7 +463,7 @@ const DisplayPanel = () => {
                       .map((img, idx) => {
                         const hasError = imageErrors[`${img.targetId}-${img.imageName}`];
                         return (
-                          <div key={idx} className={`selected-image-badge ${hasError ? 'image-error-badge' : ''}`}>
+                          <div key={idx} className="selected-image-badge">
                             {img.imageName}
                             <button 
                               onClick={(e) => {
@@ -526,9 +486,8 @@ const DisplayPanel = () => {
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
   );
 };
 

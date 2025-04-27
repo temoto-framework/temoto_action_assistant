@@ -5,7 +5,6 @@
   background-color: #000000;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow */
-  padding: 20px;
   height: 100%;
   overflow: auto;
   border: 1px solid #333; /* Added subtle border */
@@ -25,7 +24,6 @@
   width: 100%;
   height: 100%;
   border-radius: 5px;
-  padding: 15px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
@@ -36,6 +34,7 @@
   visibility: visible;
   opacity: 1;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1; 
 }
 
 /* Hide image container when targets expanded */
@@ -53,17 +52,22 @@
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid #333; /* Added border for definition */
+  margin: 20px;
 }
 
-/* Full size display styling */
+/* Full size display styling - take the entire width/height of container */
 .display-image.fullscreen {
   position: absolute;
   top: 0;
   left: 0;
-  width: calc(100% - 30px);
-  height: calc(100% - 30px);
+  width: 100%;
+  height: 100%;
   aspect-ratio: unset;
-  margin: 15px;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  z-index: 5; /* Lower z-index to stay behind buttons */
 }
 
 .display-image img {
@@ -142,7 +146,7 @@
 /* Target container */
 .display-target-container {
   width: 370px; /* Set a fixed width for desktop */
-  height: 100%;
+  height: calc(100% - 40px);
   background-color: #0f0f0f; /* Darker background */
   border-radius: 5px;
   padding: 15px;
@@ -158,26 +162,48 @@
   transition: opacity 0.3s ease, visibility 0.3s ease;
   box-shadow: -3px 0 8px rgba(0, 0, 0, 0.4); /* Stronger shadow */
   border: 1px solid #333; /* Added border */
+  margin: 20px;
 }
 
 /* Mobile behavior - make it full screen when in mobile view */
 @media (max-width: 768px) {
   .display-target-container {
-    width: 100%; /* Full width on mobile */
+    width: 100%;
+    height: 100%;
+    margin: 0;
     right: 0;
     left: 0;
+    border-color: black;
+    background-color: black;
   }
 }
 
-/* Show target container when targets expanded */
-.mobile-targets-expanded .display-target-container {
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
+/* Special styling for expand/collapse buttons */
+.mobile-expand-btn {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background-color: #333; /* Darker button */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 28px; /* Slightly larger */
+  height: 28px; /* Slightly larger */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  z-index: 20; /* Higher z-index to stay on top */
 }
 
-/* Special styling for expand/collapse buttons */
-.mobile-expand-btn, .mobile-collapse-btn {
+/* Modified: Added mobile class with adjusted positioning */
+.mobile-expand-btn.mobile {
+  top: 10px;
+  right: 10px;
+}
+
+.mobile-collapse-btn {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -192,6 +218,7 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  z-index: 20; /* Higher z-index to stay on top */
 }
 
 .mobile-expand-btn:hover, .mobile-collapse-btn:hover {
@@ -213,6 +240,7 @@
   justify-content: center;
   font-size: 14px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  z-index: 20; /* Higher z-index to stay on top */
 }
 
 .display-panel-target {
@@ -266,7 +294,7 @@
 .remove-badge {
   background: none;
   border: none;
-  color: #ff7f7f; /* Lighter red for better visibility */
+  color: #ff7f7f; 
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
@@ -296,37 +324,18 @@
   position: relative;
 }
 
-.image-error-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
+/* Subscription message styling for feed status */
+.subscription-message {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white;
-  gap: 10px;
-  padding: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  color: #aaa;
   text-align: center;
+  font-style: italic;
+  background-color: #0d0d0d;
 }
 
-.image-error-overlay button {
-  background-color: #333; /* Darker button */
-  color: white;
-  border: 1px solid #555;
-  border-radius: 4px;
-  padding: 6px 12px; /* Slightly larger padding */
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.image-error-overlay button:hover {
-  background-color: #444;
-}
-
-.image-error-badge {
-  background-color: #a03535 !important; /* Darker error red */
-}
+/* Removed error badge styling */

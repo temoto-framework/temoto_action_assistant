@@ -76,19 +76,21 @@ def setup_chat_socket(app, socketio, chat_enabled):
         current_time = get_current_timestamp()
         user = "user"
         message = data.get("message")
+        message_type = data.get("type", "request")  # Default to "request" if not provided
 
         # Append the incoming message to each actor's log.
         for actor in actor_list:
             if actor not in chat_log:
                 chat_log[actor] = []  # Initialize if not already present.
-            chat_log[actor].append([current_time, user, message])
+            chat_log[actor].append([current_time, user, message, message_type])
 
         # Check if ri_chat_node is available and the message is not empty.
         if ri_chat_node is not None and message:
             try:
                 ros_message = json.dumps({
                     "targets": actor_list, 
-                    "message": message
+                    "message": message,
+                    "type": message_type
                 })
                 
                 ri_chat_node.send_chat_message(ros_message)
@@ -99,7 +101,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
                     feedback_user = "debug"
                     feedback_message = "Message sent"
                     for actor in actor_list:
-                        chat_log[actor].append([current_time, feedback_user, feedback_message])
+                        chat_log[actor].append([current_time, feedback_user, feedback_message, "info"])
                 
                 socketio.emit('chat_log', chat_log)
                 return jsonify({"debug": "Message sent"}), 200
@@ -110,7 +112,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
                 error_user = "error"
                 error_message = f"Error sending message: {str(e)}"
                 for actor in actor_list:
-                    chat_log[actor].append([current_time, error_user, error_message])
+                    chat_log[actor].append([current_time, error_user, error_message, "error"])
                 
                 socketio.emit('chat_log', chat_log)
                 return jsonify({"error": f"Error: {str(e)}"}), 500
@@ -120,7 +122,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
             error_user = "error"
             error_message = "ROS node not available or empty message"
             for actor in actor_list:
-                chat_log[actor].append([current_time, error_user, error_message])
+                chat_log[actor].append([current_time, error_user, error_message, "error"])
 
             socketio.emit('chat_log', chat_log)
             return jsonify({"error": "Unable to send message"}), 400
@@ -142,7 +144,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
         current_time = get_current_timestamp()
         feedback_user = "debug"
         feedback_message = f"{actor_name} initialised"
-        chat_log[actor_name].append([current_time, feedback_user, feedback_message])
+        chat_log[actor_name].append([current_time, feedback_user, feedback_message, "info"])
 
         socketio.emit('chat_log', chat_log)
         return jsonify({"message": f"Actor {actor_name} added to chat log."}), 200
@@ -451,7 +453,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
                 user = str(actor)
                 if actor not in chat_log:
                     chat_log[actor] = []
-                chat_log[actor].append([current_time, user, msg])
+                chat_log[actor].append([current_time, user, msg, msg_type])
             
             try:
                 socketio.emit('chat_log', chat_log)

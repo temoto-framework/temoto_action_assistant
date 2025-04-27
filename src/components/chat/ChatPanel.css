@@ -1,5 +1,3 @@
-/* Modern Chat Panel Styles matching Planned Action Panel */
-
 .chat-sub-panel {
   display: flex;
   justify-content: center;
@@ -13,37 +11,37 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  background-color: #1a1a1a; /* Darker background for better contrast with parent (#222) */
+  background-color: #1a1a1a;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for more depth */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); 
   width: 100%;
   height: 100%;
   overflow: hidden;
   color: #f8f9fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  border: 1px solid #333; /* Added subtle border */
+  border: 1px solid #333;
 }
 
 /* Tab container for managing chat tabs */
 .tab-container {
   padding: 0px 15px;
-  background-color: #141414; /* Darker background for tab container */
+  background-color: #141414; 
   border-bottom: 1px solid #333;
-  height: 54px; /* Fixed height */
-  display: flex; /* Add flex display */
-  align-items: center; /* Center items vertically */
-  justify-content: center; /* Added to help with centering */
+  height: 54px; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
   box-sizing: border-box;
 }
 
 .actor-selector {
   display: flex;
-  align-items: center; /* Center items vertically */
-  justify-content: center; /* Added to help with centering */
+  align-items: center;
+  justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 36px; /* Set a specific height smaller than container */
-  margin: 9px 0; /* Equal margin top and bottom (54px - 36px = 18px, so 9px on each side) */
+  height: 36px;
+  margin: 9px 0;
 }
 
 /* Add tab button styling */
@@ -53,7 +51,7 @@
   height: 28px;
   border: none;
   border-radius: 50%;
-  background-color: #333; /* Darker button background */
+  background-color: #333;
   color: #eee;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -63,7 +61,7 @@
   font-size: 16px;
   font-weight: bold;
   flex-shrink: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .add-tab-button:hover {
@@ -86,8 +84,8 @@
   padding: 0 10px;
   scrollbar-width: thin;
   scrollbar-color: #444 #1a1a1a;
-  align-items: center; /* Center items vertically */
-  height: 36px; /* Same height as actor-selector for consistency */
+  align-items: center;
+  height: 36px;
 }
 
 /* Scrollbar styling for tabs */
@@ -106,10 +104,10 @@
 
 /* Individual tab button styling */
 .tab-button {
-  padding: 0 15px; /* Adjusted padding for better vertical centering */
+  padding: 0 15px; 
   border: none;
   border-radius: 4px;
-  background-color: #333; /* Darker tabs */
+  background-color: #333;
   color: #eee;
   cursor: pointer;
   flex-shrink: 0;
@@ -118,10 +116,10 @@
   font-weight: 500;
   font-size: 0.85rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  display: flex; /* Added flex to center its content */
-  align-items: center; /* Center content vertically */
-  justify-content: center; /* Center content horizontally too */
-  height: 28px; /* Fixed height for consistent appearance */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px; 
 }
 
 .tab-button:hover {
@@ -131,7 +129,7 @@
 
 /* Active tab styling */
 .active-tab {
-  background-color: #6b0000; /* Darker red */
+  background-color: #6b0000;
   color: #fff;
 }
 
@@ -140,7 +138,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #c0c0c0; /* Slightly darker background for chat log */
+  background-color: #c0c0c0;
   padding: 20px;
   margin: 0;
   scrollbar-width: thin;
@@ -153,25 +151,26 @@
 }
 
 .chat-log::-webkit-scrollbar-thumb {
-  background-color: #444;
+  background-color: #666;
   border-radius: 6px;
 }
 
 .chat-log::-webkit-scrollbar-track {
-  background-color: #1a1a1a;
+  background-color: #e6e6e6;
 }
 
 /* Chat message styling */
 .chat-message {
-  background-color: #e6e6e6; /* Slightly darker background for messages */
+  background-color: #e6e6e6;
   border-radius: 5px;
   padding: 10px 14px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  border-left: 3px solid #888; /* Darker default border */
+  border-left: 5px solid #888;
   margin-bottom: 12px;
-  color: #222; /* Darker text color for better readability */
+  color: #222;
   word-break: break-word;
   transition: transform 0.2s ease;
+  position: relative;
 }
 
 .chat-message:hover {
@@ -180,41 +179,117 @@
 }
 
 .chat-message strong {
-  color: #111; /* Darker username text */
+  color: #000;
   font-weight: 600;
   margin-right: 5px;
 }
 
 .chat-timestamp {
   font-size: 0.7rem;
-  color: #666; /* Darker timestamp color */
+  color: #666;
   display: block;
   margin-bottom: 3px;
   font-family: monospace;
 }
 
-/* Message type styling */
+/* Message type styling - only visible when debug is on */
+.message-type-indicator {
+  display: none; 
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: bold;
+  opacity: 0.9;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+}
+
+/* When debug mode is active, show message type indicators */
+.debug-active .message-type-indicator {
+  display: block;
+}
+
+/* Subtle message type styling (visible regardless of debug mode) */
+.chat-message[data-user="user"] {
+  border-left-color: #444 !important;
+}
+
 .chat-message.request-type {
-  border-left-color: #a03535; /* Darker red */
+  border-left-color: #00446b;
 }
 
 .chat-message.response-type {
-  border-left-color: #357535; /* Darker green */
+  border-left-color: #888;
 }
 
 .chat-message.info-type {
-  border-left-color: #355a80; /* Darker blue */
+  border-left-color: #888;
 }
 
 .chat-message.error-type {
-  border-left-color: #a03535; /* Darker red */
+  border-left-color: #000000;
 }
 
 .chat-message.debug-type {
-  border-left-color: #7d1e8e; /* Darker purple */
+  border-left-color: #6b0062;
   font-size: 0.9em;
-  color: #444;
-  background-color: #f0e6f2; /* Slightly darker background for debug messages */
+}
+
+/* More visible styling with background colors - only when debug mode is active */
+.debug-active .chat-message.request-type {
+  background-color: #e3f0ff;
+}
+
+.debug-active .chat-message.response-type {
+  background-color: #e6e6e6; 
+}
+
+.debug-active .chat-message.info-type {
+  background-color: #e6e6e6;
+}
+
+.debug-active .chat-message.error-type {
+  background-color: #ffebeb; 
+  border-bottom: 2px solid #6b0000; 
+}
+
+.debug-active .chat-message.debug-type {
+  background-color: #f0e6f2; 
+}
+
+/* Message type indicator styling when debug is active */
+.debug-active .request-type .message-type-indicator {
+  background-color: #e3f0ff;
+  border: 1px solid #00446b;
+  color: #2c5282;
+}
+
+.debug-active .response-type .message-type-indicator {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.debug-active .info-type .message-type-indicator {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.debug-active .error-type .message-type-indicator {
+  background-color: #ffdddd;
+  border: 1px solid #ffaaaa;
+  color: #900;
+}
+
+.debug-active .debug-type .message-type-indicator {
+  background-color: #f3ddff;
+  border: 1px solid #6b0062;
+  color: #609;
 }
 
 /* Input container for sending messages */
@@ -223,7 +298,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 30px;
-  background-color: #141414; /* Darker input container */
+  background-color: #141414;
   border-top: 1px solid #333;
 }
 
@@ -231,10 +306,10 @@
 .chat-input-container input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #111; /* Darker border */
+  border: 1px solid #111;
   border-radius: 5px;
   font-size: 16px;
-  background-color: #333; /* Darker input field */
+  background-color: #333;
   color: #eee;
   transition: all 0.2s ease;
 }
@@ -246,7 +321,7 @@
 }
 
 .chat-input-container input::placeholder {
-  color: #666; /* Darker placeholder text */
+  color: #666; 
 }
 
 /* Button styling within input container */
@@ -254,7 +329,7 @@
   padding: 12px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #333; /* Darker button */
+  background-color: #333;
   color: #eee;
   font-size: 16px;
   cursor: pointer;
@@ -274,28 +349,60 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Voice prompt button specific styling */
-.voice-prompt-button {
-  font-size: 1.2rem;
-  padding: 8px 12px !important;
-}
-
 /* Styling for tabs that are awaiting response */
 .awaiting-response-tab {
-  background-color: #d6d860 !important; /* Slightly darker yellow */
-  color: #000 !important;
+  background-color: rgba(44, 82, 130, 0.7) !important;
+  color: #fff !important;
   border: none;
   position: relative;
 }
 
-.active-tab.awaiting-response-tab {
-  background-color: #c9cb3d !important; /* Darker yellow for active state */
-  color: #000 !important;
+.awaiting-response-tab:hover {
+  background-color: rgba(44, 82, 130, 0.9) !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
+.active-tab.awaiting-response-tab {
+  background-color: #2c5282 !important;
+  color: #fff !important;
+}
+
+/* Three-dot animation from the planned action panel */
 .awaiting-response-indicator {
-  margin-left: 8px;
-  font-size: 0.9em;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  color: #fff; 
+}
+
+.awaiting-response-indicator span {
+  width: 4px;
+  height: 4px;
+  margin: 0 1px;
+  background-color: currentColor;
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.awaiting-response-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.awaiting-response-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
 }
 
 /* Debug toggle button */
@@ -303,7 +410,7 @@
   padding: 0 8px;
   border: none;
   border-radius: 4px;
-  background-color: #333; /* Darker debug button */
+  background-color: #333;
   color: #eee;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -311,10 +418,10 @@
   font-weight: 500;
   font-size: 0.9rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  display: flex; /* Added to center content */
+  display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px; /* Fixed height to match other elements */
+  height: 28px; 
 }
 
 .debug-toggle-button:hover {
@@ -324,7 +431,7 @@
 }
 
 .debug-toggle-button.debug-active {
-  background-color: #5bc25b; /* Darker active debug button */
+  background-color: #5bc25b; 
   color: #000;
 }
 
@@ -335,9 +442,9 @@
   justify-content: center;
   padding: 30px;
   text-align: center;
-  color: #555; /* Darker text color */
+  color: #555; 
   font-style: italic;
-  background-color: #d3d3d3; /* Darker empty state background */
+  background-color: #d3d3d3;
   border-radius: 5px;
   min-height: 80px;
   width: 100%;

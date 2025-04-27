@@ -82,7 +82,6 @@ const PlannedActionsPage = () => {
   return (
     <div className={`planned-actions-page ${isMobile ? "mobile" : ""}`}>
       <div className="planned-actions-container">
-        <h2 className="page-title">Planned Actions</h2>
         <div className="planned-action-panel-container">
           <PlannedActionPanel showDebugMessages={showDebugMessages} />
         </div>
