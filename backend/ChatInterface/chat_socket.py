@@ -154,21 +154,29 @@ def setup_chat_socket(app, socketio, chat_enabled):
         socketio.emit('debug_mode', app.config.get('DEBUG_MODE', False))
         return jsonify({"message": "Chat interface refreshed", "chat_log": chat_log}), 200
     
-    # Add the display panel routes too since they're in the same interface
+
+    # DISPLAY
+
     image_lock = threading.Lock()
     display_images = {}  # Format: {"target1": {"name1": image_data, "name2": image_data, ...}, "target2": {...}}
     active_subscriptions = set()
     display_subscriptions = {}  # Format: {"client_id": [{"target": "target1", "name": "name1"}, ...]}
+    discovered_feeds = {}
 
     @app.route('/display_panel_page_refresh', methods=['POST'])
     def display_panel_page_refresh():
-        """Send saved display subscriptions to the client on page refresh"""
+        """Send saved display subscriptions and discovered feeds to the client on page refresh"""
         client_id = request.json.get('client_id')
         
         if not client_id:
             return jsonify({"error": "Missing client_id"}), 400
         
         print(f"Display panel refresh request from client {client_id}")
+        
+        # Send discovered feeds to the client
+        targets_list = [{"id": t, "name": t} for t in discovered_feeds.keys()]
+        socketio.emit('display_available_targets', targets_list)
+        socketio.emit('display_available_feeds', discovered_feeds)
         
         # If we have subscriptions for this client, emit them
         if client_id in display_subscriptions:
@@ -191,12 +199,17 @@ def setup_chat_socket(app, socketio, chat_enabled):
         
         return jsonify({"message": "Display panel refreshed"}), 200
 
+
     @socketio.on('display_get_feeds')
     def handle_get_feeds():
         """Handle request for available image feeds"""
+        # Always return discovered feeds, even if runtime is disabled
+        targets_list = [{"id": t, "name": t} for t in discovered_feeds.keys()]
+        socketio.emit('display_available_targets', targets_list)
+        socketio.emit('display_available_feeds', discovered_feeds)
+        
+        # If runtime is disabled, return here
         if not chat_enabled or not ri_chat_node:
-            socketio.emit('display_available_targets', [])
-            socketio.emit('display_available_images', {})
             return
         
         try:
@@ -206,34 +219,26 @@ def setup_chat_socket(app, socketio, chat_enabled):
             # Pattern to match display feed topics
             pattern = r"/webapp/display_feed/([^/]+)/([^/]+)"
             
-            # Extract targets and names
-            targets = set()
-            feeds = {}
-            
-            # Find the display feed topics
+            # Find the display feed topics and add to discovered_feeds
             for topic in available_topics:
                 match = re.match(pattern, topic)
                 if match:
                     target = match.group(1)
                     name = match.group(2)
                     
-                    # Add to targets set
-                    targets.add(target)
+                    # Initialize target in discovered_feeds if not exists
+                    if target not in discovered_feeds:
+                        discovered_feeds[target] = []
                     
-                    # Initialize feeds dictionary
-                    if target not in feeds:
-                        feeds[target] = []
-                    
-                    # Add name to feeds
-                    if name not in feeds[target]:
-                        feeds[target].append(name)
+                    # Add name to discovered_feeds if not present
+                    if name not in discovered_feeds[target]:
+                        discovered_feeds[target].append(name)
+                        print(f"Added new feed: {target}/{name}")
             
-            # Prepare target list in the format expected by frontend
-            targets_list = [{"id": t, "name": t} for t in targets]
-            
-            # Emit targets and available feeds
+            # Re-emit with potentially updated feed list
+            targets_list = [{"id": t, "name": t} for t in discovered_feeds.keys()]
             socketio.emit('display_available_targets', targets_list)
-            socketio.emit('display_available_feeds', feeds)
+            socketio.emit('display_available_feeds', discovered_feeds)
             
         except Exception as e:
             print(f"Error in handle_get_feeds: {str(e)}")
@@ -470,6 +475,18 @@ def setup_chat_socket(app, socketio, chat_enabled):
             print(f"WARNING: Invalid or empty image data received for {target}/{name}")
             return
         
+        # Add this - ensure this feed is in our discovered feeds
+        if target not in discovered_feeds:
+            discovered_feeds[target] = []
+        if name not in discovered_feeds[target]:
+            discovered_feeds[target].append(name)
+            print(f"Added new feed from callback: {target}/{name}")
+            
+            # Notify clients about new available feeds
+            targets_list = [{"id": t, "name": t} for t in discovered_feeds.keys()]
+            socketio.emit('display_available_targets', targets_list)
+            socketio.emit('display_available_feeds', discovered_feeds)
+        
         with image_lock:
             # Initialize target dict if needed
             if target not in display_images:
@@ -485,8 +502,7 @@ def setup_chat_socket(app, socketio, chat_enabled):
         
         # Notify clients that the image was updated
         socketio.emit('image_updated', {"target": target, "name": name})
-        print(f"Emitted image_updated for {target}/{name}")
-        
+        print(f"Emitted image_updated for {target}/{name}")        
 
     if chat_enabled:
         try:
