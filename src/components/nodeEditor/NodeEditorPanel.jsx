@@ -612,8 +612,13 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
   const onConnect = useCallback(
     (params) => {
       console.log("onConnect: ", params);
+
+      const newEdge = {
+        id: `${params.source} to ${params.target}`,
+        ...params,
+      }
       
-      const newEdges = addEdge(params, edges); //takes in an edge
+      const newEdges = addEdge(newEdge, edges); 
       console.log("newEdges: ", newEdges);
       setEdges(newEdges);
 
