@@ -23,6 +23,7 @@ const App = () => {
   useEffect(() => {
     // Close mobile menu when changing pages
     setMobileMenuOpen(false);
+    document.title = "Temoto";
   }, [currentPage]);
 
   /* Setup page rendered */

@@ -378,7 +378,7 @@
 
 /* Status colors - updated to better match chat interface */
 .status-finished {
-  border-left-color: #0f910b !important; /* Keep green for completed state */
+  border-left-color: #5bc25b !important; /* Keep green for completed state */
 }
 
 .status-finished .action-status {
@@ -387,7 +387,7 @@
 }
 
 .status-running {
-  border-left-color: #c9cc00 !important; /* Restore yellow border */
+  border-left-color: #d6d860 !important; /* Restore yellow border */
 }
 
 .status-running .action-status {
@@ -396,11 +396,11 @@
 }
 
 .status-stopped {
-  border-left-color: #6b0000 !important; /* Match active-tab color */
+  border-left-color: #8B0000 !important; /* Match active-tab color */
 }
 
 .status-stopped .action-status {
-  background-color: #6b0000; /* Match active-tab */
+  background-color: #8B0000; /* Match active-tab */
   color: #fff;
 }
 
@@ -415,11 +415,11 @@
 
 /* ERROR state styling */
 .status-error {
-  border-left-color: #6b0000 !important; /* Match active-tab color */
+  border-left-color: #8B0000 !important; /* Match active-tab color */
 }
 
 .status-error .action-status {
-  background-color: #6b0000; /* Match active-tab */
+  background-color: #8B0000; /* Match active-tab */
   color: #fff;
 }
 
