@@ -12,7 +12,7 @@ import {
 import produce from 'immer';
 
 import SpinNode from './SpinNode.tsx';
-import EntryExitNode from './EntryExitNode.jsx';
+import { EntryNode, ExitNode } from './EntryExitNode.jsx';
 // import '@xyflow/react/dist/style.css';
 
 import '@xyflow/react/dist/base.css';
@@ -25,7 +25,8 @@ import { useDnD } from "../../components/actionList/DnDContext.jsx";
 
 const nodeTypes = {
   turbo: SpinNode,
-  entryExit: EntryExitNode,
+  entry: EntryNode,
+  exit: ExitNode,
 };
 
 const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, onEdgeSelect }, ref) => {
@@ -246,7 +247,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           connections: graphJson.graph_entry.actions
         },
         position: calculateEntryPosition(),
-        type: 'entryExit'
+        type: 'entry'
       };
       entry_nodes.push(entryNode);
     }
@@ -261,7 +262,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
           connections: graphJson.graph_exit.actions
         },
         position: calculateExitPosition(),
-        type: 'entryExit'
+        type: 'exit'
       };
       exit_nodes.push(exitNode);
     }
@@ -510,7 +511,7 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
       // Process regular nodes
       flow.nodes.forEach(node => {
         // Skip entry/exit nodes
-        if (node.type === 'entryExit') return;
+        if (node.type === 'entry' || node.type === 'exit') return;
         
         // Find the original node to preserve any additional fields
         const originalNode = activeGraph.actions?.find(
@@ -619,20 +620,19 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
       }
       
       const newEdges = addEdge(newEdge, edges); 
-      console.log("newEdges: ", newEdges);
       setEdges(newEdges);
+      console.log("newEdges: ", newEdges);
 
       const sourceNode = nodes.find(node => node.id === params.source);
       const targetNode = nodes.find(node => node.id === params.target);
+      let updatedGraph = null;
 
       if (sourceNode && targetNode) {
-        if (sourceNode.type === 'entryExit' || targetNode.type === 'entryExit') {
-          // Update the active graph state with entry/exit connections
-          const updatedGraph = produce(activeGraph, draft => {
-            // If connecting from entry node to a regular node
-            if (sourceNode.type === 'entryExit' && sourceNode.data.type === 'entry') {
+        if (sourceNode.type === 'entry') {
+          updatedGraph = produce(activeGraph, draft => {
               const targetParts = params.target.split('_');
               if (targetParts.length === 2) {
+
                 // Ensure graph_entry structure exists
                 if (!draft.graph_entry) {
                   draft.graph_entry = { actions: [], gui_attributes: {} };
@@ -651,89 +651,136 @@ const NodeEditorPanel = forwardRef(({ graphDataIn, onUpdateGraph, onNodeSelect, 
                   });
                 }
               }
-            }
-            
-            // If connecting from a regular node to exit node
-            if (targetNode.type === 'entryExit' && targetNode.data.type === 'exit') {
-              const sourceParts = params.source.split('_');
-              if (sourceParts.length === 2) {
-                // Ensure graph_exit structure exists
-                if (!draft.graph_exit) {
-                  draft.graph_exit = { actions: [], gui_attributes: {} };
-                }
-
-                // Check if connection already exists
-                const connectionExists = draft.graph_exit.actions.some(
-                  exit => exit.name === sourceParts[0] && 
-                         exit.instance_id.toString() === sourceParts[1]
-                );
-                
-                if (!connectionExists) {
-                  draft.graph_exit.actions.push({
-                    name: sourceParts[0],
-                    instance_id: parseInt(sourceParts[1])
-                  });
-                }
-              }
-            }
           });
-          
+
           setActiveGraph(updatedGraph);
           onUpdateGraph(updatedGraph);
           return;
         }
 
-        // Update the active graph state for regular node connections
-        const updatedGraph = produce(activeGraph, draft => {
-          // Find the source and target actions in the graph
-          const sourceAction = draft.actions.find(
-            action => `${action.name}_${action.instance_id}` === params.source
-          );
-          const targetAction = draft.actions.find(
-            action => `${action.name}_${action.instance_id}` === params.target
-          );
+        // else if (sourceNode.type === 'entryExit' || targetNode.type === 'entryExit') {
+        //   // Update the active graph state with entry/exit connections
+        //   const updatedGraph = produce(activeGraph, draft => {
+        //     // If connecting from entry node to a regular node
+        //     if (sourceNode.type === 'entryExit' && sourceNode.data.type === 'entry') {
+        //       const targetParts = params.target.split('_');
+        //       if (targetParts.length === 2) {
+        //         // Ensure graph_entry structure exists
+        //         if (!draft.graph_entry) {
+        //           draft.graph_entry = { actions: [], gui_attributes: {} };
+        //         }
 
-          if (sourceAction && targetAction) {
-            // Add child to source action
-            if (!sourceAction.children) {
-              sourceAction.children = [];
-            }
+        //         // Check if connection already exists
+        //         const connectionExists = draft.graph_entry.actions.some(
+        //           entry => entry.name === targetParts[0] && 
+        //                   entry.instance_id.toString() === targetParts[1]
+        //         );
+                
+        //         if (!connectionExists) {
+        //           draft.graph_entry.actions.push({
+        //             name: targetParts[0],
+        //             instance_id: parseInt(targetParts[1])
+        //           });
+        //         }
+        //       }
+        //     }
             
-            // Check if child already exists to prevent duplicates
-            const childExists = sourceAction.children.some(
-              child => child.name === targetAction.name && 
-                       child.instance_id === targetAction.instance_id
+        //     // If connecting from a regular node to exit node
+        //     if (targetNode.type === 'entryExit' && targetNode.data.type === 'exit') {
+        //       const sourceParts = params.source.split('_');
+        //       if (sourceParts.length === 2) {
+        //         // Ensure graph_exit structure exists
+        //         if (!draft.graph_exit) {
+        //           draft.graph_exit = { actions: [], gui_attributes: {} };
+        //         }
+
+        //         // Check if connection already exists
+        //         const connectionExists = draft.graph_exit.actions.some(
+        //           exit => exit.name === sourceParts[0] && 
+        //                  exit.instance_id.toString() === sourceParts[1]
+        //         );
+                
+        //         if (!connectionExists) {
+        //           draft.graph_exit.actions.push({
+        //             name: sourceParts[0],
+        //             instance_id: parseInt(sourceParts[1])
+        //           });
+        //         }
+        //       }
+        //     }
+        //   });
+          
+        //   setActiveGraph(updatedGraph);
+        //   onUpdateGraph(updatedGraph);
+        //   return;
+        // }
+
+        else {
+        // if source node is a regular node, then you need to update target node parent's 'conditions' field condition type e.g. 'on_stopped -> run'
+
+        const SOURCE_HANDLE_TO_CONDITION = {
+          'source-on-true': 'on_true',
+          'source-on-false': 'on_false',
+          'source-on-error': 'on_error',
+          'source-on-stopped': 'on_stopped'
+        }
+
+        const runCondition = SOURCE_HANDLE_TO_CONDITION[params.sourceHandle];
+
+          updatedGraph = produce(activeGraph, draft => {
+            const sourceAction = draft.actions.find(
+              action => `${action.name}_${action.instance_id}` === params.source
+            );
+            const targetAction = draft.actions.find(
+              action => `${action.name}_${action.instance_id}` === params.target
             );
 
-            if (!childExists) {
-              sourceAction.children.push({
-                name: targetAction.name,
-                instance_id: targetAction.instance_id
-              });
+            if (sourceAction && targetAction) {
+              // Add child to source action
+              if (!sourceAction.children) {
+                sourceAction.children = [];
+              }
+            
+              // Check if child already exists to prevent duplicates
+              const childExists = sourceAction.children.some(
+                child => child.name === targetAction.name && 
+                        child.instance_id === targetAction.instance_id
+              );
+
+              if (!childExists) {
+                sourceAction.children.push({
+                  name: targetAction.name,
+                  instance_id: targetAction.instance_id
+                });
+              }
+
+              // Add parent to target action
+              if (!targetAction.parents) {
+                targetAction.parents = [];
+              }
+
+              const parentExists = targetAction.parents.some(
+                parent => parent.name === sourceAction.name && 
+                          parent.instance_id === sourceAction.instance_id
+              );
+
+              if (!parentExists) {
+                targetAction.parents.push({
+                  name: sourceAction.name,
+                  instance_id: sourceAction.instance_id,
+                  conditions: conditions
+                });
+              }
+
+              console.log("runCondition: ", runCondition);
+              const conditions = runCondition ? [`${runCondition} -> run`] : [];
             }
+        }); }
 
-            // Add parent to target action
-            if (!targetAction.parents) {
-              targetAction.parents = [];
-            }
-
-            const parentExists = targetAction.parents.some(
-              parent => parent.name === sourceAction.name && 
-                        parent.instance_id === sourceAction.instance_id
-            );
-
-            if (!parentExists) {
-              targetAction.parents.push({
-                name: sourceAction.name,
-                instance_id: sourceAction.instance_id
-              });
-            }
-          }
-        });
-
-        // Update the graph in the backend and frontend
-        setActiveGraph(updatedGraph);
-        onUpdateGraph(updatedGraph);
+        console.log("updatedGraph: ", updatedGraph);
+          // Update the graph in the backend and frontend
+          setActiveGraph(updatedGraph);
+          onUpdateGraph(updatedGraph);
       }
     },
     [edges, nodes, activeGraph, onUpdateGraph, setEdges]

@@ -70,8 +70,8 @@
           "instance_id": 0,
           "required": false,
           "conditions": [
-            "on_true -> stop",
-            "on_false -> bypass",
+            "on_true -> bypass",
+            "on_false -> run",
             "on_error -> bypass"
           ]
         }

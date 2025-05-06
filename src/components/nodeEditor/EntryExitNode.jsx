@@ -1,35 +1,32 @@
 import React from 'react';
 import { Handle } from '@xyflow/react';
 
-const EntryExitNode = ({ data, isConnectable }) => {
-  const { type, connections } = data;
-  const isEntry = type === 'entry';
-  
+const EntryNode = ({ data, isConnectable }) => {
   return (
-    <div 
-      className={`entry-exit-node ${isEntry ? 'entry-node' : 'exit-node'}`}
-    >
-      <div className="entry-exit-inner">
-        {isEntry ? 'E' : 'X'}
-      </div>
-      
-      {isEntry ? (
-        <Handle
-          type="source"
-          position="bottom"
-          id="out"
-          isConnectable={isConnectable}
-        />
-      ) : (
-        <Handle
-          type="target"
-          position="top"
-          id="in"
-          isConnectable={isConnectable}
-        />
-      )}
+    <div className="entry-node">
+      <div className="entry-inner">E</div>
+      <Handle
+        type="source"
+        position="bottom"
+        id="out"
+        isConnectable={isConnectable}
+      />
     </div>
   );
 };
 
-export default EntryExitNode; 
+const ExitNode = ({ data, isConnectable }) => {
+  return (
+    <div className="exit-node">
+      <div className="exit-inner">X</div>
+      <Handle
+        type="target"
+        position="top"
+        id="in"
+        isConnectable={isConnectable}
+      />
+    </div>
+  );
+};
+
+export { EntryNode, ExitNode };

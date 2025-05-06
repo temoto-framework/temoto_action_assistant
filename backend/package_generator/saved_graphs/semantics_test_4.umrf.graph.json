@@ -43,12 +43,7 @@
             "children": [
                 {
                     "name": "TaRelayString",
-                    "instance_id": 0
-                },
-                {
-                    "name": "TaRelayString",
-                    "instance_id": 1,
-                    "sourceHandle": "source-on-false"
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {
@@ -74,23 +69,11 @@
                     "pvf_type": "string"
                 }
             },
-            "parents": [
-                {
-                    "name": "TaTriggerResult",
-                    "instance_id": 0,
-                    "required": true,
-                    "conditions": [
-                        "on_true -> bypass",
-                        "on_false -> run ",
-                        "on_error -> bypass"
-                    ]
-                }
-            ],
+            "parents": [],
             "children": [
                 {
                     "name": "TaCompareString",
-                    "instance_id": 1,
-                    "sourceHandle": "source-on-error"
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {
@@ -130,8 +113,7 @@
             "children": [
                 {
                     "name": "TaCompareString",
-                    "instance_id": 1,
-                    "sourceHandle": "source-on-true"
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {

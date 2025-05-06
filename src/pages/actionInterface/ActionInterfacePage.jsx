@@ -73,6 +73,8 @@ const ActionInterfacePage = () => {
     };
 
     const handleGetCurrentGraph = async (updatedGraph) => {
+
+        console.log("updatedGraph in handleGetCurrentGraph: ", updatedGraph);
         console.log("Sending graph to PUT /api/graphs/:graphName")
         try {
             const response = await fetch(`http://localhost:4000/api/graphs/${updatedGraph.graph_name}`, {

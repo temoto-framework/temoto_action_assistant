@@ -52,8 +52,7 @@
             "children": [
                 {
                     "name": "TaTimer",
-                    "instance_id": 1,
-                    "sourceHandle": "source-on-false"
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {

@@ -11,8 +11,8 @@
         ],
         "gui_attributes": {
             "position": {
-                "x": 0,
-                "y": -200
+                "x": 99.61799796418754,
+                "y": -203.21348380529636
             }
         }
     },
@@ -25,8 +25,8 @@
         ],
         "gui_attributes": {
             "position": {
-                "x": -100,
-                "y": 300
+                "x": 99.23599592837508,
+                "y": 341.77528946885286
             }
         }
     },
@@ -76,16 +76,11 @@
                     }
                 }
             },
-            "children": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
+            "children": [],
             "gui_attributes": {
                 "position": {
                     "x": 0,
-                    "y": -50
+                    "y": -94.55868739544808
                 }
             },
             "parents": []
@@ -135,22 +130,12 @@
                     }
                 }
             },
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 0
-                }
-            ],
-            "children": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 2
-                }
-            ],
+            "parents": [],
+            "children": [],
             "gui_attributes": {
                 "position": {
-                    "x": 0,
-                    "y": 50
+                    "x": -0.2562788394005793,
+                    "y": 27.307270203291672
                 }
             }
         },
@@ -199,16 +184,11 @@
                     }
                 }
             },
-            "parents": [
-                {
-                    "name": "ExampleNavigate",
-                    "instance_id": 1
-                }
-            ],
+            "parents": [],
             "gui_attributes": {
                 "position": {
-                    "x": 0,
-                    "y": 150
+                    "x": -0.2562788394005793,
+                    "y": 154.14499417632075
                 }
             },
             "children": []

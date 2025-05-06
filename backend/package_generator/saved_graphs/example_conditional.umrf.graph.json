@@ -34,16 +34,7 @@
                     "pvf_type": "string"
                 }
             },
-            "children": [
-                {
-                    "name": "Result_A",
-                    "instance_id": 0
-                },
-                {
-                    "name": "Result_B",
-                    "instance_id": 0
-                }
-            ],
+            "children": [],
             "gui_attributes": {
                 "position": {
                     "x": 0,
@@ -56,12 +47,7 @@
             "name": "Result_A",
             "instance_id": 0,
             "type": "sync",
-            "parents": [
-                {
-                    "name": "Evaluator",
-                    "instance_id": 0
-                }
-            ],
+            "parents": [],
             "gui_attributes": {
                 "position": {
                     "x": -150,
@@ -74,12 +60,7 @@
             "name": "Result_B",
             "instance_id": 0,
             "type": "sync",
-            "parents": [
-                {
-                    "name": "Evaluator",
-                    "instance_id": 0
-                }
-            ],
+            "parents": [],
             "gui_attributes": {
                 "position": {
                     "x": 150,
