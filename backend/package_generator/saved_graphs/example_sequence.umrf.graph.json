@@ -74,7 +74,12 @@
                     }
                 }
             },
-            "children": [],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
             "gui_attributes": {
                 "position": {
                     "x": 0,
@@ -127,8 +132,18 @@
                     }
                 }
             },
-            "parents": [],
-            "children": [],
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 0
+                }
+            ],
+            "children": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 2
+                }
+            ],
             "gui_attributes": {
                 "position": {
                     "x": 0,
@@ -180,7 +195,12 @@
                     }
                 }
             },
-            "parents": [],
+            "parents": [
+                {
+                    "name": "ExampleNavigate",
+                    "instance_id": 1
+                }
+            ],
             "gui_attributes": {
                 "position": {
                     "x": 0,
