@@ -7,7 +7,7 @@
   align-items: center;
   font-weight: bold;
   font-size: 18px;
-  color: white;
+  color: black;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -22,7 +22,7 @@
 }
 
 .entry-node {
-  background-color: #ff6464;
+  background-color: #4CAF50;
 }
 
 .exit-node {
@@ -32,14 +32,14 @@
 /* Handle positioning adjustments */
 .entry-exit-node .react-flow__handle {
   background-color: #ffffff;
-  border: 2px solid #ff6464;
+  border: 2px solid #999999;
   width: 10px;
   height: 10px;
 }
 
 /* Selected state */
 .entry-exit-node.selected {
-  box-shadow: 0 0 0 3px rgba(255, 100, 100, 0.8);
+  box-shadow: 0 0 0 3px rgba(100, 100, 255, 0.8);
 }
 
 .entry-exit-label {

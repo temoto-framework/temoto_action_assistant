@@ -7,7 +7,13 @@
                 "name": "TaTriggerResult",
                 "instance_id": 0
             }
-        ]
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": -23.49164571486096,
+                "y": -500.3511513600691
+            }
+        }
     },
     "graph_exit": {
         "actions": [
@@ -15,7 +21,13 @@
                 "name": "TaCompareString",
                 "instance_id": 1
             }
-        ]
+        ],
+        "gui_attributes": {
+            "position": {
+                "x": -52.624755511198614,
+                "y": 142.3439744643624
+            }
+        }
     },
     "actions": [
         {
@@ -43,7 +55,8 @@
                     "x": -116.62496328204783,
                     "y": -380.8387818250025
                 }
-            }
+            },
+            "parents": []
         },
         {
             "name": "TaRelayString",
@@ -64,30 +77,21 @@
                 {
                     "name": "TaTriggerResult",
                     "instance_id": 0,
-                    "required": true,
                     "conditions": [
-                        "on_true -> bypass",
-                        "on_false -> run ",
-                        "on_error -> bypass"
+                        "on_true -> run"
                     ]
                 }
             ],
             "children": [
                 {
                     "name": "TaCompareString",
-                    "instance_id": 1,
-                    "remap": [
-                        {
-                            "from": "string_out",
-                            "to": "str_a"
-                        }
-                    ]
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {
                 "position": {
-                    "x": -161.1279069767442,
-                    "y": -195.7325581395349
+                    "x": -316.5728635817386,
+                    "y": -230.80343867909667
                 }
             }
         },
@@ -110,30 +114,21 @@
                 {
                     "name": "TaTriggerResult",
                     "instance_id": 0,
-                    "required": true,
                     "conditions": [
-                        "on_true -> ignore",
-                        "on_false -> run",
-                        "on_error -> bypass"
+                        "on_error -> run"
                     ]
                 }
             ],
             "children": [
                 {
                     "name": "TaCompareString",
-                    "instance_id": 1,
-                    "remap": [
-                        {
-                            "from": "string_out",
-                            "to": "str_a"
-                        }
-                    ]
+                    "instance_id": 1
                 }
             ],
             "gui_attributes": {
                 "position": {
-                    "x": 68.1279069767442,
-                    "y": -208.7093023255814
+                    "x": 51.635894758496136,
+                    "y": -236.86452006069774
                 }
             }
         },
@@ -174,10 +169,11 @@
             ],
             "gui_attributes": {
                 "position": {
-                    "x": -78.23350489239422,
-                    "y": -31.33967962059227
+                    "x": -138.7143682511832,
+                    "y": -90.92541966040129
                 }
-            }
+            },
+            "children": []
         }
     ]
 }

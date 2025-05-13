@@ -3,8 +3,8 @@ import { Handle } from '@xyflow/react';
 
 const EntryNode = ({ data, isConnectable }) => {
   return (
-    <div className="entry-node">
-      <div className="entry-inner">E</div>
+    <div className="entry-node entry-exit-node">
+      <div className="entry-exit-inner">E</div>
       <Handle
         type="source"
         position="bottom"
@@ -17,8 +17,8 @@ const EntryNode = ({ data, isConnectable }) => {
 
 const ExitNode = ({ data, isConnectable }) => {
   return (
-    <div className="exit-node">
-      <div className="exit-inner">X</div>
+    <div className="exit-node entry-exit-node">
+      <div className="entry-exit-inner">X</div>
       <Handle
         type="target"
         position="top"

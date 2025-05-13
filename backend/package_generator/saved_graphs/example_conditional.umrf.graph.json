@@ -11,7 +11,7 @@
         "gui_attributes": {
             "position": {
                 "x": 0,
-                "y": -200
+                "y": -270.03065861057274
             }
         }
     },
@@ -34,11 +34,20 @@
                     "pvf_type": "string"
                 }
             },
-            "children": [],
+            "children": [
+                {
+                    "name": "Result_A",
+                    "instance_id": 0
+                },
+                {
+                    "name": "Result_B",
+                    "instance_id": 0
+                }
+            ],
             "gui_attributes": {
                 "position": {
-                    "x": 0,
-                    "y": -50
+                    "x": -143.24452897617152,
+                    "y": -126.39708212062482
                 }
             },
             "parents": []
@@ -47,11 +56,16 @@
             "name": "Result_A",
             "instance_id": 0,
             "type": "sync",
-            "parents": [],
+            "parents": [
+                {
+                    "name": "Evaluator",
+                    "instance_id": 0
+                }
+            ],
             "gui_attributes": {
                 "position": {
-                    "x": -150,
-                    "y": 50
+                    "x": -337.809493546536,
+                    "y": 22.94270008227872
                 }
             },
             "children": []
@@ -60,11 +74,16 @@
             "name": "Result_B",
             "instance_id": 0,
             "type": "sync",
-            "parents": [],
+            "parents": [
+                {
+                    "name": "Evaluator",
+                    "instance_id": 0
+                }
+            ],
             "gui_attributes": {
                 "position": {
-                    "x": 150,
-                    "y": 50
+                    "x": 32.22116506403677,
+                    "y": 26.12591183730475
                 }
             },
             "children": []
