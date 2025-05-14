@@ -13,6 +13,7 @@ import time
 import subprocess
 
 graphs = {}
+actions = {}
 
 def load_graphs(graphs_dir):
     try:
@@ -33,7 +34,7 @@ def get_graphs():
 def setup_action_socket(app, socketio, runtime_enabled):
     """Setup all Flask routes and SocketIO handlers for the action interface"""
     
-    actions = {}
+    global actions
     ri_action_node = None # TODO: ideally the ros node should not be exposed like that
 
     @app.route('/api/graphs/<key>', methods=['GET'])
@@ -150,6 +151,7 @@ def setup_action_socket(app, socketio, runtime_enabled):
         try:
             action_data = request.json
             action_name = action_data['name']
+            is_regenerating = action_data.get('gui_attributes', {}).get('previousStatus') == 'package'
 
             umrf_json_path = 'package_generator/saved_actions/'+f'{action_name}.umrf.json'
             templates_path = 'package_generator/templates'
@@ -160,6 +162,7 @@ def setup_action_socket(app, socketio, runtime_enabled):
             print(f'templates_path: {templates_path}')
             print(f'output_path: {output_path}')
             print(f'framework: {framework}')
+            print(f'Is regenerating: {is_regenerating}')
 
             os.makedirs('package_generator/saved_actions', exist_ok=True)
             with open('package_generator/saved_actions/'+f'{action_name}.umrf.json', 'w') as f:
@@ -172,11 +175,16 @@ def setup_action_socket(app, socketio, runtime_enabled):
                 umrf_json_path=umrf_json_path, 
                 templates_path=templates_path, 
                 output_path=output_path, 
-                framework=framework
+                framework=framework,
+                regenerate=is_regenerating
             )
 
-            action_data['status'] = 'package'
-            print(f'Generating action: {action_data}')
+            # Update the action status to package and remove the previousStatus flag if it exists
+            action_data['gui_attributes']['status'] = 'package'
+            if 'previousStatus' in action_data['gui_attributes']:
+                del action_data['gui_attributes']['previousStatus']
+                
+            print(f'{"Regenerating" if is_regenerating else "Generating"} action: {action_data}')
 
             actions[action_name] = action_data
         
@@ -184,7 +192,7 @@ def setup_action_socket(app, socketio, runtime_enabled):
             socketio.emit('actions', actions_list)
     
             return jsonify({
-                'message': f'Action {action_name} created successfully', 
+                'message': f'Action {action_name} {"regenerated" if is_regenerating else "created"} successfully', 
             }), 200
         except Exception as e:
             print(f'Error generating action: {e}')

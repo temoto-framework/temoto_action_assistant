@@ -256,6 +256,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
   const [generationSuccess, setGenerationSuccess] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [isEditingPackage, setIsEditingPackage] = useState(false);
   
   // New state for parameter addition
   const [isAddingParameter, setIsAddingParameter] = useState(false);
@@ -268,6 +269,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
       setEditedName(selectedElement.data.name);
       setGenerationSuccess(false);
       setIsEditingName(false);
+      setIsEditingPackage(false);
     } else {
       // Reset to default state when no action is selected
       setActionData({
@@ -281,6 +283,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
       setEditedName('');
       setGenerationSuccess(false);
       setIsEditingName(false);
+      setIsEditingPackage(false);
     }
   }, [selectedElement]);
 
@@ -672,6 +675,26 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
   // Add a safety check before accessing input_parameters
   const parameters = actionData?.input_parameters || {};
 
+  // Handle converting a package action to draft mode for editing
+  const handleEditPackage = () => {
+    const updatedAction = {
+      ...actionData,
+      gui_attributes: {
+        ...actionData.gui_attributes,
+        status: 'draft',
+        previousStatus: 'package' // Store the previous status
+      }
+    };
+    
+    setActionData(updatedAction);
+    setIsEditingPackage(true);
+    
+    // Notify parent component about the update
+    if (onActionUpdated) {
+      onActionUpdated(updatedAction);
+    }
+  };
+
   return (
     <div className="graph-info-container">
       <div className="info-header">
@@ -679,9 +702,11 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
         
         {/* Show status badge if it's an action */}
         {selectedElement.type === 'action' && (
-          <div className={`status-badge ${selectedElement.data.gui_attributes?.status || 'unknown'}`}>
-            {selectedElement.data.gui_attributes?.status === 'draft' ? 'Draft' : 
-             selectedElement.data.gui_attributes?.status === 'package' ? 'Package' : 'Package'}
+          <div className="status-badge-container">
+            <div className={`status-badge ${selectedElement.data.gui_attributes?.status || 'unknown'}`}>
+              {selectedElement.data.gui_attributes?.status === 'draft' ? 'Draft' : 
+               selectedElement.data.gui_attributes?.status === 'package' ? 'Package' : 'Package'}
+            </div>
           </div>
         )}
         
@@ -792,6 +817,18 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
         {JSON.stringify(getDisplayData(), null, 2)}
       </SyntaxHighlighter>
       
+      {/* Show Edit button for package actions */}
+      {selectedElement.type === 'action' && 
+       selectedElement.data.gui_attributes?.status === 'package' && 
+       !isEditingPackage && (
+        <button 
+          className="edit-package-button"
+          onClick={handleEditPackage}
+        >
+          Edit Package
+        </button>
+      )}
+      
       {/* Only show Generate button for draft actions */}
       {selectedElement.type === 'action' && 
        selectedElement.data.gui_attributes?.status === 'draft' && 
@@ -800,7 +837,7 @@ const GraphInfoPanel = ({ selectedElement, onActionUpdated, onGenerateAction, on
           className="generate-button"
           onClick={() => onGenerateAction(selectedElement.data, editedName)}
         >
-          Generate Action
+          {selectedElement.data.gui_attributes?.previousStatus === 'package' ? 'Regenerate Package' : 'Generate Action'}
         </button>
       )}
       

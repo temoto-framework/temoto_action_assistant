@@ -75,6 +75,25 @@ overflow-y: auto;
     transform: scale(1.02);
 }
 
+.edit-package-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+.edit-package-button:hover {
+    background-color: #0069d9;
+    transform: scale(1.02);
+}
+
 .success-message {
     background-color: #28a745;
     color: white;
@@ -82,6 +101,15 @@ overflow-y: auto;
     border-radius: 5px;
     text-align: center;
     margin-top: 10px;
+}
+
+.status-badge-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  width: 20%;
 }
 
 .status-badge {
@@ -92,13 +120,15 @@ overflow-y: auto;
   font-weight: bold;
   margin-bottom: 10px;
   color: white;
+  text-align: center;
+  width: 100%;
 }
 
 .status-badge.draft {
   background-color: #f39c12; /* Orange for draft */
 }
 
-.status-badge.generated {
+.status-badge.package {
   background-color: #2ecc71; /* Green for generated */
 }
 
@@ -109,8 +139,10 @@ overflow-y: auto;
 .info-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-bottom: 15px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .info-header h2 {
