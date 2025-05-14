@@ -7,8 +7,8 @@ import GraphInfoPanel from "../../components/graphInfo/GraphInfoPanel.jsx";
 import "./ActionInterfacePage.css";
 
 const ActionInterfacePage = () => {
-    const [graphs, setGraphs] = useState(null);
-    const [actions, setActions] = useState(null);
+    const [graphs, setGraphs] = useState([]);
+    const [actions, setActions] = useState([]);
     const [runtimeEnabled, setRuntimeEnabled] = useState(false);
     
     const [activeGraphId, setActiveGraphId] = useState(null);
