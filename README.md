@@ -18,7 +18,7 @@ Navigate to the root folder
 
 `cd temoto_action_assistant`
 
-# Start the backend
+## Start the backend
 
 Navigate to the backend folder 
 
@@ -32,7 +32,7 @@ Run the server
 
 `python3 app.py`
 
-# Start the frontend 
+## Start the frontend 
 
 Install dependencies
 
