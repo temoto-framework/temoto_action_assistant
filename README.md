@@ -1,18 +1,33 @@
-# Getting Started with Create React App
+# TeMoto Action Assistant
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## System requirements
 
-## Available Scripts
+Software: React, JavaScript, Python, ROS 2
 
-In the project directory, you can run:
+Tarkvara: Node.js 18+, Python 3.10+, ROS 2 Humble või uuem, TeMoto raamistik.
 
-### `npm start`
+Hardware: Minimum – 4 core CPU, 8 GB RAM; Recommended – 8 core CPU, 16 GB RAM.
+
+## Project setup
+
+Install the repository
+
+`git clone https://github.com/temoto-framework/temoto_action_assistant/edit/master/README.md`
+
+Navigate to the root folder 
+
+`cd temoto_action_assistant`
+
+Install dependencies
+
+`npm install`
+
+## Running the project
+
+`npm start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
 ### `npm test`
 
