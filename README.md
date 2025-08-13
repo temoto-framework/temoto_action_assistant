@@ -14,7 +14,7 @@ Install the repository
 
 Navigate to the root folder 
 
-`cd temoto_action_assistant`
+`cd temoto_action_assistant/`
 
 ## Start the backend
 
@@ -38,7 +38,7 @@ Or run the server in Developer mode (without ROS 2)
 
 Navigate to the root folder
 
-`cd temoto_action_assistant`
+`cd temoto_action_assistant/`
 
 Install dependencies
 
