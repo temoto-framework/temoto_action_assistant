@@ -32,7 +32,7 @@ Run the server in Runtime mode (using ROS 2)
 
 `python3 app.py --runtime`
 
-Run the server in Developer mode (without ROS 2)
+Or run the server in Developer mode (without ROS 2)
 
 `python3 app.py`
 
