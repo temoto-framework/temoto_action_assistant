@@ -2,9 +2,7 @@
 
 ## System requirements
 
-Software: React, JavaScript, Python, ROS 2
-
-Tarkvara: Node.js 18+, Python 3.10+, ROS 2 Humble või uuem, TeMoto raamistik.
+Tarkvara: Node.js 18+, React,  Python 3.10+, ROS 2 Humble or newer
 
 Hardware: Minimum – 4 core CPU, 8 GB RAM; Recommended – 8 core CPU, 16 GB RAM.
 
