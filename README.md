@@ -36,6 +36,10 @@ Or run the server in Developer mode (without ROS 2)
 
 ## Start the frontend 
 
+Navigate to the root folder
+
+`cd temoto_action_assistant`
+
 Install dependencies
 
 `npm install`
